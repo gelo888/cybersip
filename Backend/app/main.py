@@ -34,6 +34,14 @@ app.add_middleware(
 )
 
 
+# ── Register routers ─────────────────────────────────────────────────
+# Each router handles a group of related endpoints (e.g. /api/companies).
+# Import and include them here so FastAPI knows about them.
+from app.routers import companies  # noqa: E402
+
+app.include_router(companies.router)
+
+
 @app.get("/health")
 async def health():
     """Simple health check endpoint. Returns {"status": "ok"} if the server

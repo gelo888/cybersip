@@ -779,6 +779,259 @@ async def health():
             to see the auto-generated Swagger UI.
         </p>
 
+        <!-- Phase 1: CRUD Routers -->
+        <h1>Phase 1: Building CRUD Routers</h1>
+
+        <p>
+            With the server running, the next step is building actual API endpoints.
+            Each entity gets its own <strong>router</strong> (endpoints) and <strong>schema</strong>
+            (Pydantic models for request/response validation).
+        </p>
+
+        <h2>Project Structure</h2>
+
+        <div class="file-tree">
+Backend/app/<br>
+├── __init__.py<br>
+├── main.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Registers all routers<br>
+├── routers/<br>
+│&nbsp;&nbsp;&nbsp;├── __init__.py<br>
+│&nbsp;&nbsp;&nbsp;└── companies.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# CRUD endpoints for companies<br>
+└── schemas/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── __init__.py<br>
+&nbsp;&nbsp;&nbsp;&nbsp;└── company.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Pydantic models (Create, Update, Response)
+        </div>
+
+        <h2>11.1 Pydantic Schemas &mdash; <code>app/schemas/company.py</code></h2>
+
+        <p>
+            Pydantic models define what data the API accepts and returns. There are three models
+            per entity:
+        </p>
+        <ul>
+            <li><strong>CompanyCreate</strong> &mdash; fields required when creating a new company</li>
+            <li><strong>CompanyUpdate</strong> &mdash; all fields optional (partial update via PATCH)</li>
+            <li><strong>CompanyResponse</strong> &mdash; the shape returned to the frontend</li>
+        </ul>
+
+        <pre>
+from datetime import datetime
+from enum import Enum
+from typing import Optional
+
+from pydantic import BaseModel, Field
+
+
+class CompanyStatus(str, Enum):
+    prospect = "prospect"
+    active_client = "active_client"
+    previous_client = "previous_client"
+    lost = "lost"
+    disqualified = "disqualified"
+
+
+class CompanySize(str, Enum):
+    SMB = "SMB"
+    Mid_Market = "Mid_Market"
+    Enterprise = "Enterprise"
+    Government = "Government"
+
+
+class CompanyCreate(BaseModel):
+    current_name: str = Field(..., min_length=1, max_length=255)
+    status: CompanyStatus = CompanyStatus.prospect
+    company_size: Optional[CompanySize] = None
+    employee_count: Optional[int] = Field(None, ge=0)
+    revenue_range: Optional[str] = None
+    website: Optional[str] = None
+    stock_ticker: Optional[str] = None
+    country: Optional[str] = None
+
+
+class CompanyUpdate(BaseModel):
+    current_name: Optional[str] = Field(None, min_length=1, max_length=255)
+    status: Optional[CompanyStatus] = None
+    company_size: Optional[CompanySize] = None
+    employee_count: Optional[int] = Field(None, ge=0)
+    revenue_range: Optional[str] = None
+    website: Optional[str] = None
+    stock_ticker: Optional[str] = None
+    country: Optional[str] = None
+
+
+class CompanyResponse(BaseModel):
+    id: str
+    current_name: str
+    status: CompanyStatus
+    company_size: Optional[CompanySize] = None
+    employee_count: Optional[int] = None
+    revenue_range: Optional[str] = None
+    website: Optional[str] = None
+    stock_ticker: Optional[str] = None
+    country: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True</pre>
+
+        <h2>11.2 Companies Router &mdash; <code>app/routers/companies.py</code></h2>
+
+        <p>The router provides five CRUD endpoints:</p>
+
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/companies</code></td><td>Create a new company</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/companies</code></td><td>List companies (with filter &amp; pagination)</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/companies/{id}</code></td><td>Get a single company by ID</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/companies/{id}</code></td><td>Update a company (partial)</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/companies/{id}</code></td><td>Delete a company</td></tr>
+            </tbody>
+        </table>
+
+        <pre>
+from typing import Optional
+
+from fastapi import APIRouter, HTTPException, Query
+
+from app.main import db
+from app.schemas.company import (
+    CompanyCreate,
+    CompanyResponse,
+    CompanyStatus,
+    CompanyUpdate,
+)
+
+router = APIRouter(prefix="/api/companies", tags=["Companies"])
+
+
+@router.post("/", response_model=CompanyResponse, status_code=201)
+async def create_company(body: CompanyCreate):
+    company = await db.company.create(
+        data={
+            "currentName": body.current_name,
+            "status": body.status.value,
+            "companySize": body.company_size.value if body.company_size else None,
+            "employeeCount": body.employee_count,
+            "revenueRange": body.revenue_range,
+            "website": body.website,
+            "stockTicker": body.stock_ticker,
+            "country": body.country,
+        }
+    )
+    return _to_response(company)
+
+
+@router.get("/", response_model=list[CompanyResponse])
+async def list_companies(
+    status: Optional[CompanyStatus] = Query(None),
+    skip: int = Query(0, ge=0),
+    take: int = Query(20, ge=1, le=100),
+):
+    where = {}
+    if status:
+        where["status"] = status.value
+
+    companies = await db.company.find_many(
+        where=where, skip=skip, take=take,
+        order={"createdAt": "desc"},
+    )
+    return [_to_response(c) for c in companies]
+
+
+@router.get("/{company_id}", response_model=CompanyResponse)
+async def get_company(company_id: str):
+    company = await db.company.find_unique(where={"id": company_id})
+    if not company:
+        raise HTTPException(status_code=404, detail="Company not found")
+    return _to_response(company)
+
+
+@router.patch("/{company_id}", response_model=CompanyResponse)
+async def update_company(company_id: str, body: CompanyUpdate):
+    existing = await db.company.find_unique(where={"id": company_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Company not found")
+
+    update_data = {}
+    if body.current_name is not None:
+        update_data["currentName"] = body.current_name
+    if body.status is not None:
+        update_data["status"] = body.status.value
+    if body.company_size is not None:
+        update_data["companySize"] = body.company_size.value
+    if body.employee_count is not None:
+        update_data["employeeCount"] = body.employee_count
+    if body.revenue_range is not None:
+        update_data["revenueRange"] = body.revenue_range
+    if body.website is not None:
+        update_data["website"] = body.website
+    if body.stock_ticker is not None:
+        update_data["stockTicker"] = body.stock_ticker
+    if body.country is not None:
+        update_data["country"] = body.country
+
+    if not update_data:
+        return _to_response(existing)
+
+    company = await db.company.update(
+        where={"id": company_id}, data=update_data,
+    )
+    return _to_response(company)
+
+
+@router.delete("/{company_id}", status_code=204)
+async def delete_company(company_id: str):
+    existing = await db.company.find_unique(where={"id": company_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Company not found")
+    await db.company.delete(where={"id": company_id})
+    return None
+
+
+def _to_response(company) -&gt; dict:
+    """Maps Prisma camelCase fields to snake_case API response."""
+    return {
+        "id": company.id,
+        "current_name": company.currentName,
+        "status": company.status,
+        "company_size": company.companySize,
+        "employee_count": company.employeeCount,
+        "revenue_range": company.revenueRange,
+        "website": company.website,
+        "stock_ticker": company.stockTicker,
+        "country": company.country,
+        "created_at": company.createdAt,
+        "updated_at": company.updatedAt,
+    }</pre>
+
+        <h2>11.3 Register the Router &mdash; <code>app/main.py</code></h2>
+
+        <p>Add these lines to <code>main.py</code> (before the health endpoint):</p>
+
+        <pre>
+from app.routers import companies
+
+app.include_router(companies.router)</pre>
+
+        <h2>11.4 Test It</h2>
+
+        <p>
+            With the server running (<code>uvicorn app.main:app --reload --port 8000</code>),
+            open <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a>.
+            You should now see the <strong>Companies</strong> section with all five endpoints.
+            Use the "Try it out" button to:
+        </p>
+        <ol>
+            <li><strong>POST</strong> a new company with <code>{"current_name": "Acme Corp"}</code></li>
+            <li><strong>GET</strong> the list to see it appear</li>
+            <li><strong>PATCH</strong> it to change the status to <code>active_client</code></li>
+            <li><strong>DELETE</strong> it when done</li>
+        </ol>
+
         <!-- Important Note -->
         <h1>Important Note: Prisma + Python</h1>
 
