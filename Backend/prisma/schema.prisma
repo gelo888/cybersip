@@ -1,0 +1,308 @@
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+  enable_experimental_decimal = true
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ──────────────────────────────────────────
+
+enum CompanyStatus {
+  prospect
+  active_client
+  previous_client
+  lost
+  disqualified
+}
+
+enum CompanySize {
+  SMB
+  Mid_Market
+  Enterprise
+  Government
+}
+
+enum ContactSeniority {
+  C_Suite
+  VP
+  Director
+  Manager
+}
+
+enum RoleInDeal {
+  decision_maker
+  influencer
+  champion
+  blocker
+}
+
+enum SiteType {
+  hq
+  branch
+  data_center
+  warehouse
+}
+
+enum ContractType {
+  our_contract
+  competitor_contract
+}
+
+enum ContractStatus {
+  active
+  expired
+  renewed
+  pending
+}
+
+enum PricingModel {
+  per_seat
+  per_site
+  flat
+  custom
+}
+
+enum EngagementType {
+  call
+  email
+  meeting
+  demo
+}
+
+enum UserRole {
+  admin
+  manager
+  sales_agent
+  viewer
+}
+
+enum IntelConfidence {
+  confirmed
+  rumor
+  inferred
+}
+
+enum AssignmentRole {
+  owner
+  collaborator
+}
+
+// ─── Models ─────────────────────────────────────────
+
+model Company {
+  id             String          @id @default(uuid()) @db.Uuid
+  currentName    String          @map("current_name") @db.VarChar(255)
+  status         CompanyStatus   @default(prospect)
+  companySize    CompanySize?    @map("company_size")
+  employeeCount  Int?            @map("employee_count")
+  revenueRange   String?         @map("revenue_range")
+  website        String?
+  stockTicker    String?         @map("stock_ticker")
+  country        String?
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+
+  names           CompanyName[]
+  sites           CompanySite[]
+  industries      CompanyIndustry[]
+  contacts        Contact[]
+  contracts       Contract[]
+  competitorIntel CompetitorIntel[]
+  engagements     Engagement[]
+  assignments     CompanyAssignment[]
+
+  @@map("companies")
+}
+
+model CompanyName {
+  id        String    @id @default(uuid()) @db.Uuid
+  companyId String    @map("company_id") @db.Uuid
+  name      String
+  validTo   DateTime? @map("valid_to")
+  reason    String?
+
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("company_names")
+}
+
+model CompanySite {
+  id            String   @id @default(uuid()) @db.Uuid
+  companyId     String   @map("company_id") @db.Uuid
+  siteName      String   @map("site_name")
+  siteType      SiteType @map("site_type")
+  employeeCount Int?     @map("employee_count")
+  isPrimary     Boolean  @default(false) @map("is_primary")
+
+  company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("company_sites")
+}
+
+model Industry {
+  id     String            @id @default(uuid()) @db.Uuid
+  name   String
+  sector String?
+
+  companies CompanyIndustry[]
+
+  @@map("industries")
+}
+
+model CompanyIndustry {
+  companyId  String  @map("company_id") @db.Uuid
+  industryId String  @map("industry_id") @db.Uuid
+  isPrimary  Boolean @default(false) @map("is_primary")
+
+  company  Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  industry Industry @relation(fields: [industryId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, industryId])
+  @@map("company_industries")
+}
+
+model Contact {
+  id         String            @id @default(uuid()) @db.Uuid
+  companyId  String            @map("company_id") @db.Uuid
+  firstName  String            @map("first_name")
+  lastName   String            @map("last_name")
+  title      String?
+  seniority  ContactSeniority?
+  roleInDeal RoleInDeal?       @map("role_in_deal")
+  email      String?
+  phone      String?
+  isActive   Boolean           @default(true) @map("is_active")
+
+  company    Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("contacts")
+}
+
+model ProductCategory {
+  id       String           @id @default(uuid()) @db.Uuid
+  name     String
+
+  products ProductService[]
+
+  @@map("product_categories")
+}
+
+model ProductService {
+  id           String          @id @default(uuid()) @db.Uuid
+  categoryId   String          @map("category_id") @db.Uuid
+  name         String
+  basePrice    Decimal?        @map("base_price") @db.Decimal(12, 2)
+  pricingModel PricingModel?   @map("pricing_model")
+
+  category     ProductCategory @relation(fields: [categoryId], references: [id])
+  lineItems    ContractLineItem[]
+
+  @@map("products_services")
+}
+
+model Contract {
+  id                String         @id @default(uuid()) @db.Uuid
+  companyId         String         @map("company_id") @db.Uuid
+  type              ContractType
+  status            ContractStatus @default(pending)
+  startDate         DateTime?      @map("start_date")
+  endDate           DateTime?      @map("end_date")
+  totalValue        Decimal?       @map("total_value") @db.Decimal(14, 2)
+  renewalNoticeDays Int?           @map("renewal_notice_days")
+
+  company           Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  lineItems         ContractLineItem[]
+
+  @@map("contracts")
+}
+
+model ContractLineItem {
+  id               String         @id @default(uuid()) @db.Uuid
+  contractId       String         @map("contract_id") @db.Uuid
+  productServiceId String         @map("product_service_id") @db.Uuid
+  quantity         Int            @default(1)
+  unitPrice        Decimal        @map("unit_price") @db.Decimal(12, 2)
+
+  contract         Contract       @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  productService   ProductService @relation(fields: [productServiceId], references: [id])
+
+  @@map("contract_line_items")
+}
+
+model Competitor {
+  id         String            @id @default(uuid()) @db.Uuid
+  name       String
+  strengths  String?
+  weaknesses String?
+
+  intel      CompetitorIntel[]
+
+  @@map("competitors")
+}
+
+model CompetitorIntel {
+  id           String          @id @default(uuid()) @db.Uuid
+  companyId    String          @map("company_id") @db.Uuid
+  competitorId String          @map("competitor_id") @db.Uuid
+  productName  String?         @map("product_name")
+  contractEnd  DateTime?       @map("contract_end")
+  confidence   IntelConfidence @default(rumor)
+
+  company      Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  competitor   Competitor      @relation(fields: [competitorId], references: [id])
+
+  @@map("competitor_intel")
+}
+
+model EngagementStage {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String
+  probability Int          @default(0)
+
+  engagements Engagement[]
+
+  @@map("engagement_stages")
+}
+
+model Engagement {
+  id             String          @id @default(uuid()) @db.Uuid
+  companyId      String          @map("company_id") @db.Uuid
+  stageId        String          @map("stage_id") @db.Uuid
+  type           EngagementType
+  outcome        String?
+  nextActionDate DateTime?       @map("next_action_date")
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  company        Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  stage          EngagementStage @relation(fields: [stageId], references: [id])
+
+  @@map("engagements")
+}
+
+model User {
+  id    String   @id @default(uuid()) @db.Uuid
+  email String   @unique
+  name  String?
+  role  UserRole @default(viewer)
+
+  assignments CompanyAssignment[]
+
+  @@map("users")
+}
+
+model CompanyAssignment {
+  companyId String         @map("company_id") @db.Uuid
+  userId    String         @map("user_id") @db.Uuid
+  role      AssignmentRole @default(collaborator)
+
+  company   Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, userId])
+  @@map("company_assignments")
+}

@@ -374,9 +374,10 @@ DATABASE_URL="postgresql://admin:password@localhost:5432/cybersec_sip"</pre
 
         <pre>
 generator client {
-  provider             = "prisma-client-py"
-  interface            = "asyncio"
-  recursive_type_depth = 5
+  provider                    = "prisma-client-py"
+  interface                   = "asyncio"
+  recursive_type_depth        = 5
+  enable_experimental_decimal = true
 }
 
 datasource db {
@@ -693,8 +694,16 @@ model CompanyAssignment {
 prisma generate
 
 # Push schema to your database (creates all tables)
-prisma db push</pre
-        >
+prisma db push</pre>
+
+        <h3>Verify with Prisma Studio</h3>
+        <p>Prisma includes a visual browser UI to browse and edit your tables:</p>
+        <pre>prisma studio</pre>
+        <p>
+            This opens a web UI at
+            <a href="http://localhost:5555" target="_blank">http://localhost:5555</a>
+            where you can view all your tables and data visually. Very handy for quick sanity checks.
+        </p>
 
         <!-- FastAPI App -->
         <h1><span class="step-number">9</span> Create the FastAPI App</h1>
