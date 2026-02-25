@@ -779,40 +779,69 @@ async def health():
             to see the auto-generated Swagger UI.
         </p>
 
-        <!-- Phase 1: CRUD Routers -->
-        <h1>Phase 1: Building CRUD Routers</h1>
+        <!-- API: Schemas & Routers -->
+        <h1><span class="step-number">11</span> Pydantic Schemas</h1>
 
         <p>
-            With the server running, the next step is building actual API endpoints.
-            Each entity gets its own <strong>router</strong> (endpoints) and <strong>schema</strong>
-            (Pydantic models for request/response validation).
-        </p>
-
-        <h2>Project Structure</h2>
-
-        <div class="file-tree">
-Backend/app/<br>
-├── __init__.py<br>
-├── main.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Registers all routers<br>
-├── routers/<br>
-│&nbsp;&nbsp;&nbsp;├── __init__.py<br>
-│&nbsp;&nbsp;&nbsp;└── companies.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# CRUD endpoints for companies<br>
-└── schemas/<br>
-&nbsp;&nbsp;&nbsp;&nbsp;├── __init__.py<br>
-&nbsp;&nbsp;&nbsp;&nbsp;└── company.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Pydantic models (Create, Update, Response)
-        </div>
-
-        <h2>11.1 Pydantic Schemas &mdash; <code>app/schemas/company.py</code></h2>
-
-        <p>
-            Pydantic models define what data the API accepts and returns. There are three models
-            per entity:
+            Each entity gets a set of <strong>Pydantic models</strong> that define what the API
+            accepts and returns. The pattern is the same for every entity:
         </p>
         <ul>
-            <li><strong>CompanyCreate</strong> &mdash; fields required when creating a new company</li>
-            <li><strong>CompanyUpdate</strong> &mdash; all fields optional (partial update via PATCH)</li>
-            <li><strong>CompanyResponse</strong> &mdash; the shape returned to the frontend</li>
+            <li><strong>Create</strong> &mdash; fields required when creating a new record</li>
+            <li><strong>Update</strong> &mdash; all fields optional (partial update via PATCH)</li>
+            <li><strong>Response</strong> &mdash; the shape returned to the frontend</li>
         </ul>
+
+        <table>
+            <thead>
+                <tr><th>Schema File</th><th>Models</th><th>Enums</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>app/schemas/company.py</code></td>
+                    <td><code>CompanyCreate</code>, <code>CompanyUpdate</code>, <code>CompanyResponse</code></td>
+                    <td><code>CompanyStatus</code>, <code>CompanySize</code></td>
+                </tr>
+                <tr>
+                    <td><code>app/schemas/contact.py</code></td>
+                    <td><code>ContactCreate</code>, <code>ContactUpdate</code>, <code>ContactResponse</code></td>
+                    <td><code>ContactSeniority</code>, <code>RoleInDeal</code></td>
+                </tr>
+                <tr>
+                    <td><code>app/schemas/engagement.py</code></td>
+                    <td><code>StageCreate</code>, <code>StageUpdate</code>, <code>StageResponse</code>,
+                    <code>EngagementCreate</code>, <code>EngagementUpdate</code>, <code>EngagementResponse</code></td>
+                    <td><code>EngagementType</code></td>
+                </tr>
+                <tr>
+                    <td><code>app/schemas/assignment.py</code></td>
+                    <td><code>AssignmentCreate</code>, <code>AssignmentUpdate</code>, <code>AssignmentResponse</code></td>
+                    <td><code>AssignmentRole</code></td>
+                </tr>
+                <tr>
+                    <td><code>app/schemas/product.py</code></td>
+                    <td><code>CategoryCreate</code>, <code>CategoryUpdate</code>, <code>CategoryResponse</code>,
+                    <code>ProductCreate</code>, <code>ProductUpdate</code>, <code>ProductResponse</code></td>
+                    <td><code>PricingModel</code></td>
+                </tr>
+                <tr>
+                    <td><code>app/schemas/contract.py</code></td>
+                    <td><code>ContractCreate</code>, <code>ContractUpdate</code>, <code>ContractResponse</code>,
+                    <code>LineItemCreate</code>, <code>LineItemUpdate</code>, <code>LineItemResponse</code></td>
+                    <td><code>ContractType</code>, <code>ContractStatus</code></td>
+                </tr>
+                <tr>
+                    <td><code>app/schemas/competitor.py</code></td>
+                    <td><code>CompetitorCreate</code>, <code>CompetitorUpdate</code>, <code>CompetitorResponse</code>,
+                    <code>IntelCreate</code>, <code>IntelUpdate</code>, <code>IntelResponse</code></td>
+                    <td><code>IntelConfidence</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Example: <code>app/schemas/company.py</code></h3>
+
+        <p>All schema files follow the same pattern. Here's the companies schema as a reference:</p>
 
         <pre>
 from datetime import datetime
@@ -875,168 +904,36 @@ class CompanyResponse(BaseModel):
     class Config:
         from_attributes = True</pre>
 
-        <h2>11.2 Companies Router &mdash; <code>app/routers/companies.py</code></h2>
 
-        <p>The router provides five CRUD endpoints:</p>
+        <!-- CRUD Routers -->
+        <h1><span class="step-number">12</span> CRUD Routers</h1>
 
+        <p>
+            Each router file provides CRUD endpoints for its entity. All routers follow the same
+            pattern: import <code>db</code> from <code>app.main</code>, use Pydantic schemas
+            for validation, and include a <code>_to_response()</code> helper to map Prisma's
+            camelCase fields to the API's snake_case response.
+        </p>
+
+        <!-- Companies -->
+        <h2>12.1 Companies &mdash; <code>app/routers/companies.py</code></h2>
+        <p>The central entity. All other entities connect to companies.</p>
         <table>
             <thead>
                 <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
             </thead>
             <tbody>
                 <tr><td><code>POST</code></td><td><code>/api/companies</code></td><td>Create a new company</td></tr>
-                <tr><td><code>GET</code></td><td><code>/api/companies</code></td><td>List companies (with filter &amp; pagination)</td></tr>
-                <tr><td><code>GET</code></td><td><code>/api/companies/{id}</code></td><td>Get a single company by ID</td></tr>
-                <tr><td><code>PATCH</code></td><td><code>/api/companies/{id}</code></td><td>Update a company (partial)</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/companies</code></td><td>List companies (filter by status, pagination)</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/companies/{id}</code></td><td>Get a single company</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/companies/{id}</code></td><td>Update a company</td></tr>
                 <tr><td><code>DELETE</code></td><td><code>/api/companies/{id}</code></td><td>Delete a company</td></tr>
             </tbody>
         </table>
 
-        <pre>
-from typing import Optional
-
-from fastapi import APIRouter, HTTPException, Query
-
-from app.main import db
-from app.schemas.company import (
-    CompanyCreate,
-    CompanyResponse,
-    CompanyStatus,
-    CompanyUpdate,
-)
-
-router = APIRouter(prefix="/api/companies", tags=["Companies"])
-
-
-@router.post("/", response_model=CompanyResponse, status_code=201)
-async def create_company(body: CompanyCreate):
-    company = await db.company.create(
-        data={
-            "currentName": body.current_name,
-            "status": body.status.value,
-            "companySize": body.company_size.value if body.company_size else None,
-            "employeeCount": body.employee_count,
-            "revenueRange": body.revenue_range,
-            "website": body.website,
-            "stockTicker": body.stock_ticker,
-            "country": body.country,
-        }
-    )
-    return _to_response(company)
-
-
-@router.get("/", response_model=list[CompanyResponse])
-async def list_companies(
-    status: Optional[CompanyStatus] = Query(None),
-    skip: int = Query(0, ge=0),
-    take: int = Query(20, ge=1, le=100),
-):
-    where = {}
-    if status:
-        where["status"] = status.value
-
-    companies = await db.company.find_many(
-        where=where, skip=skip, take=take,
-        order={"createdAt": "desc"},
-    )
-    return [_to_response(c) for c in companies]
-
-
-@router.get("/{company_id}", response_model=CompanyResponse)
-async def get_company(company_id: str):
-    company = await db.company.find_unique(where={"id": company_id})
-    if not company:
-        raise HTTPException(status_code=404, detail="Company not found")
-    return _to_response(company)
-
-
-@router.patch("/{company_id}", response_model=CompanyResponse)
-async def update_company(company_id: str, body: CompanyUpdate):
-    existing = await db.company.find_unique(where={"id": company_id})
-    if not existing:
-        raise HTTPException(status_code=404, detail="Company not found")
-
-    update_data = {}
-    if body.current_name is not None:
-        update_data["currentName"] = body.current_name
-    if body.status is not None:
-        update_data["status"] = body.status.value
-    if body.company_size is not None:
-        update_data["companySize"] = body.company_size.value
-    if body.employee_count is not None:
-        update_data["employeeCount"] = body.employee_count
-    if body.revenue_range is not None:
-        update_data["revenueRange"] = body.revenue_range
-    if body.website is not None:
-        update_data["website"] = body.website
-    if body.stock_ticker is not None:
-        update_data["stockTicker"] = body.stock_ticker
-    if body.country is not None:
-        update_data["country"] = body.country
-
-    if not update_data:
-        return _to_response(existing)
-
-    company = await db.company.update(
-        where={"id": company_id}, data=update_data,
-    )
-    return _to_response(company)
-
-
-@router.delete("/{company_id}", status_code=204)
-async def delete_company(company_id: str):
-    existing = await db.company.find_unique(where={"id": company_id})
-    if not existing:
-        raise HTTPException(status_code=404, detail="Company not found")
-    await db.company.delete(where={"id": company_id})
-    return None
-
-
-def _to_response(company) -&gt; dict:
-    """Maps Prisma camelCase fields to snake_case API response."""
-    return {
-        "id": company.id,
-        "current_name": company.currentName,
-        "status": company.status,
-        "company_size": company.companySize,
-        "employee_count": company.employeeCount,
-        "revenue_range": company.revenueRange,
-        "website": company.website,
-        "stock_ticker": company.stockTicker,
-        "country": company.country,
-        "created_at": company.createdAt,
-        "updated_at": company.updatedAt,
-    }</pre>
-
-        <h2>11.3 Register the Router &mdash; <code>app/main.py</code></h2>
-
-        <p>Add these lines to <code>main.py</code> (before the health endpoint):</p>
-
-        <pre>
-from app.routers import companies
-
-app.include_router(companies.router)</pre>
-
-        <h2>11.4 Test It</h2>
-
-        <p>
-            With the server running (<code>uvicorn app.main:app --reload --port 8000</code>),
-            open <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a>.
-            You should now see the <strong>Companies</strong> section with all five endpoints.
-            Use the "Try it out" button to:
-        </p>
-        <ol>
-            <li><strong>POST</strong> a new company with <code>{"current_name": "Acme Corp"}</code></li>
-            <li><strong>GET</strong> the list to see it appear</li>
-            <li><strong>PATCH</strong> it to change the status to <code>active_client</code></li>
-            <li><strong>DELETE</strong> it when done</li>
-        </ol>
-
-        <!-- Contacts Router -->
-        <h2>11.5 Contacts Router &mdash; <code>app/routers/contacts.py</code></h2>
-
-        <p>Manages stakeholders within client organizations. Each contact belongs to a company.</p>
-
+        <!-- Contacts -->
+        <h2>12.2 Contacts &mdash; <code>app/routers/contacts.py</code></h2>
+        <p>Stakeholders within client organizations. Each contact belongs to a company.</p>
         <table>
             <thead>
                 <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
@@ -1050,22 +947,12 @@ app.include_router(companies.router)</pre>
             </tbody>
         </table>
 
-        <p><strong>Schema:</strong> <code>app/schemas/contact.py</code> &mdash;
-        defines <code>ContactCreate</code>, <code>ContactUpdate</code>, and <code>ContactResponse</code>
-        plus enums for <code>ContactSeniority</code> (C_Suite, VP, Director, Manager) and
-        <code>RoleInDeal</code> (decision_maker, influencer, champion, blocker).</p>
-
-        <!-- Engagements Router -->
-        <h2>11.6 Engagements Router &mdash; <code>app/routers/engagements.py</code></h2>
-
+        <!-- Engagements -->
+        <h2>12.3 Engagements &mdash; <code>app/routers/engagements.py</code></h2>
         <p>Tracks interactions (calls, emails, meetings, demos) with companies.
-        Each engagement is linked to a <strong>pipeline stage</strong>, so the stages
-        endpoints are included here too.</p>
+        Includes pipeline stage management.</p>
 
         <h3>Pipeline Stages</h3>
-        <p>Stages must be created before engagements can reference them
-        (e.g. "Prospecting", "Pitched", "Proposal Sent", "Closed Won").</p>
-
         <table>
             <thead>
                 <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
@@ -1079,7 +966,6 @@ app.include_router(companies.router)</pre>
         </table>
 
         <h3>Engagements</h3>
-
         <table>
             <thead>
                 <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
@@ -1093,18 +979,10 @@ app.include_router(companies.router)</pre>
             </tbody>
         </table>
 
-        <p><strong>Schema:</strong> <code>app/schemas/engagement.py</code> &mdash;
-        defines models for both stages (<code>StageCreate</code>, <code>StageUpdate</code>,
-        <code>StageResponse</code>) and engagements (<code>EngagementCreate</code>,
-        <code>EngagementUpdate</code>, <code>EngagementResponse</code>).</p>
-
-        <!-- Assignments Router -->
-        <h2>11.7 Company Assignments Router &mdash; <code>app/routers/assignments.py</code></h2>
-
-        <p>Assigns users (sales agents) to companies as either an <strong>owner</strong>
-        or <strong>collaborator</strong>. Uses a composite key (<code>company_id</code> +
-        <code>user_id</code>).</p>
-
+        <!-- Assignments -->
+        <h2>12.4 Company Assignments &mdash; <code>app/routers/assignments.py</code></h2>
+        <p>Assigns users (sales agents) to companies as <strong>owner</strong> or
+        <strong>collaborator</strong>. Uses a composite key.</p>
         <table>
             <thead>
                 <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
@@ -1117,24 +995,131 @@ app.include_router(companies.router)</pre>
             </tbody>
         </table>
 
-        <p><strong>Schema:</strong> <code>app/schemas/assignment.py</code> &mdash;
-        defines <code>AssignmentCreate</code>, <code>AssignmentUpdate</code>, and
-        <code>AssignmentResponse</code>.</p>
+        <!-- Products -->
+        <h2>12.5 Products &amp; Services &mdash; <code>app/routers/products.py</code></h2>
+        <p>Product/service catalog. Products belong to categories
+        (e.g. "Endpoint Security" &rarr; "Managed SIEM").</p>
 
-        <!-- Registering Routers -->
-        <h2>11.8 Registering All Routers &mdash; <code>app/main.py</code></h2>
+        <h3>Product Categories</h3>
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/categories</code></td><td>Create a category</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/categories</code></td><td>List all categories</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/categories/{id}</code></td><td>Update a category</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/categories/{id}</code></td><td>Delete a category</td></tr>
+            </tbody>
+        </table>
 
-        <p>All routers are imported and registered in <code>main.py</code>:</p>
+        <h3>Products / Services</h3>
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/products</code></td><td>Create a product/service</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/products</code></td><td>List products (filter by category)</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/products/{id}</code></td><td>Get a single product</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/products/{id}</code></td><td>Update a product</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/products/{id}</code></td><td>Delete a product</td></tr>
+            </tbody>
+        </table>
+
+        <!-- Contracts -->
+        <h2>12.6 Contracts &mdash; <code>app/routers/contracts.py</code></h2>
+        <p>Tracks both internal and competitor contracts. Each contract can have
+        multiple <strong>line items</strong> linking to products/services.</p>
+
+        <h3>Contracts</h3>
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/contracts</code></td><td>Create a contract</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/contracts</code></td><td>List contracts (filter by company, type, status)</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/contracts/{id}</code></td><td>Get a single contract</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/contracts/{id}</code></td><td>Update a contract</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/contracts/{id}</code></td><td>Delete a contract (cascades line items)</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Contract Line Items</h3>
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/contracts/{id}/line-items</code></td><td>Add a line item</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/contracts/{id}/line-items</code></td><td>List line items for a contract</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/line-items/{id}</code></td><td>Update quantity or price</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/line-items/{id}</code></td><td>Remove a line item</td></tr>
+            </tbody>
+        </table>
+
+        <!-- Competitors -->
+        <h2>12.7 Competitive Intelligence &mdash; <code>app/routers/competitors.py</code></h2>
+        <p>The key differentiator: tracking competitor presence within client
+        organizations with the same fidelity as internal contracts.</p>
+
+        <h3>Competitors</h3>
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/competitors</code></td><td>Register a competitor</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/competitors</code></td><td>List all competitors</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/competitors/{id}</code></td><td>Get a single competitor</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/competitors/{id}</code></td><td>Update strengths/weaknesses</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/competitors/{id}</code></td><td>Delete a competitor</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Competitor Intel</h3>
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/intel</code></td><td>Log intel on a competitor at a company</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/intel</code></td><td>List intel (filter by company, competitor, confidence)</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/intel/{id}</code></td><td>Get a single intel record</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/intel/{id}</code></td><td>Update an intel record</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/intel/{id}</code></td><td>Delete an intel record</td></tr>
+            </tbody>
+        </table>
+
+
+        <!-- Router Registration -->
+        <h1><span class="step-number">13</span> Register All Routers</h1>
+
+        <p>All routers are imported and registered in <code>app/main.py</code> in one place:</p>
 
         <pre>
-from app.routers import assignments, companies, contacts, engagements
+from app.routers import (
+    assignments,
+    companies,
+    competitors,
+    contacts,
+    contracts,
+    engagements,
+    products,
+)
 
 app.include_router(companies.router)
 app.include_router(contacts.router)
 app.include_router(engagements.router)
-app.include_router(assignments.router)</pre>
+app.include_router(assignments.router)
+app.include_router(products.router)
+app.include_router(contracts.router)
+app.include_router(competitors.router)</pre>
 
-        <h2>11.9 Updated Project Structure</h2>
+
+        <!-- Final Project Structure -->
+        <h1><span class="step-number">14</span> Final Project Structure</h1>
 
         <div class="file-tree">
 Backend/app/<br>
@@ -1145,21 +1130,42 @@ Backend/app/<br>
 │&nbsp;&nbsp;&nbsp;├── companies.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Companies CRUD<br>
 │&nbsp;&nbsp;&nbsp;├── contacts.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Contacts CRUD<br>
 │&nbsp;&nbsp;&nbsp;├── engagements.py&nbsp;&nbsp;&nbsp;&nbsp;# Stages + Engagements CRUD<br>
-│&nbsp;&nbsp;&nbsp;└── assignments.py&nbsp;&nbsp;&nbsp;&nbsp;# Company Assignments CRUD<br>
+│&nbsp;&nbsp;&nbsp;├── assignments.py&nbsp;&nbsp;&nbsp;&nbsp;# Company Assignments CRUD<br>
+│&nbsp;&nbsp;&nbsp;├── products.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Categories + Products CRUD<br>
+│&nbsp;&nbsp;&nbsp;├── contracts.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Contracts + Line Items CRUD<br>
+│&nbsp;&nbsp;&nbsp;└── competitors.py&nbsp;&nbsp;&nbsp;&nbsp;# Competitors + Intel CRUD<br>
 └── schemas/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;├── __init__.py<br>
 &nbsp;&nbsp;&nbsp;&nbsp;├── company.py<br>
 &nbsp;&nbsp;&nbsp;&nbsp;├── contact.py<br>
 &nbsp;&nbsp;&nbsp;&nbsp;├── engagement.py<br>
-&nbsp;&nbsp;&nbsp;&nbsp;└── assignment.py
+&nbsp;&nbsp;&nbsp;&nbsp;├── assignment.py<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── product.py<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── contract.py<br>
+&nbsp;&nbsp;&nbsp;&nbsp;└── competitor.py
         </div>
 
         <div class="note-box">
-            <strong>Total API endpoints:</strong> 19 endpoints across 4 entity groups
-            (Companies, Contacts, Engagements/Stages, Assignments). Open
+            <strong>Total API endpoints:</strong> 42 endpoints across 7 entity groups
+            (Companies, Contacts, Engagements/Stages, Assignments, Products/Categories,
+            Contracts/Line Items, Competitors/Intel). Open
             <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a>
             to see all of them in the Swagger UI, grouped by tag.
         </div>
+
+        <h2>Test It</h2>
+        <p>
+            With the server running (<code>uvicorn app.main:app --reload --port 8000</code>),
+            open <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a>.
+            You should see all 7 groups. Try a quick end-to-end flow:
+        </p>
+        <ol>
+            <li><strong>POST</strong> a company: <code>{"current_name": "Acme Corp"}</code></li>
+            <li><strong>POST</strong> a contact linked to that company</li>
+            <li><strong>POST</strong> a pipeline stage: <code>{"name": "Prospecting", "probability": 10}</code></li>
+            <li><strong>POST</strong> an engagement linking the company to the stage</li>
+            <li><strong>POST</strong> a competitor, then <strong>POST</strong> intel linking it to the company</li>
+        </ol>
 
         <!-- Important Note -->
         <h1>Important Note: Prisma + Python</h1>
