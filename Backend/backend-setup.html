@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>
+            Backend Setup Guide — Cybersecurity Sales Intelligence Platform
+        </title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css"
+        />
+        <style>
+            :root {
+                --primary: #1e3a5f;
+                --secondary: #00b4d8;
+                --text-color: #333;
+                --bg-color: #fff;
+                --border-color: #e0e0e0;
+            }
+            body {
+                font-family: "Segoe UI", Arial, sans-serif;
+                color: var(--text-color);
+                background: var(--bg-color);
+                max-width: 880px;
+                margin: 0 auto;
+                padding: 40px 60px;
+                line-height: 1.6;
+            }
+            h1,
+            h2,
+            h3,
+            h4 {
+                color: var(--primary);
+            }
+            h1 {
+                border-bottom: 3px solid var(--secondary);
+                padding-bottom: 10px;
+                margin-top: 50px;
+            }
+            h2 {
+                margin-top: 35px;
+                border-left: 5px solid var(--secondary);
+                padding: 10px 15px;
+                background: #f0f7ff;
+            }
+            h3 {
+                margin-top: 25px;
+                color: #2c5282;
+                border-bottom: 1px solid #e2e8f0;
+                padding-bottom: 5px;
+            }
+            pre {
+                background: #1e1e2e;
+                color: #cdd6f4;
+                padding: 18px 20px;
+                border-radius: 8px;
+                overflow-x: auto;
+                font-family: "Fira Code", "Consolas", "Monaco", monospace;
+                font-size: 0.85em;
+                line-height: 1.5;
+            }
+            code {
+                font-family: "Fira Code", "Consolas", "Monaco", monospace;
+                font-size: 0.9em;
+            }
+            p code,
+            li code {
+                background: #f0f4f8;
+                padding: 2px 6px;
+                border-radius: 4px;
+                color: #d63384;
+            }
+            .note-box {
+                background: #e6fffa;
+                border: 1px solid #b2f5ea;
+                border-left: 5px solid var(--secondary);
+                padding: 15px 20px;
+                margin: 20px 0;
+                border-radius: 4px;
+            }
+            .warning-box {
+                background: #fffbeb;
+                border: 1px solid #fde68a;
+                border-left: 5px solid #f59e0b;
+                padding: 15px 20px;
+                margin: 20px 0;
+                border-radius: 4px;
+            }
+            .step-number {
+                display: inline-block;
+                background: var(--primary);
+                color: #fff;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                text-align: center;
+                line-height: 32px;
+                font-weight: bold;
+                margin-right: 10px;
+                font-size: 0.9em;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 15px 0;
+                font-size: 0.9em;
+            }
+            th {
+                background: var(--primary);
+                color: #fff;
+                padding: 12px;
+                text-align: left;
+            }
+            td {
+                padding: 10px;
+                border-bottom: 1px solid var(--border-color);
+            }
+            tr:nth-child(even) {
+                background: #f8f9fa;
+            }
+            ol li,
+            ul li {
+                margin-bottom: 8px;
+            }
+            .cover {
+                text-align: center;
+                padding: 60px 0 40px;
+                border-bottom: 2px solid var(--primary);
+                margin-bottom: 40px;
+            }
+            .cover h1 {
+                font-size: 2.2em;
+                border: none;
+                margin-top: 0;
+            }
+            .cover p {
+                font-size: 1.1em;
+                color: #666;
+            }
+            .file-tree {
+                background: #f8f9fa;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 20px 25px;
+                font-family: "Fira Code", "Consolas", monospace;
+                font-size: 0.85em;
+                line-height: 1.7;
+            }
+            .footer {
+                margin-top: 60px;
+                border-top: 1px solid #ddd;
+                padding-top: 15px;
+                font-size: 0.8em;
+                text-align: center;
+                color: #888;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="cover">
+            <h1>Backend Setup Guide</h1>
+            <p
+                style="
+                    color: var(--secondary);
+                    font-size: 1.3em;
+                    font-weight: 600;
+                "
+            >
+                Cybersecurity Sales Intelligence Platform
+            </p>
+            <p>Python (FastAPI) + PostgreSQL + Prisma ORM</p>
+        </div>
+
+        <!-- Prerequisites -->
+        <h1><span class="step-number">1</span> Prerequisites</h1>
+        <p>Make sure you have the following installed on your machine:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tool</th>
+                    <th>Version</th>
+                    <th>Check Command</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Python</td>
+                    <td>3.11+</td>
+                    <td><code>python3 --version</code></td>
+                </tr>
+                <tr>
+                    <td>PostgreSQL</td>
+                    <td>16+</td>
+                    <td><code>psql --version</code></td>
+                </tr>
+                <tr>
+                    <td>Node.js</td>
+                    <td>18+ (required by Prisma CLI)</td>
+                    <td><code>node --version</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="note-box">
+            <strong>macOS tip:</strong> Install PostgreSQL via Homebrew with
+            <code>brew install postgresql@16</code>, or use Docker (see Step 5).
+        </div>
+
+        <!-- Project Structure -->
+        <h1><span class="step-number">2</span> Project Structure</h1>
+        <p>Recommended layout alongside your Next.js frontend:</p>
+
+        <div class="file-tree">
+            new-project/<br />
+            ├── backend/<br />
+            │&nbsp;&nbsp;&nbsp;├── app/<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── __init__.py<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──
+            main.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#
+            FastAPI app entry point<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──
+            config.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#
+            Settings / env vars<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── routers/<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──
+            __init__.py<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──
+            companies.py<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──
+            contacts.py<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──
+            contracts.py<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──
+            competitors.py<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└──
+            engagements.py<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──
+            schemas/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#
+            Pydantic models<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──
+            __init__.py<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──
+            company.py<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──
+            contact.py<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── ...<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└──
+            services/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#
+            Business logic<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──
+            __init__.py<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──
+            ...<br />
+            │&nbsp;&nbsp;&nbsp;├── prisma/<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└──
+            schema.prisma&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Prisma schema<br />
+            │&nbsp;&nbsp;&nbsp;├── requirements.txt<br />
+            │&nbsp;&nbsp;&nbsp;└── .env<br />
+            ├──
+            frontend/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#
+            Your Next.js app<br />
+            └── ...
+        </div>
+
+        <!-- Virtual Environment -->
+        <h1>
+            <span class="step-number">3</span> Set Up Python Virtual Environment
+        </h1>
+
+        <pre>
+cd new-project
+mkdir backend &amp;&amp; cd backend
+python3 -m venv venv
+source venv/bin/activate</pre
+        >
+
+        <!-- Install Dependencies -->
+        <h1><span class="step-number">4</span> Install Dependencies</h1>
+
+        <p>Create <code>requirements.txt</code>:</p>
+        <pre>
+fastapi
+uvicorn[standard]
+prisma
+python-dotenv
+pydantic[email]</pre
+        >
+
+        <p>Then install:</p>
+        <pre>pip install -r requirements.txt</pre>
+
+        <!-- Set Up PostgreSQL -->
+        <h1><span class="step-number">5</span> Set Up PostgreSQL</h1>
+
+        <h3>Option A: Local PostgreSQL</h3>
+        <pre>
+brew services start postgresql@16
+createdb cybersec_sip</pre
+        >
+
+        <h3>Option B: Docker (recommended for consistency)</h3>
+        <pre>
+docker run --name cybersec-db \
+  -e POSTGRES_USER=admin \
+  -e POSTGRES_PASSWORD=password \
+  -e POSTGRES_DB=cybersec_sip \
+  -p 5432:5432 \
+  -d postgres:16</pre
+        >
+
+        <!-- Environment Variables -->
+        <h1>
+            <span class="step-number">6</span> Create the <code>.env</code> File
+        </h1>
+
+        <p>
+            Create a <code>.env</code> file in the
+            <code>backend/</code> directory:
+        </p>
+        <pre>
+DATABASE_URL="postgresql://admin:password@localhost:5432/cybersec_sip"</pre
+        >
+
+        <!-- Prisma Schema -->
+        <h1><span class="step-number">7</span> Define the Prisma Schema</h1>
+
+        <p>
+            Create <code>prisma/schema.prisma</code> with the full database
+            schema matching the
+            <a href="../Cybersecurity Sales Intelligence Platform.html"
+                >Technical Specification</a
+            >:
+        </p>
+
+        <pre>
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ──────────────────────────────────────────
+
+enum CompanyStatus {
+  prospect
+  active_client
+  previous_client
+  lost
+  disqualified
+}
+
+enum CompanySize {
+  SMB
+  Mid_Market
+  Enterprise
+  Government
+}
+
+enum ContactSeniority {
+  C_Suite
+  VP
+  Director
+  Manager
+}
+
+enum RoleInDeal {
+  decision_maker
+  influencer
+  champion
+  blocker
+}
+
+enum SiteType {
+  hq
+  branch
+  data_center
+  warehouse
+}
+
+enum ContractType {
+  our_contract
+  competitor_contract
+}
+
+enum ContractStatus {
+  active
+  expired
+  renewed
+  pending
+}
+
+enum PricingModel {
+  per_seat
+  per_site
+  flat
+  custom
+}
+
+enum EngagementType {
+  call
+  email
+  meeting
+  demo
+}
+
+enum UserRole {
+  admin
+  manager
+  sales_agent
+  viewer
+}
+
+enum IntelConfidence {
+  confirmed
+  rumor
+  inferred
+}
+
+enum AssignmentRole {
+  owner
+  collaborator
+}
+
+// ─── Models ─────────────────────────────────────────
+
+model Company {
+  id             String          @id @default(uuid()) @db.Uuid
+  currentName    String          @map("current_name") @db.VarChar(255)
+  status         CompanyStatus   @default(prospect)
+  companySize    CompanySize?    @map("company_size")
+  employeeCount  Int?            @map("employee_count")
+  revenueRange   String?         @map("revenue_range")
+  website        String?
+  stockTicker    String?         @map("stock_ticker")
+  country        String?
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+
+  names           CompanyName[]
+  sites           CompanySite[]
+  industries      CompanyIndustry[]
+  contacts        Contact[]
+  contracts       Contract[]
+  competitorIntel CompetitorIntel[]
+  engagements     Engagement[]
+  assignments     CompanyAssignment[]
+
+  @@map("companies")
+}
+
+model CompanyName {
+  id        String    @id @default(uuid()) @db.Uuid
+  companyId String    @map("company_id") @db.Uuid
+  name      String
+  validTo   DateTime? @map("valid_to")
+  reason    String?
+
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("company_names")
+}
+
+model CompanySite {
+  id            String   @id @default(uuid()) @db.Uuid
+  companyId     String   @map("company_id") @db.Uuid
+  siteName      String   @map("site_name")
+  siteType      SiteType @map("site_type")
+  employeeCount Int?     @map("employee_count")
+  isPrimary     Boolean  @default(false) @map("is_primary")
+
+  company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("company_sites")
+}
+
+model Industry {
+  id     String            @id @default(uuid()) @db.Uuid
+  name   String
+  sector String?
+
+  companies CompanyIndustry[]
+
+  @@map("industries")
+}
+
+model CompanyIndustry {
+  companyId  String  @map("company_id") @db.Uuid
+  industryId String  @map("industry_id") @db.Uuid
+  isPrimary  Boolean @default(false) @map("is_primary")
+
+  company  Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  industry Industry @relation(fields: [industryId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, industryId])
+  @@map("company_industries")
+}
+
+model Contact {
+  id         String            @id @default(uuid()) @db.Uuid
+  companyId  String            @map("company_id") @db.Uuid
+  firstName  String            @map("first_name")
+  lastName   String            @map("last_name")
+  title      String?
+  seniority  ContactSeniority?
+  roleInDeal RoleInDeal?       @map("role_in_deal")
+  email      String?
+  phone      String?
+  isActive   Boolean           @default(true) @map("is_active")
+
+  company    Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("contacts")
+}
+
+model ProductCategory {
+  id       String           @id @default(uuid()) @db.Uuid
+  name     String
+
+  products ProductService[]
+
+  @@map("product_categories")
+}
+
+model ProductService {
+  id           String          @id @default(uuid()) @db.Uuid
+  categoryId   String          @map("category_id") @db.Uuid
+  name         String
+  basePrice    Decimal?        @map("base_price") @db.Decimal(12, 2)
+  pricingModel PricingModel?   @map("pricing_model")
+
+  category     ProductCategory @relation(fields: [categoryId], references: [id])
+  lineItems    ContractLineItem[]
+
+  @@map("products_services")
+}
+
+model Contract {
+  id                String         @id @default(uuid()) @db.Uuid
+  companyId         String         @map("company_id") @db.Uuid
+  type              ContractType
+  status            ContractStatus @default(pending)
+  startDate         DateTime?      @map("start_date")
+  endDate           DateTime?      @map("end_date")
+  totalValue        Decimal?       @map("total_value") @db.Decimal(14, 2)
+  renewalNoticeDays Int?           @map("renewal_notice_days")
+
+  company           Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  lineItems         ContractLineItem[]
+
+  @@map("contracts")
+}
+
+model ContractLineItem {
+  id               String         @id @default(uuid()) @db.Uuid
+  contractId       String         @map("contract_id") @db.Uuid
+  productServiceId String         @map("product_service_id") @db.Uuid
+  quantity         Int            @default(1)
+  unitPrice        Decimal        @map("unit_price") @db.Decimal(12, 2)
+
+  contract         Contract       @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  productService   ProductService @relation(fields: [productServiceId], references: [id])
+
+  @@map("contract_line_items")
+}
+
+model Competitor {
+  id         String            @id @default(uuid()) @db.Uuid
+  name       String
+  strengths  String?
+  weaknesses String?
+
+  intel      CompetitorIntel[]
+
+  @@map("competitors")
+}
+
+model CompetitorIntel {
+  id           String          @id @default(uuid()) @db.Uuid
+  companyId    String          @map("company_id") @db.Uuid
+  competitorId String          @map("competitor_id") @db.Uuid
+  productName  String?         @map("product_name")
+  contractEnd  DateTime?       @map("contract_end")
+  confidence   IntelConfidence @default(rumor)
+
+  company      Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  competitor   Competitor      @relation(fields: [competitorId], references: [id])
+
+  @@map("competitor_intel")
+}
+
+model EngagementStage {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String
+  probability Int          @default(0)
+
+  engagements Engagement[]
+
+  @@map("engagement_stages")
+}
+
+model Engagement {
+  id             String          @id @default(uuid()) @db.Uuid
+  companyId      String          @map("company_id") @db.Uuid
+  stageId        String          @map("stage_id") @db.Uuid
+  type           EngagementType
+  outcome        String?
+  nextActionDate DateTime?       @map("next_action_date")
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  company        Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  stage          EngagementStage @relation(fields: [stageId], references: [id])
+
+  @@map("engagements")
+}
+
+model User {
+  id    String   @id @default(uuid()) @db.Uuid
+  email String   @unique
+  name  String?
+  role  UserRole @default(viewer)
+
+  assignments CompanyAssignment[]
+
+  @@map("users")
+}
+
+model CompanyAssignment {
+  companyId String         @map("company_id") @db.Uuid
+  userId    String         @map("user_id") @db.Uuid
+  role      AssignmentRole @default(collaborator)
+
+  company   Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, userId])
+  @@map("company_assignments")
+}</pre
+        >
+
+        <!-- Generate & Push -->
+        <h1>
+            <span class="step-number">8</span> Generate Prisma Client &amp; Push
+            Schema
+        </h1>
+
+        <pre>
+# Generate the Python Prisma client
+prisma generate
+
+# Push schema to your database (creates all tables)
+prisma db push</pre
+        >
+
+        <!-- FastAPI App -->
+        <h1><span class="step-number">9</span> Create the FastAPI App</h1>
+
+        <p>Create <code>app/main.py</code>:</p>
+
+        <pre>
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from prisma import Prisma
+
+db = Prisma()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await db.connect()
+    yield
+    await db.disconnect()
+
+app = FastAPI(
+    title="Cybersecurity Sales Intelligence API",
+    version="0.1.0",
+    lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}</pre
+        >
+
+        <!-- Run -->
+        <h1><span class="step-number">10</span> Run the Backend</h1>
+
+        <pre>uvicorn app.main:app --reload --port 8000</pre>
+
+        <p>
+            Visit
+            <a href="http://localhost:8000/docs" target="_blank"
+                >http://localhost:8000/docs</a
+            >
+            to see the auto-generated Swagger UI.
+        </p>
+
+        <!-- Important Note -->
+        <h1>Important Note: Prisma + Python</h1>
+
+        <div class="warning-box">
+            <strong>Heads up:</strong> The <code>prisma-client-py</code> package
+            is a community-maintained Python wrapper around Prisma. It works
+            well but is not as mature as Prisma's official Node.js client. If
+            you run into issues, the main alternative is
+            <strong>SQLAlchemy</strong> (the standard Python ORM). However,
+            Prisma gives you a single schema definition that can be shared
+            conceptually with your Next.js frontend.
+        </div>
+
+        <!-- Next Steps -->
+        <h1>Next Steps</h1>
+
+        <ol>
+            <li>
+                <strong>Set up the backend project</strong> — virtual
+                environment, dependencies, Prisma schema
+            </li>
+            <li>
+                <strong>Get the database running</strong> — and push the schema
+                to create all tables
+            </li>
+            <li>
+                <strong>Build CRUD routers</strong> — start with
+                <code>companies</code> (the central entity)
+            </li>
+            <li>
+                <strong>Add Pydantic schemas</strong> — for request/response
+                validation on each endpoint
+            </li>
+            <li>
+                <strong>Connect your Next.js frontend</strong> — call the
+                FastAPI backend via <code>fetch</code> or <code>axios</code>
+            </li>
+            <li>
+                <strong>Add NextAuth.js</strong> — once the core data flow is
+                working end-to-end
+            </li>
+        </ol>
+
+        <div class="footer">
+            Backend Setup Guide &bull; Cybersecurity Sales Intelligence Platform
+            &bull; Generated February 2026
+        </div>
+    </body>
+</html>

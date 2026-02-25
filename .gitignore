@@ -1,1 +1,2 @@
-temporary-prompt.txt
+*.DS_Store
+*temporary-prompt.txt
