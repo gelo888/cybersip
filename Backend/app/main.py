@@ -45,6 +45,8 @@ from app.routers import (  # noqa: E402
     contracts,
     engagements,
     products,
+    teams,
+    territories,
 )
 
 app.include_router(companies.router)
@@ -54,6 +56,8 @@ app.include_router(assignments.router)
 app.include_router(products.router)
 app.include_router(contracts.router)
 app.include_router(competitors.router)
+app.include_router(territories.router)
+app.include_router(teams.router)
 
 
 @app.get("/health")

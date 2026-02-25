@@ -92,6 +92,17 @@ enum AssignmentRole {
   collaborator
 }
 
+enum RegionCode {
+  APJ
+  EMEA
+  Americas
+}
+
+enum TeamRole {
+  lead
+  member
+}
+
 // ─── Models ─────────────────────────────────────────
 
 model Company {
@@ -115,6 +126,7 @@ model Company {
   competitorIntel CompetitorIntel[]
   engagements     Engagement[]
   assignments     CompanyAssignment[]
+  territoryGroups CompanyTerritoryGroup[]
 
   @@map("companies")
 }
@@ -290,7 +302,8 @@ model User {
   name  String?
   role  UserRole @default(viewer)
 
-  assignments CompanyAssignment[]
+  assignments     CompanyAssignment[]
+  teamMemberships TeamMember[]
 
   @@map("users")
 }
@@ -305,4 +318,78 @@ model CompanyAssignment {
 
   @@id([companyId, userId])
   @@map("company_assignments")
+}
+
+// ─── Territory & Team Models ────────────────────────
+
+model Region {
+  id   String     @id @default(uuid()) @db.Uuid
+  name String     @unique
+  code RegionCode @unique
+
+  territoryGroups TerritoryGroup[]
+
+  @@map("regions")
+}
+
+model TerritoryGroup {
+  id          String   @id @default(uuid()) @db.Uuid
+  regionId    String   @map("region_id") @db.Uuid
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  region    Region                  @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  teams     TeamTerritoryGroup[]
+  companies CompanyTerritoryGroup[]
+
+  @@unique([regionId, name])
+  @@map("territory_groups")
+}
+
+model Team {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  members         TeamMember[]
+  territoryGroups TeamTerritoryGroup[]
+
+  @@map("teams")
+}
+
+model TeamTerritoryGroup {
+  teamId           String @map("team_id") @db.Uuid
+  territoryGroupId String @map("territory_group_id") @db.Uuid
+
+  team           Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  territoryGroup TerritoryGroup @relation(fields: [territoryGroupId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, territoryGroupId])
+  @@map("team_territory_groups")
+}
+
+model TeamMember {
+  teamId String   @map("team_id") @db.Uuid
+  userId String   @map("user_id") @db.Uuid
+  role   TeamRole @default(member)
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, userId])
+  @@map("team_members")
+}
+
+model CompanyTerritoryGroup {
+  companyId        String @map("company_id") @db.Uuid
+  territoryGroupId String @map("territory_group_id") @db.Uuid
+
+  company        Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  territoryGroup TerritoryGroup @relation(fields: [territoryGroupId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, territoryGroupId])
+  @@map("company_territory_groups")
 }
