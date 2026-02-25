@@ -253,8 +253,11 @@
             │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──
             ...<br />
             │&nbsp;&nbsp;&nbsp;├── prisma/<br />
-            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└──
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──
             schema.prisma&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Prisma schema<br />
+            │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└──
+            seed.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#
+            Database seed script<br />
             │&nbsp;&nbsp;&nbsp;├── requirements.txt<br />
             │&nbsp;&nbsp;&nbsp;└── .env<br />
             ├──
@@ -792,8 +795,109 @@ prisma db push</pre>
             where you can view all your tables and data visually. Very handy for quick sanity checks.
         </p>
 
+        <!-- Seed Data -->
+        <h1><span class="step-number">9</span> Seed the Database</h1>
+
+        <p>
+            A seed script at <code>prisma/seed.py</code> populates the database with
+            realistic sample data so you can start building the frontend immediately
+            without entering data by hand.
+        </p>
+
+        <h3>What Gets Seeded</h3>
+        <table>
+            <thead>
+                <tr><th>Data</th><th>Count</th><th>Details</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Regions</td>
+                    <td>3</td>
+                    <td>APJ, EMEA, Americas</td>
+                </tr>
+                <tr>
+                    <td>Territory Groups</td>
+                    <td>19</td>
+                    <td>e.g. Japan, DACH, US East, Latin America</td>
+                </tr>
+                <tr>
+                    <td>Industries</td>
+                    <td>16</td>
+                    <td>Across 7 sectors (Financial Services, Healthcare, Technology, etc.)</td>
+                </tr>
+                <tr>
+                    <td>Companies</td>
+                    <td>153</td>
+                    <td>Distributed across all 3 regions (see breakdown below)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Company Size Distribution</h3>
+        <p>
+            The seed data follows a realistic sales-pipeline pyramid &mdash; more SMBs at
+            the base, fewer Enterprise accounts at the top:
+        </p>
+        <table>
+            <thead>
+                <tr><th>Size</th><th>Count</th><th>% of Total</th><th>Employee Range</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>SMB</td><td>66</td><td>43&thinsp;%</td><td>10 &ndash; 150</td></tr>
+                <tr><td>Mid-Market</td><td>37</td><td>24&thinsp;%</td><td>290 &ndash; 1,900</td></tr>
+                <tr><td>Enterprise</td><td>37</td><td>24&thinsp;%</td><td>4,200 &ndash; 70,000</td></tr>
+                <tr><td>Government</td><td>13</td><td>9&thinsp;%</td><td>210 &ndash; 18,000</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Companies per Region</h3>
+        <table>
+            <thead>
+                <tr><th>Region</th><th>SMB</th><th>Mid-Market</th><th>Enterprise</th><th>Gov</th><th>Total</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>APJ</td><td>20</td><td>11</td><td>12</td><td>4</td><td>47</td></tr>
+                <tr><td>EMEA</td><td>23</td><td>13</td><td>12</td><td>4</td><td>52</td></tr>
+                <tr><td>Americas</td><td>23</td><td>13</td><td>13</td><td>5</td><td>54</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            Companies span a mix of statuses (<code>prospect</code>,
+            <code>active_client</code>, <code>previous_client</code>,
+            <code>lost</code>, <code>disqualified</code>). Each company is linked to
+            a territory group and at least one industry. ~40&thinsp;% of companies also
+            receive a secondary industry.
+        </p>
+
+        <h3>Run the Seed Script</h3>
+        <p>Make sure the database is running and the schema has been pushed (Step&nbsp;8), then:</p>
+        <pre>
+# From the Backend/ directory, with your venv activated
+python prisma/seed.py</pre>
+
+        <p>You should see output like:</p>
+        <pre>
+Clearing existing data…
+Seeding regions &amp; territory groups…
+Seeding industries…
+Seeding companies…
+Seeded 153 companies across 3 regions.</pre>
+
+        <div class="note-box">
+            <strong>Idempotent:</strong> The script clears all existing data before
+            inserting, so it's safe to run repeatedly. Any manual data you've added
+            will be removed &mdash; use this only for development.
+        </div>
+
+        <div class="warning-box">
+            <strong>Order matters:</strong> The seed script must run
+            <em>after</em> <code>prisma db push</code> (or <code>prisma migrate dev</code>)
+            so the tables exist. If you reset your database, re-run the push first.
+        </div>
+
         <!-- FastAPI App -->
-        <h1><span class="step-number">9</span> Create the FastAPI App</h1>
+        <h1><span class="step-number">10</span> Create the FastAPI App</h1>
 
         <p>
             This is where you create the actual API server. You need to create the following
@@ -854,7 +958,7 @@ async def health():
         >
 
         <!-- Run -->
-        <h1><span class="step-number">10</span> Run the Backend</h1>
+        <h1><span class="step-number">11</span> Run the Backend</h1>
 
         <pre>uvicorn app.main:app --reload --port 8000</pre>
 
@@ -867,7 +971,7 @@ async def health():
         </p>
 
         <!-- API: Schemas & Routers -->
-        <h1><span class="step-number">11</span> Pydantic Schemas</h1>
+        <h1><span class="step-number">12</span> Pydantic Schemas</h1>
 
         <p>
             Each entity gets a set of <strong>Pydantic models</strong> that define what the API
@@ -1007,7 +1111,7 @@ class CompanyResponse(BaseModel):
 
 
         <!-- CRUD Routers -->
-        <h1><span class="step-number">12</span> CRUD Routers</h1>
+        <h1><span class="step-number">13</span> CRUD Routers</h1>
 
         <p>
             Each router file provides CRUD endpoints for its entity. All routers follow the same
@@ -1017,7 +1121,7 @@ class CompanyResponse(BaseModel):
         </p>
 
         <!-- Companies -->
-        <h2>12.1 Companies &mdash; <code>app/routers/companies.py</code></h2>
+        <h2>13.1 Companies &mdash; <code>app/routers/companies.py</code></h2>
         <p>The central entity. All other entities connect to companies.</p>
         <table>
             <thead>
@@ -1033,7 +1137,7 @@ class CompanyResponse(BaseModel):
         </table>
 
         <!-- Contacts -->
-        <h2>12.2 Contacts &mdash; <code>app/routers/contacts.py</code></h2>
+        <h2>13.2 Contacts &mdash; <code>app/routers/contacts.py</code></h2>
         <p>Stakeholders within client organizations. Each contact belongs to a company.</p>
         <table>
             <thead>
@@ -1049,7 +1153,7 @@ class CompanyResponse(BaseModel):
         </table>
 
         <!-- Engagements -->
-        <h2>12.3 Engagements &mdash; <code>app/routers/engagements.py</code></h2>
+        <h2>13.3 Engagements &mdash; <code>app/routers/engagements.py</code></h2>
         <p>Tracks interactions (calls, emails, meetings, demos) with companies.
         Includes pipeline stage management.</p>
 
@@ -1081,7 +1185,7 @@ class CompanyResponse(BaseModel):
         </table>
 
         <!-- Assignments -->
-        <h2>12.4 Company Assignments &mdash; <code>app/routers/assignments.py</code></h2>
+        <h2>13.4 Company Assignments &mdash; <code>app/routers/assignments.py</code></h2>
         <p>Assigns users (sales agents) to companies as <strong>owner</strong> or
         <strong>collaborator</strong>. Uses a composite key.</p>
         <table>
@@ -1097,7 +1201,7 @@ class CompanyResponse(BaseModel):
         </table>
 
         <!-- Products -->
-        <h2>12.5 Products &amp; Services &mdash; <code>app/routers/products.py</code></h2>
+        <h2>13.5 Products &amp; Services &mdash; <code>app/routers/products.py</code></h2>
         <p>Product/service catalog. Products belong to categories
         (e.g. "Endpoint Security" &rarr; "Managed SIEM").</p>
 
@@ -1129,7 +1233,7 @@ class CompanyResponse(BaseModel):
         </table>
 
         <!-- Contracts -->
-        <h2>12.6 Contracts &mdash; <code>app/routers/contracts.py</code></h2>
+        <h2>13.6 Contracts &mdash; <code>app/routers/contracts.py</code></h2>
         <p>Tracks both internal and competitor contracts. Each contract can have
         multiple <strong>line items</strong> linking to products/services.</p>
 
@@ -1161,7 +1265,7 @@ class CompanyResponse(BaseModel):
         </table>
 
         <!-- Competitors -->
-        <h2>12.7 Competitive Intelligence &mdash; <code>app/routers/competitors.py</code></h2>
+        <h2>13.7 Competitive Intelligence &mdash; <code>app/routers/competitors.py</code></h2>
         <p>The key differentiator: tracking competitor presence within client
         organizations with the same fidelity as internal contracts.</p>
 
@@ -1195,7 +1299,7 @@ class CompanyResponse(BaseModel):
 
 
         <!-- Territories -->
-        <h2>12.8 Territories &mdash; <code>app/routers/territories.py</code></h2>
+        <h2>13.8 Territories &mdash; <code>app/routers/territories.py</code></h2>
         <p>Manages the geographic hierarchy: <strong>Regions</strong> (APJ, EMEA, Americas)
         contain <strong>Territory Groups</strong> (e.g. &ldquo;DACH&rdquo;, &ldquo;US East&rdquo;).
         Companies are assigned to territory groups via a many-to-many join, allowing
@@ -1241,7 +1345,7 @@ class CompanyResponse(BaseModel):
         </table>
 
         <!-- Teams -->
-        <h2>12.9 Teams &mdash; <code>app/routers/teams.py</code></h2>
+        <h2>13.9 Teams &mdash; <code>app/routers/teams.py</code></h2>
         <p>Sales teams that are assigned to territory groups. Each team can cover
         multiple territories, and each territory can have multiple teams.
         Users are added to teams as <strong>lead</strong> or <strong>member</strong>.</p>
@@ -1287,7 +1391,7 @@ class CompanyResponse(BaseModel):
 
 
         <!-- Router Registration -->
-        <h1><span class="step-number">13</span> Register All Routers</h1>
+        <h1><span class="step-number">14</span> Register All Routers</h1>
 
         <p>All routers are imported and registered in <code>app/main.py</code> in one place:</p>
 
@@ -1316,13 +1420,17 @@ app.include_router(teams.router)</pre>
 
 
         <!-- Final Project Structure -->
-        <h1><span class="step-number">14</span> Final Project Structure</h1>
+        <h1><span class="step-number">15</span> Final Project Structure</h1>
 
         <div class="file-tree">
-Backend/app/<br>
-├── __init__.py<br>
-├── main.py<br>
-├── routers/<br>
+Backend/<br>
+├── prisma/<br>
+│&nbsp;&nbsp;&nbsp;├── schema.prisma<br>
+│&nbsp;&nbsp;&nbsp;└── seed.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Database seed script (153 companies)<br>
+├── app/<br>
+│&nbsp;&nbsp;&nbsp;├── __init__.py<br>
+│&nbsp;&nbsp;&nbsp;├── main.py<br>
+│&nbsp;&nbsp;&nbsp;├── routers/<br>
 │&nbsp;&nbsp;&nbsp;├── __init__.py<br>
 │&nbsp;&nbsp;&nbsp;├── companies.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Companies CRUD<br>
 │&nbsp;&nbsp;&nbsp;├── contacts.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Contacts CRUD<br>
@@ -1332,18 +1440,20 @@ Backend/app/<br>
 │&nbsp;&nbsp;&nbsp;├── contracts.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Contracts + Line Items CRUD<br>
 │&nbsp;&nbsp;&nbsp;├── competitors.py&nbsp;&nbsp;&nbsp;&nbsp;# Competitors + Intel CRUD<br>
 │&nbsp;&nbsp;&nbsp;├── territories.py&nbsp;&nbsp;&nbsp;&nbsp;# Regions + Territory Groups + Company&harr;Territory CRUD<br>
-│&nbsp;&nbsp;&nbsp;└── teams.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Teams + Members + Team&harr;Territory CRUD<br>
-└── schemas/<br>
-&nbsp;&nbsp;&nbsp;&nbsp;├── __init__.py<br>
-&nbsp;&nbsp;&nbsp;&nbsp;├── company.py<br>
-&nbsp;&nbsp;&nbsp;&nbsp;├── contact.py<br>
-&nbsp;&nbsp;&nbsp;&nbsp;├── engagement.py<br>
-&nbsp;&nbsp;&nbsp;&nbsp;├── assignment.py<br>
-&nbsp;&nbsp;&nbsp;&nbsp;├── product.py<br>
-&nbsp;&nbsp;&nbsp;&nbsp;├── contract.py<br>
-&nbsp;&nbsp;&nbsp;&nbsp;├── competitor.py<br>
-&nbsp;&nbsp;&nbsp;&nbsp;├── territory.py<br>
-&nbsp;&nbsp;&nbsp;&nbsp;└── team.py
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── teams.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Teams + Members + Team&harr;Territory CRUD<br>
+│&nbsp;&nbsp;&nbsp;└── schemas/<br>
+│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── __init__.py<br>
+│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── company.py<br>
+│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── contact.py<br>
+│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── engagement.py<br>
+│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── assignment.py<br>
+│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── product.py<br>
+│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── contract.py<br>
+│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── competitor.py<br>
+│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── territory.py<br>
+│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── team.py<br>
+├── requirements.txt<br>
+└── .env
         </div>
 
         <div class="note-box">
