@@ -252,10 +252,17 @@ companies
   ├── documents              (proposals/agreements)
   ├── notes
   ├── tags ──────────────────► tag_library
-  └── company_assignments ──► users
+  ├── company_assignments ──► users
+  └── company_territory_groups ──► territory_groups ──► regions
+
+regions (APJ, EMEA, Americas)
+  └── territory_groups       (e.g., "DACH", "US East", "ANZ")
+        └── team_territory_groups ──► teams
+                                       └── team_members ──► users
 
 users
   ├── user_teams ────────────► teams
+  ├── team_members ──────────► teams
   └── activity_logs
 
 products_services
@@ -898,6 +905,209 @@ products_services
             </tbody>
         </table>
 
+        <div class="page-break"></div>
+
+        <h2>2.10 Territory &amp; Team Management</h2>
+        <p>
+            A three-tier geographic hierarchy that organizes companies and sales
+            teams globally. Regions represent the top-level division (APJ, EMEA,
+            Americas). Territory groups are the operational units underneath each
+            region. Teams are assigned to territory groups, and companies can
+            belong to multiple territory groups to support multinationals with
+            operations spanning regions.
+        </p>
+
+        <h3>🌍 regions</h3>
+        <p>Top-level geographic divisions. Locked to a fixed set via an enum.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th width="25%">Column</th>
+                    <th width="20%">Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>id</td>
+                    <td class="type-badge">UUID PK</td>
+                    <td>Unique Identifier</td>
+                </tr>
+                <tr>
+                    <td>name</td>
+                    <td class="type-badge">VARCHAR UNIQUE</td>
+                    <td>Display name, e.g. 'Asia Pacific &amp; Japan'</td>
+                </tr>
+                <tr>
+                    <td>code</td>
+                    <td class="type-badge">ENUM UNIQUE</td>
+                    <td>'APJ', 'EMEA', 'Americas'</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>📍 territory_groups</h3>
+        <p>
+            Operational territories under a region. Each group has a unique name
+            within its region.
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th width="25%">Column</th>
+                    <th width="20%">Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>id</td>
+                    <td class="type-badge">UUID PK</td>
+                    <td>Unique Identifier</td>
+                </tr>
+                <tr>
+                    <td>region_id</td>
+                    <td class="type-badge">UUID FK</td>
+                    <td>Reference to regions</td>
+                </tr>
+                <tr>
+                    <td>name</td>
+                    <td class="type-badge">VARCHAR</td>
+                    <td>e.g. 'DACH', 'US East', 'ANZ', 'Japan'</td>
+                </tr>
+                <tr>
+                    <td>description</td>
+                    <td class="type-badge">TEXT</td>
+                    <td>Optional notes about the territory</td>
+                </tr>
+                <tr>
+                    <td>created_at</td>
+                    <td class="type-badge">TIMESTAMP</td>
+                    <td>Record creation time</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="note-box">
+            <strong>Unique constraint:</strong> <code>(region_id, name)</code>
+            &mdash; prevents duplicate territory group names within the same
+            region.
+        </div>
+
+        <h3>🔗 company_territory_groups</h3>
+        <p>
+            Many-to-many join allowing a company to belong to multiple territory
+            groups. A multinational with HQ in Americas and operations in EMEA
+            can be assigned to both.
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th width="25%">Column</th>
+                    <th width="20%">Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>company_id</td>
+                    <td class="type-badge">UUID FK (PK)</td>
+                    <td>Reference to companies</td>
+                </tr>
+                <tr>
+                    <td>territory_group_id</td>
+                    <td class="type-badge">UUID FK (PK)</td>
+                    <td>Reference to territory_groups</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>👥 teams</h3>
+        <p>Sales teams that are assigned to cover one or more territory groups.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th width="25%">Column</th>
+                    <th width="20%">Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>id</td>
+                    <td class="type-badge">UUID PK</td>
+                    <td>Unique Identifier</td>
+                </tr>
+                <tr>
+                    <td>name</td>
+                    <td class="type-badge">VARCHAR UNIQUE</td>
+                    <td>e.g. 'EMEA Enterprise', 'US East SMB'</td>
+                </tr>
+                <tr>
+                    <td>created_at</td>
+                    <td class="type-badge">TIMESTAMP</td>
+                    <td>Record creation time</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>🔗 team_territory_groups</h3>
+        <p>
+            Many-to-many join between teams and territory groups. A single team
+            can cover multiple territories (e.g. &ldquo;EMEA Enterprise&rdquo;
+            handles DACH and Nordics), and a large territory can have multiple
+            teams (e.g. &ldquo;US East&rdquo; has both SMB and Enterprise teams).
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th width="25%">Column</th>
+                    <th width="20%">Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>team_id</td>
+                    <td class="type-badge">UUID FK (PK)</td>
+                    <td>Reference to teams</td>
+                </tr>
+                <tr>
+                    <td>territory_group_id</td>
+                    <td class="type-badge">UUID FK (PK)</td>
+                    <td>Reference to territory_groups</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>🔗 team_members</h3>
+        <p>Links users to teams with a role designation.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th width="25%">Column</th>
+                    <th width="20%">Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>team_id</td>
+                    <td class="type-badge">UUID FK (PK)</td>
+                    <td>Reference to teams</td>
+                </tr>
+                <tr>
+                    <td>user_id</td>
+                    <td class="type-badge">UUID FK (PK)</td>
+                    <td>Reference to users</td>
+                </tr>
+                <tr>
+                    <td>role</td>
+                    <td class="type-badge">ENUM</td>
+                    <td>'lead', 'member'</td>
+                </tr>
+            </tbody>
+        </table>
+
         <h1>3. Recommended Tech Stack</h1>
         <table style="width: 100%">
             <thead>
@@ -1120,6 +1330,8 @@ products_services
         <h3>Phase 1: Foundation (MVP)</h3>
         <ul>
             <li>Core company and contact registries.</li>
+            <li>Territory hierarchy (Regions &rarr; Territory Groups) and company-to-territory assignments.</li>
+            <li>Team management and team-to-territory assignments.</li>
             <li>Basic engagement tracking.</li>
             <li>User authentication and team assignments.</li>
             <li>Simple Kanban board for deal stages.</li>

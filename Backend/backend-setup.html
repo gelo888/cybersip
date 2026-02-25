@@ -467,6 +467,17 @@ enum AssignmentRole {
   collaborator
 }
 
+enum RegionCode {
+  APJ
+  EMEA
+  Americas
+}
+
+enum TeamRole {
+  lead
+  member
+}
+
 // ─── Models ─────────────────────────────────────────
 
 model Company {
@@ -490,6 +501,7 @@ model Company {
   competitorIntel CompetitorIntel[]
   engagements     Engagement[]
   assignments     CompanyAssignment[]
+  territoryGroups CompanyTerritoryGroup[]
 
   @@map("companies")
 }
@@ -665,7 +677,8 @@ model User {
   name  String?
   role  UserRole @default(viewer)
 
-  assignments CompanyAssignment[]
+  assignments     CompanyAssignment[]
+  teamMemberships TeamMember[]
 
   @@map("users")
 }
@@ -680,6 +693,80 @@ model CompanyAssignment {
 
   @@id([companyId, userId])
   @@map("company_assignments")
+}
+
+// ─── Territory &amp; Team Models ────────────────────────
+
+model Region {
+  id   String     @id @default(uuid()) @db.Uuid
+  name String     @unique
+  code RegionCode @unique
+
+  territoryGroups TerritoryGroup[]
+
+  @@map("regions")
+}
+
+model TerritoryGroup {
+  id          String   @id @default(uuid()) @db.Uuid
+  regionId    String   @map("region_id") @db.Uuid
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  region    Region                  @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  teams     TeamTerritoryGroup[]
+  companies CompanyTerritoryGroup[]
+
+  @@unique([regionId, name])
+  @@map("territory_groups")
+}
+
+model Team {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  members         TeamMember[]
+  territoryGroups TeamTerritoryGroup[]
+
+  @@map("teams")
+}
+
+model TeamTerritoryGroup {
+  teamId           String @map("team_id") @db.Uuid
+  territoryGroupId String @map("territory_group_id") @db.Uuid
+
+  team           Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  territoryGroup TerritoryGroup @relation(fields: [territoryGroupId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, territoryGroupId])
+  @@map("team_territory_groups")
+}
+
+model TeamMember {
+  teamId String   @map("team_id") @db.Uuid
+  userId String   @map("user_id") @db.Uuid
+  role   TeamRole @default(member)
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, userId])
+  @@map("team_members")
+}
+
+model CompanyTerritoryGroup {
+  companyId        String @map("company_id") @db.Uuid
+  territoryGroupId String @map("territory_group_id") @db.Uuid
+
+  company        Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  territoryGroup TerritoryGroup @relation(fields: [territoryGroupId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, territoryGroupId])
+  @@map("company_territory_groups")
 }</pre
         >
 
@@ -835,6 +922,20 @@ async def health():
                     <td><code>CompetitorCreate</code>, <code>CompetitorUpdate</code>, <code>CompetitorResponse</code>,
                     <code>IntelCreate</code>, <code>IntelUpdate</code>, <code>IntelResponse</code></td>
                     <td><code>IntelConfidence</code></td>
+                </tr>
+                <tr>
+                    <td><code>app/schemas/territory.py</code></td>
+                    <td><code>RegionCreate</code>, <code>RegionUpdate</code>, <code>RegionResponse</code>,
+                    <code>TerritoryGroupCreate</code>, <code>TerritoryGroupUpdate</code>, <code>TerritoryGroupResponse</code>,
+                    <code>CompanyTerritoryCreate</code>, <code>CompanyTerritoryResponse</code></td>
+                    <td><code>RegionCode</code></td>
+                </tr>
+                <tr>
+                    <td><code>app/schemas/team.py</code></td>
+                    <td><code>TeamCreate</code>, <code>TeamUpdate</code>, <code>TeamResponse</code>,
+                    <code>TeamMemberCreate</code>, <code>TeamMemberUpdate</code>, <code>TeamMemberResponse</code>,
+                    <code>TeamTerritoryCreate</code>, <code>TeamTerritoryResponse</code></td>
+                    <td><code>TeamRole</code></td>
                 </tr>
             </tbody>
         </table>
@@ -1093,6 +1194,98 @@ class CompanyResponse(BaseModel):
         </table>
 
 
+        <!-- Territories -->
+        <h2>12.8 Territories &mdash; <code>app/routers/territories.py</code></h2>
+        <p>Manages the geographic hierarchy: <strong>Regions</strong> (APJ, EMEA, Americas)
+        contain <strong>Territory Groups</strong> (e.g. &ldquo;DACH&rdquo;, &ldquo;US East&rdquo;).
+        Companies are assigned to territory groups via a many-to-many join, allowing
+        multinationals to belong to multiple territories.</p>
+
+        <h3>Regions</h3>
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/regions</code></td><td>Create a region (name + code)</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/regions</code></td><td>List all regions</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/regions/{id}</code></td><td>Update a region</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/regions/{id}</code></td><td>Delete a region (cascades territory groups)</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Territory Groups</h3>
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/territory-groups</code></td><td>Create a territory group under a region</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/territory-groups</code></td><td>List territory groups (filter by region)</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/territory-groups/{id}</code></td><td>Get a single territory group</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/territory-groups/{id}</code></td><td>Update a territory group</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/territory-groups/{id}</code></td><td>Delete a territory group</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Company &harr; Territory Assignments</h3>
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/company-territories</code></td><td>Assign a company to a territory group</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/company-territories</code></td><td>List assignments (filter by company or territory group)</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/company-territories/{company_id}/{territory_group_id}</code></td><td>Remove a company from a territory group</td></tr>
+            </tbody>
+        </table>
+
+        <!-- Teams -->
+        <h2>12.9 Teams &mdash; <code>app/routers/teams.py</code></h2>
+        <p>Sales teams that are assigned to territory groups. Each team can cover
+        multiple territories, and each territory can have multiple teams.
+        Users are added to teams as <strong>lead</strong> or <strong>member</strong>.</p>
+
+        <h3>Teams</h3>
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/teams</code></td><td>Create a team</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/teams</code></td><td>List all teams</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/teams/{id}</code></td><td>Get a single team (includes members &amp; territories)</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/teams/{id}</code></td><td>Update a team</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/teams/{id}</code></td><td>Delete a team</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Team Members</h3>
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/team-members</code></td><td>Add a user to a team</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/team-members</code></td><td>List members (filter by team)</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/team-members/{team_id}/{user_id}</code></td><td>Change member role (lead / member)</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/team-members/{team_id}/{user_id}</code></td><td>Remove a user from a team</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Team &harr; Territory Assignments</h3>
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/team-territories</code></td><td>Assign a team to a territory group</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/team-territories</code></td><td>List assignments (filter by team or territory group)</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/team-territories/{team_id}/{territory_group_id}</code></td><td>Remove a team from a territory group</td></tr>
+            </tbody>
+        </table>
+
+
         <!-- Router Registration -->
         <h1><span class="step-number">13</span> Register All Routers</h1>
 
@@ -1107,6 +1300,8 @@ from app.routers import (
     contracts,
     engagements,
     products,
+    teams,
+    territories,
 )
 
 app.include_router(companies.router)
@@ -1115,7 +1310,9 @@ app.include_router(engagements.router)
 app.include_router(assignments.router)
 app.include_router(products.router)
 app.include_router(contracts.router)
-app.include_router(competitors.router)</pre>
+app.include_router(competitors.router)
+app.include_router(territories.router)
+app.include_router(teams.router)</pre>
 
 
         <!-- Final Project Structure -->
@@ -1133,7 +1330,9 @@ Backend/app/<br>
 │&nbsp;&nbsp;&nbsp;├── assignments.py&nbsp;&nbsp;&nbsp;&nbsp;# Company Assignments CRUD<br>
 │&nbsp;&nbsp;&nbsp;├── products.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Categories + Products CRUD<br>
 │&nbsp;&nbsp;&nbsp;├── contracts.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Contracts + Line Items CRUD<br>
-│&nbsp;&nbsp;&nbsp;└── competitors.py&nbsp;&nbsp;&nbsp;&nbsp;# Competitors + Intel CRUD<br>
+│&nbsp;&nbsp;&nbsp;├── competitors.py&nbsp;&nbsp;&nbsp;&nbsp;# Competitors + Intel CRUD<br>
+│&nbsp;&nbsp;&nbsp;├── territories.py&nbsp;&nbsp;&nbsp;&nbsp;# Regions + Territory Groups + Company&harr;Territory CRUD<br>
+│&nbsp;&nbsp;&nbsp;└── teams.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Teams + Members + Team&harr;Territory CRUD<br>
 └── schemas/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;├── __init__.py<br>
 &nbsp;&nbsp;&nbsp;&nbsp;├── company.py<br>
@@ -1142,13 +1341,15 @@ Backend/app/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;├── assignment.py<br>
 &nbsp;&nbsp;&nbsp;&nbsp;├── product.py<br>
 &nbsp;&nbsp;&nbsp;&nbsp;├── contract.py<br>
-&nbsp;&nbsp;&nbsp;&nbsp;└── competitor.py
+&nbsp;&nbsp;&nbsp;&nbsp;├── competitor.py<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── territory.py<br>
+&nbsp;&nbsp;&nbsp;&nbsp;└── team.py
         </div>
 
         <div class="note-box">
-            <strong>Total API endpoints:</strong> 42 endpoints across 7 entity groups
+            <strong>Total API endpoints:</strong> 66 endpoints across 9 entity groups
             (Companies, Contacts, Engagements/Stages, Assignments, Products/Categories,
-            Contracts/Line Items, Competitors/Intel). Open
+            Contracts/Line Items, Competitors/Intel, Territories/Regions, Teams/Members). Open
             <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a>
             to see all of them in the Swagger UI, grouped by tag.
         </div>
@@ -1157,10 +1358,14 @@ Backend/app/<br>
         <p>
             With the server running (<code>uvicorn app.main:app --reload --port 8000</code>),
             open <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a>.
-            You should see all 7 groups. Try a quick end-to-end flow:
+            You should see all 9 groups. Try a quick end-to-end flow:
         </p>
         <ol>
+            <li><strong>POST</strong> a region: <code>{"name": "Americas", "code": "Americas"}</code></li>
+            <li><strong>POST</strong> a territory group under that region: <code>{"region_id": "...", "name": "US East"}</code></li>
             <li><strong>POST</strong> a company: <code>{"current_name": "Acme Corp"}</code></li>
+            <li><strong>POST</strong> a company-territory assignment to place the company in US East</li>
+            <li><strong>POST</strong> a team: <code>{"name": "US East Enterprise"}</code>, then assign it to the territory group</li>
             <li><strong>POST</strong> a contact linked to that company</li>
             <li><strong>POST</strong> a pipeline stage: <code>{"name": "Prospecting", "probability": 10}</code></li>
             <li><strong>POST</strong> an engagement linking the company to the stage</li>
