@@ -5,10 +5,42 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* ── Sophos Brand Fonts ── */
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-lexend);
+  --font-display: var(--font-lexend-exa);
+
+  /* ── Sophos Primary Colors ── */
+  --color-sophos-dark-blue: #001A47;
+  --color-sophos-blue: #2006F7;
+  --color-sophos-cyber-blue: #00EDFF;
+  --color-sophos-cyber-green: #00F2B3;
+  --color-sophos-white: #EBF6FF;
+
+  /* ── Sophos Secondary Colors (data visualization) ── */
+  --color-sophos-indigo: #10037C;
+  --color-sophos-violet: #5A00FF;
+  --color-sophos-purple: #B529F7;
+  --color-sophos-sky: #009CFB;
+  --color-sophos-steel: #6A889B;
+
+  /* ── Sophos Tertiary Colors (alerts) ── */
+  --color-sophos-red: #EA0022;
+  --color-sophos-orange: #F29400;
+  --color-sophos-yellow: #F8E300;
+  --color-sophos-lime: #AAFF00;
+  --color-sophos-green: #00EF0B;
+
+  /* ── Sophos Base Tones ── */
+  --color-sophos-base-white: #FFFFFF;
+  --color-sophos-base-ice: #EBF6FF;
+  --color-sophos-base-mist: #BBCFDE;
+  --color-sophos-base-slate: #6A889B;
+  --color-sophos-base-charcoal: #223E4C;
+
+  /* ── Shadcn semantic mappings ── */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,71 +81,71 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --background: #FFFFFF;
+  --foreground: #001A47;
+  --card: #FFFFFF;
+  --card-foreground: #001A47;
+  --popover: #FFFFFF;
+  --popover-foreground: #001A47;
+  --primary: #2006F7;
+  --primary-foreground: #EBF6FF;
+  --secondary: #EBF6FF;
+  --secondary-foreground: #001A47;
+  --muted: #EBF6FF;
+  --muted-foreground: #6A889B;
+  --accent: #00F2B3;
+  --accent-foreground: #001A47;
+  --destructive: #EA0022;
+  --border: #BBCFDE;
+  --input: #BBCFDE;
+  --ring: #2006F7;
+  --chart-1: #2006F7;
+  --chart-2: #5A00FF;
+  --chart-3: #B529F7;
+  --chart-4: #009CFB;
+  --chart-5: #6A889B;
+  --sidebar: #EBF6FF;
+  --sidebar-foreground: #001A47;
+  --sidebar-primary: #2006F7;
+  --sidebar-primary-foreground: #EBF6FF;
+  --sidebar-accent: #BBCFDE;
+  --sidebar-accent-foreground: #001A47;
+  --sidebar-border: #BBCFDE;
+  --sidebar-ring: #2006F7;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #001A47;
+  --foreground: #EBF6FF;
+  --card: #223E4C;
+  --card-foreground: #EBF6FF;
+  --popover: #223E4C;
+  --popover-foreground: #EBF6FF;
+  --primary: #00EDFF;
+  --primary-foreground: #001A47;
+  --secondary: #223E4C;
+  --secondary-foreground: #EBF6FF;
+  --muted: #223E4C;
+  --muted-foreground: #BBCFDE;
+  --accent: #00F2B3;
+  --accent-foreground: #001A47;
+  --destructive: #EA0022;
+  --border: #6A889B;
+  --input: #6A889B;
+  --ring: #00EDFF;
+  --chart-1: #00EDFF;
+  --chart-2: #00F2B3;
+  --chart-3: #B529F7;
+  --chart-4: #009CFB;
+  --chart-5: #5A00FF;
+  --sidebar: #223E4C;
+  --sidebar-foreground: #EBF6FF;
+  --sidebar-primary: #00EDFF;
+  --sidebar-primary-foreground: #001A47;
+  --sidebar-accent: #6A889B;
+  --sidebar-accent-foreground: #EBF6FF;
+  --sidebar-border: #6A889B;
+  --sidebar-ring: #00EDFF;
 }
 
 @layer base {
@@ -121,6 +153,54 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+
+  /* ── Sophos Digital Typography ── */
+
+  h1 {
+    font-family: var(--font-lexend-exa);
+    font-size: 4rem;       /* 64px */
+    line-height: 4rem;     /* 64px */
+    letter-spacing: -0.469rem; /* -7.5px */
+    font-weight: 400;
+  }
+
+  h2 {
+    font-family: var(--font-lexend);
+    font-size: 2.875rem;   /* 46px */
+    line-height: 2.875rem; /* 46px */
+    letter-spacing: -0.047rem; /* -0.75px */
+    font-weight: 400;
+  }
+
+  h3 {
+    font-family: var(--font-inter);
+    font-size: 1.625rem;   /* 26px */
+    line-height: 1.875rem; /* 30px */
+    letter-spacing: -0.031rem; /* -0.5px */
+    font-weight: 400;
+  }
+
+  h3 strong, h3 b {
+    font-weight: 600;
+    letter-spacing: -0.016rem; /* -0.25px */
+  }
+
+  p {
+    font-family: var(--font-inter);
+    font-size: 1.125rem;   /* 18px */
+    line-height: 1.5rem;   /* 24px */
+    letter-spacing: -0.016rem; /* -0.25px */
+    font-weight: 400;
+    margin-bottom: 0.625rem; /* 10px paragraph spacing */
+  }
+
+  .inset {
+    font-family: var(--font-inter);
+    font-size: 0.75rem;    /* 12px */
+    line-height: 0.9375rem; /* 15px */
+    letter-spacing: 0;
+    font-weight: 400;
   }
 }
