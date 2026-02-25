@@ -37,9 +37,12 @@ app.add_middleware(
 # ── Register routers ─────────────────────────────────────────────────
 # Each router handles a group of related endpoints (e.g. /api/companies).
 # Import and include them here so FastAPI knows about them.
-from app.routers import companies  # noqa: E402
+from app.routers import assignments, companies, contacts, engagements  # noqa: E402
 
 app.include_router(companies.router)
+app.include_router(contacts.router)
+app.include_router(engagements.router)
+app.include_router(assignments.router)
 
 
 @app.get("/health")

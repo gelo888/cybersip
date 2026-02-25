@@ -1032,6 +1032,135 @@ app.include_router(companies.router)</pre>
             <li><strong>DELETE</strong> it when done</li>
         </ol>
 
+        <!-- Contacts Router -->
+        <h2>11.5 Contacts Router &mdash; <code>app/routers/contacts.py</code></h2>
+
+        <p>Manages stakeholders within client organizations. Each contact belongs to a company.</p>
+
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/contacts</code></td><td>Create a contact (requires <code>company_id</code>)</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/contacts</code></td><td>List contacts (filter by <code>company_id</code>)</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/contacts/{id}</code></td><td>Get a single contact</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/contacts/{id}</code></td><td>Update a contact</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/contacts/{id}</code></td><td>Delete a contact</td></tr>
+            </tbody>
+        </table>
+
+        <p><strong>Schema:</strong> <code>app/schemas/contact.py</code> &mdash;
+        defines <code>ContactCreate</code>, <code>ContactUpdate</code>, and <code>ContactResponse</code>
+        plus enums for <code>ContactSeniority</code> (C_Suite, VP, Director, Manager) and
+        <code>RoleInDeal</code> (decision_maker, influencer, champion, blocker).</p>
+
+        <!-- Engagements Router -->
+        <h2>11.6 Engagements Router &mdash; <code>app/routers/engagements.py</code></h2>
+
+        <p>Tracks interactions (calls, emails, meetings, demos) with companies.
+        Each engagement is linked to a <strong>pipeline stage</strong>, so the stages
+        endpoints are included here too.</p>
+
+        <h3>Pipeline Stages</h3>
+        <p>Stages must be created before engagements can reference them
+        (e.g. "Prospecting", "Pitched", "Proposal Sent", "Closed Won").</p>
+
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/stages</code></td><td>Create a stage (name + win probability %)</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/stages</code></td><td>List all stages</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/stages/{id}</code></td><td>Update a stage</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/stages/{id}</code></td><td>Delete a stage</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Engagements</h3>
+
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/engagements</code></td><td>Log a new engagement</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/engagements</code></td><td>List engagements (filter by company &amp; type)</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/engagements/{id}</code></td><td>Get a single engagement</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/engagements/{id}</code></td><td>Update an engagement</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/engagements/{id}</code></td><td>Delete an engagement</td></tr>
+            </tbody>
+        </table>
+
+        <p><strong>Schema:</strong> <code>app/schemas/engagement.py</code> &mdash;
+        defines models for both stages (<code>StageCreate</code>, <code>StageUpdate</code>,
+        <code>StageResponse</code>) and engagements (<code>EngagementCreate</code>,
+        <code>EngagementUpdate</code>, <code>EngagementResponse</code>).</p>
+
+        <!-- Assignments Router -->
+        <h2>11.7 Company Assignments Router &mdash; <code>app/routers/assignments.py</code></h2>
+
+        <p>Assigns users (sales agents) to companies as either an <strong>owner</strong>
+        or <strong>collaborator</strong>. Uses a composite key (<code>company_id</code> +
+        <code>user_id</code>).</p>
+
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>POST</code></td><td><code>/api/assignments</code></td><td>Assign a user to a company</td></tr>
+                <tr><td><code>GET</code></td><td><code>/api/assignments</code></td><td>List assignments (filter by company or user)</td></tr>
+                <tr><td><code>PATCH</code></td><td><code>/api/assignments/{company_id}/{user_id}</code></td><td>Change the role</td></tr>
+                <tr><td><code>DELETE</code></td><td><code>/api/assignments/{company_id}/{user_id}</code></td><td>Remove the assignment</td></tr>
+            </tbody>
+        </table>
+
+        <p><strong>Schema:</strong> <code>app/schemas/assignment.py</code> &mdash;
+        defines <code>AssignmentCreate</code>, <code>AssignmentUpdate</code>, and
+        <code>AssignmentResponse</code>.</p>
+
+        <!-- Registering Routers -->
+        <h2>11.8 Registering All Routers &mdash; <code>app/main.py</code></h2>
+
+        <p>All routers are imported and registered in <code>main.py</code>:</p>
+
+        <pre>
+from app.routers import assignments, companies, contacts, engagements
+
+app.include_router(companies.router)
+app.include_router(contacts.router)
+app.include_router(engagements.router)
+app.include_router(assignments.router)</pre>
+
+        <h2>11.9 Updated Project Structure</h2>
+
+        <div class="file-tree">
+Backend/app/<br>
+├── __init__.py<br>
+├── main.py<br>
+├── routers/<br>
+│&nbsp;&nbsp;&nbsp;├── __init__.py<br>
+│&nbsp;&nbsp;&nbsp;├── companies.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Companies CRUD<br>
+│&nbsp;&nbsp;&nbsp;├── contacts.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Contacts CRUD<br>
+│&nbsp;&nbsp;&nbsp;├── engagements.py&nbsp;&nbsp;&nbsp;&nbsp;# Stages + Engagements CRUD<br>
+│&nbsp;&nbsp;&nbsp;└── assignments.py&nbsp;&nbsp;&nbsp;&nbsp;# Company Assignments CRUD<br>
+└── schemas/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── __init__.py<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── company.py<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── contact.py<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── engagement.py<br>
+&nbsp;&nbsp;&nbsp;&nbsp;└── assignment.py
+        </div>
+
+        <div class="note-box">
+            <strong>Total API endpoints:</strong> 19 endpoints across 4 entity groups
+            (Companies, Contacts, Engagements/Stages, Assignments). Open
+            <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a>
+            to see all of them in the Swagger UI, grouped by tag.
+        </div>
+
         <!-- Important Note -->
         <h1>Important Note: Prisma + Python</h1>
 
