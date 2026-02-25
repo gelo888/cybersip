@@ -314,7 +314,7 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: cybersec_crm
+      POSTGRES_DB: cybersec_sip
     ports:
       - "5432:5432"
     volumes:
@@ -322,6 +322,13 @@ services:
 
 volumes:
   pgdata:</pre>
+
+        <h3>Start the Database</h3>
+        <p>From the <strong>project root</strong> (<code>new-project/</code>), run:</p>
+        <pre>docker compose up -d</pre>
+        <p>Verify it's running:</p>
+        <pre>docker compose ps</pre>
+        <p>You should see <code>cybersec-db</code> with status <strong>"running"</strong>. If the status shows an error, check logs with <code>docker compose logs db</code>.</p>
 
         <h3>Common Commands</h3>
         <table>

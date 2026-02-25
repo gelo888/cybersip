@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: cybersec_crm
+      POSTGRES_DB: cybersec_sip
     ports:
       - "5432:5432"
     volumes:
