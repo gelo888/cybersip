@@ -708,7 +708,30 @@ prisma db push</pre>
         <!-- FastAPI App -->
         <h1><span class="step-number">9</span> Create the FastAPI App</h1>
 
-        <p>Create <code>app/main.py</code>:</p>
+        <p>
+            This is where you create the actual API server. You need to create the following
+            files inside <code>Backend/</code>:
+        </p>
+
+        <div class="file-tree">
+Backend/app/<br>
+├── __init__.py&nbsp;&nbsp;&nbsp;&nbsp;# Makes app/ a Python package (required for imports)<br>
+└── main.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# FastAPI entry point
+        </div>
+
+        <p><code>main.py</code> is the entry point that:</p>
+        <ul>
+            <li><strong>Connects to your database</strong> via Prisma on startup (and disconnects on shutdown)</li>
+            <li><strong>Sets up CORS</strong> so your Next.js frontend (<code>localhost:3000</code>) can call the API</li>
+            <li><strong>Exposes a <code>/health</code> endpoint</strong> to verify the server is running</li>
+        </ul>
+
+        <h3>app/__init__.py</h3>
+        <p>This file can be empty. It tells Python that <code>app/</code> is a package, which is
+        required for <code>uvicorn app.main:app</code> to resolve the import path.</p>
+        <pre># This file is intentionally left empty.</pre>
+
+        <h3>app/main.py</h3>
 
         <pre>
 from contextlib import asynccontextmanager
