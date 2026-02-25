@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+prisma
+python-dotenv
+pydantic[email]

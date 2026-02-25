@@ -291,23 +291,55 @@ pydantic[email]</pre
         <pre>pip install -r requirements.txt</pre>
 
         <!-- Set Up PostgreSQL -->
-        <h1><span class="step-number">5</span> Set Up PostgreSQL</h1>
+        <h1><span class="step-number">5</span> Set Up PostgreSQL (Docker Compose)</h1>
 
-        <h3>Option A: Local PostgreSQL</h3>
-        <pre>
-brew services start postgresql@16
-createdb cybersec_sip</pre
-        >
+        <p>
+            We use a <code>docker-compose.yml</code> at the project root instead of a raw
+            <code>docker run</code> command. This is better because:
+        </p>
+        <ul>
+            <li>You don't have to remember long commands &mdash; just <code>docker compose up -d</code></li>
+            <li>A <strong>named volume</strong> (<code>pgdata</code>) keeps your data safe across container restarts</li>
+            <li>It's committed to the repo, so anyone can spin up the same environment</li>
+            <li>Easy to add more services later (e.g. Redis, pgAdmin)</li>
+        </ul>
 
-        <h3>Option B: Docker (recommended for consistency)</h3>
+        <p>The <code>docker-compose.yml</code> lives at the project root (<code>new-project/docker-compose.yml</code>):</p>
         <pre>
-docker run --name cybersec-db \
-  -e POSTGRES_USER=admin \
-  -e POSTGRES_PASSWORD=password \
-  -e POSTGRES_DB=cybersec_sip \
-  -p 5432:5432 \
-  -d postgres:16</pre
-        >
+services:
+  db:
+    image: postgres:16
+    container_name: cybersec-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: cybersec_crm
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:</pre>
+
+        <h3>Common Commands</h3>
+        <table>
+            <thead>
+                <tr><th>Command</th><th>What it does</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>docker compose up -d</code></td><td>Start the database in the background</td></tr>
+                <tr><td><code>docker compose down</code></td><td>Stop the database (data is preserved in volume)</td></tr>
+                <tr><td><code>docker compose down -v</code></td><td>Stop AND delete all data (nuclear option)</td></tr>
+                <tr><td><code>docker compose logs db</code></td><td>View database logs</td></tr>
+            </tbody>
+        </table>
+
+        <div class="note-box">
+            <strong>No Dockerfile needed.</strong> We're using the stock <code>postgres:16</code>
+            image as-is &mdash; a Dockerfile is only needed when building a custom image.
+        </div>
 
         <!-- Environment Variables -->
         <h1>

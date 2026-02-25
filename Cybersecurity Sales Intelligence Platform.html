@@ -958,6 +958,18 @@ products_services
             </tbody>
         </table>
 
+        <h2>3.1 Architecture Decision: Where Prisma Lives</h2>
+        <div class="note-box" style="border-left: 5px solid var(--secondary)">
+            <p>Since this project uses <strong>FastAPI as a dedicated backend</strong>, Prisma is used exclusively on the backend side. The frontend remains a pure UI layer.</p>
+            <ul>
+                <li><strong><code>backend/prisma/</code></strong> &mdash; Prisma schema + <code>prisma-client-py</code> for FastAPI to handle all database operations.</li>
+                <li><strong><code>frontend/</code></strong> &mdash; Pure Next.js with <code>fetch</code> calls to <code>http://localhost:8000/api/...</code></li>
+            </ul>
+            <p>The Next.js app becomes a clean UI layer that consumes the FastAPI REST API. When NextAuth.js is added later, it will validate sessions on the frontend and pass tokens to FastAPI for authorization.</p>
+            <p style="margin-bottom:0"><strong>Data flow:</strong><br>
+            <code>Browser &rarr; Next.js (UI) &rarr; fetch/axios &rarr; FastAPI (API) &rarr; Prisma &rarr; PostgreSQL</code></p>
+        </div>
+
         <div class="page-break"></div>
 
         <h1>4. Suggestions &amp; Improvements</h1>
