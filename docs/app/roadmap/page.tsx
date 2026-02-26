@@ -1,0 +1,339 @@
+import type { Metadata } from "next";
+import { Map } from "lucide-react";
+import { DocsPager } from "@/components/docs-pager";
+
+export const metadata: Metadata = {
+  title: "Roadmap",
+};
+
+export default function RoadmapPage() {
+  return (
+    <div className="docs-content">
+      <div className="mb-2 flex items-center gap-2 text-sm text-blue-500">
+        <Map className="h-4 w-4" />
+        <span className="font-medium">Roadmap</span>
+      </div>
+      <h1>Development Roadmap</h1>
+      <p>
+        CyberSIP&apos;s development is structured in four phases, progressing
+        from core data connectivity through AI integration and UX polish.
+      </p>
+
+      <h2>Current State</h2>
+
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
+          <h3 className="mt-0 mb-2 text-sm font-semibold text-green-600">
+            What&apos;s Working
+          </h3>
+          <ul className="mb-0 text-sm">
+            <li>7 static frontend pages (Next.js 16 + shadcn/ui)</li>
+            <li>FastAPI backend with 9 CRUD routers (66 endpoints)</li>
+            <li>Prisma schema with rich relationships</li>
+            <li>Docker Compose (PostgreSQL + backend)</li>
+            <li>Sidebar navigation grouped by strategic intent</li>
+          </ul>
+        </div>
+        <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4">
+          <h3 className="mt-0 mb-2 text-sm font-semibold text-red-600">
+            The Gap
+          </h3>
+          <ul className="mb-0 text-sm">
+            <li>All pages use hardcoded mock data — zero API calls</li>
+            <li>No authentication / authorization</li>
+            <li>No AI integration</li>
+            <li>No N8N automation workflows</li>
+            <li>Missing key interactive components from the spec</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>Phase 1 — Connect & Core</h2>
+
+      <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-blue-500 bg-blue-500/5 p-4">
+        <p className="mb-1 text-xs font-bold uppercase tracking-wider text-blue-500">
+          Week 1–2
+        </p>
+        <ol className="mb-0 text-sm">
+          <li>Install TanStack Query, set up API client</li>
+          <li>
+            Connect Portfolio page to <code>/api/companies</code> and{" "}
+            <code>/api/contacts</code>
+          </li>
+          <li>Add Create / Edit / Delete modals for companies and contacts</li>
+          <li>
+            Build the Company 360 page (<code>/portfolio/[id]</code>)
+          </li>
+        </ol>
+      </div>
+
+      <h2>Phase 2 — Make It Smart</h2>
+
+      <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-amber-500 bg-amber-500/5 p-4">
+        <p className="mb-1 text-xs font-bold uppercase tracking-wider text-amber-500">
+          Week 3–4
+        </p>
+        <ol start={5} className="mb-0 text-sm">
+          <li>
+            Add a <code>/api/ai/enrich-company</code> endpoint (OpenAI or
+            similar)
+          </li>
+          <li>Build the Smart-Add Company modal with domain enrichment</li>
+          <li>Connect Hunt kanban to engagements API + add drag-and-drop</li>
+          <li>Add CMD+K command palette</li>
+        </ol>
+      </div>
+
+      <h2>Phase 3 — Automate with N8N</h2>
+
+      <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-green-500 bg-green-500/5 p-4">
+        <p className="mb-1 text-xs font-bold uppercase tracking-wider text-green-500">
+          Week 5–6
+        </p>
+        <ol start={9} className="mb-0 text-sm">
+          <li>
+            Set up N8N (add to <code>docker-compose.yml</code>)
+          </li>
+          <li>Build competitor news scraper workflow</li>
+          <li>Build contract expiry notification workflow</li>
+          <li>Connect Action Stream to real data</li>
+        </ol>
+      </div>
+
+      <h2>Phase 4 — Polish</h2>
+
+      <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-purple-500 bg-purple-500/5 p-4">
+        <p className="mb-1 text-xs font-bold uppercase tracking-wider text-purple-500">
+          Week 7–8
+        </p>
+        <ol start={13} className="mb-0 text-sm">
+          <li>Dark mode toggle</li>
+          <li>Skeleton loading states everywhere</li>
+          <li>Inline editing on tables</li>
+          <li>Battle Card generation with AI</li>
+          <li>Displacement email template generation</li>
+        </ol>
+      </div>
+
+      <h2>AI-Powered Features</h2>
+
+      <p>
+        Planned AI integrations via FastAPI + OpenAI/Claude:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Description</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Smart-Add Company</td>
+            <td>
+              Enter <code>acme.com</code>, AI enriches company data (industry,
+              size, HQ, tech stack)
+            </td>
+            <td>
+              <code>/api/ai/enrich-company</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Battle Card Generation</td>
+            <td>Auto-generate competitor talking points from intel data</td>
+            <td>Company 360 view</td>
+          </tr>
+          <tr>
+            <td>Relationship Health Score</td>
+            <td>
+              AI scores account health from engagement frequency, sentiment,
+              contract proximity
+            </td>
+            <td>Command Center + Portfolio</td>
+          </tr>
+          <tr>
+            <td>Displacement Email Templates</td>
+            <td>
+              Personalized outreach using competitor weakness + prospect context
+            </td>
+            <td>Intelligence Hub</td>
+          </tr>
+          <tr>
+            <td>Action Stream Intelligence</td>
+            <td>Summarize and prioritize news feeds into actionable alerts</td>
+            <td>Command Center</td>
+          </tr>
+          <tr>
+            <td>CISO Pain Points</td>
+            <td>Extract insights from engagement notes via NLP</td>
+            <td>Contact hover card</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>N8N Automation Workflows</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Workflow</th>
+            <th>Trigger</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Competitor News Scraper</td>
+            <td>Scheduled (daily)</td>
+            <td>Scrape CyberWire, NIST NVD, vendor blogs → push to Intelligence Hub</td>
+          </tr>
+          <tr>
+            <td>Contract Expiry Alerts</td>
+            <td>Cron (daily)</td>
+            <td>Query contracts expiring in 30/60/90 days → Slack/email</td>
+          </tr>
+          <tr>
+            <td>Company Enrichment</td>
+            <td>Webhook on creation</td>
+            <td>Call Clearbit/Apollo API → auto-fill company data</td>
+          </tr>
+          <tr>
+            <td>CVE Monitor</td>
+            <td>Scheduled</td>
+            <td>Monitor NVD for CVEs affecting tracked competitors</td>
+          </tr>
+          <tr>
+            <td>Deal Stage Alerts</td>
+            <td>Webhook on update</td>
+            <td>If deal stuck &gt;14 days → notify owner + manager</td>
+          </tr>
+          <tr>
+            <td>Meeting Follow-Up</td>
+            <td>Webhook after engagement</td>
+            <td>AI generates follow-up email draft</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Missing Frontend Features</h2>
+
+      <h3>Missing Pages / Views</h3>
+      <ul>
+        <li>
+          <strong>Company 360-Degree View</strong> (
+          <code>/portfolio/[companyId]</code>) — Battle Card sidebar,
+          Relationship Map, Tech Stack Timeline, Whitespace Analysis Matrix
+        </li>
+        <li>
+          <strong>Contact Detail View</strong> — CISO Battle Card modal on hover
+        </li>
+      </ul>
+
+      <h3>Missing Interactive Components</h3>
+      <ul>
+        <li>CMD+K Command Palette</li>
+        <li>Smart-Add Company Modal (domain-first approach)</li>
+        <li>Intelligence Drawer (right slide-over)</li>
+        <li>Inline &quot;Ghost&quot; Editing on tables</li>
+        <li>Drag-and-Drop on Kanban</li>
+        <li>Multi-Step Engagement Wizard</li>
+      </ul>
+
+      <h3>Missing UX Patterns</h3>
+      <ul>
+        <li>Dark mode toggle</li>
+        <li>Skeleton loading states</li>
+        <li>Toast notifications (Sonner)</li>
+        <li>Real-time Action Stream (WebSocket or polling)</li>
+        <li>Filters and search across all pages</li>
+      </ul>
+
+      <h2>Quick Wins — High Value Additions</h2>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {[
+          {
+            title: "Activity Log / Audit Trail",
+            desc: "Track who changed what and when. Essential for accountability.",
+          },
+          {
+            title: "Dashboard Filters",
+            desc: "Filter Command Center by territory, time range, or deal owner.",
+          },
+          {
+            title: "CSV / Excel Export",
+            desc: "One-click export from any table. Sales teams live in spreadsheets.",
+          },
+          {
+            title: "Saved Views / Bookmarks",
+            desc: 'Save filtered table views (e.g., "My EMEA accounts expiring Q2").',
+          },
+          {
+            title: "Notification Center",
+            desc: "Bell icon with unread alerts, separate from the Action Stream.",
+          },
+          {
+            title: "Mobile PWA Support",
+            desc: "Make the app installable as a PWA for reps on the road.",
+          },
+        ].map((item) => (
+          <div
+            key={item.title}
+            className="rounded-lg border border-border p-4"
+          >
+            <h3 className="mt-0 mb-1 text-sm font-semibold">{item.title}</h3>
+            <p className="mb-0 text-sm">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      <h2>Suggested Improvements</h2>
+
+      <h3>Critical Must-Haves</h3>
+      <ol>
+        <li>
+          <strong>Renewal Alert Engine</strong> — Automated system flagging
+          contracts expiring in 30/60/90 days
+        </li>
+        <li>
+          <strong>Competitive Displacement Score</strong> — Algorithm ranking
+          prospects based on competitor weakness and contract expiry
+        </li>
+        <li>
+          <strong>Deal Health Score</strong> — Auto-calculation based on
+          communication frequency and stakeholder engagement
+        </li>
+        <li>
+          <strong>Duplicate Detection</strong> — Flag similar company names or
+          websites during creation
+        </li>
+      </ol>
+
+      <h3>High-Value Additions</h3>
+      <ol start={5}>
+        <li>Visual Relationship Map (interactive org chart)</li>
+        <li>Contract Timeline View (Gantt-chart style)</li>
+        <li>Market Coverage Heatmap</li>
+        <li>Product Penetration Matrix</li>
+        <li>Lost Deal Post-Mortem</li>
+        <li>Win/Loss Analytics</li>
+      </ol>
+
+      <h3>Nice-to-Have Features</h3>
+      <ol start={11}>
+        <li>Email sync (Outlook/Gmail)</li>
+        <li>LinkedIn enrichment</li>
+        <li>News alert triggers</li>
+        <li>Proposal generator (one-click PDF)</li>
+        <li>Compliance tracker (GDPR, HIPAA)</li>
+        <li>Revenue forecasting</li>
+      </ol>
+
+      <DocsPager
+        prev={{ title: "UX / UI Design", href: "/design", description: "Design system & patterns" }}
+      />
+    </div>
+  );
+}
