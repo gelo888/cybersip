@@ -1525,6 +1525,231 @@ Backend/<br>
             </li>
         </ol>
 
+        <!-- Docker: Run Everything -->
+        <h1><span class="step-number">16</span> Docker: Run DB + Backend Together</h1>
+
+        <p>
+            Instead of running PostgreSQL and the FastAPI backend separately, you can
+            launch everything with a single <code>docker compose up</code>. The setup
+            includes:
+        </p>
+        <ul>
+            <li>A <strong>PostgreSQL 16</strong> container with a health check</li>
+            <li>A <strong>FastAPI backend</strong> container that waits for Postgres, pushes the Prisma schema, and starts uvicorn</li>
+        </ul>
+
+        <h2>16.1 Files Overview</h2>
+
+        <p>Three files power the Docker setup:</p>
+
+        <table>
+            <thead>
+                <tr><th>File</th><th>Location</th><th>Purpose</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>docker-compose.yml</code></td>
+                    <td>Project root</td>
+                    <td>Defines both services (<code>db</code> and <code>backend</code>)</td>
+                </tr>
+                <tr>
+                    <td><code>Dockerfile</code></td>
+                    <td><code>backend/</code></td>
+                    <td>Builds the Python image with dependencies and Prisma client</td>
+                </tr>
+                <tr>
+                    <td><code>entrypoint.sh</code></td>
+                    <td><code>backend/</code></td>
+                    <td>Startup script: waits for DB, pushes schema, starts server</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>16.2 docker-compose.yml</h2>
+
+        <p>Located at the project root (<code>new-project/docker-compose.yml</code>):</p>
+
+        <pre>
+services:
+  db:
+    image: postgres:16
+    container_name: cybersec-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: cybersec_sip
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d cybersec_sip"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: cybersec-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: "postgresql://admin:password@db:5432/cybersec_sip"
+      SEED_DB: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:</pre>
+
+        <div class="note-box">
+            <strong>Key detail:</strong> Inside Docker, the backend connects to
+            <code>db:5432</code> (the Postgres service name) instead of
+            <code>localhost:5432</code>. The <code>DATABASE_URL</code> is set as an
+            environment variable in the compose file, overriding the <code>.env</code> file.
+        </div>
+
+        <h2>16.3 backend/Dockerfile</h2>
+
+        <pre>
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends \
+    gcc libpq-dev curl &amp;&amp; \
+    rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+RUN prisma generate
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 8000
+
+ENTRYPOINT ["/entrypoint.sh"]</pre>
+
+        <h2>16.4 backend/entrypoint.sh</h2>
+
+        <pre>
+#!/bin/bash
+set -e
+
+echo "Waiting for PostgreSQL to be ready..."
+until prisma db execute --stdin &lt;&lt;&lt; "SELECT 1" 2&gt;/dev/null; do
+  sleep 1
+done
+echo "PostgreSQL is ready."
+
+echo "Pushing Prisma schema to database..."
+prisma db push --skip-generate
+
+if [ "$SEED_DB" = "true" ]; then
+  echo "Seeding database..."
+  python -m prisma.seed
+fi
+
+echo "Starting FastAPI server..."
+exec uvicorn app.main:app --host 0.0.0.0 --port 8000</pre>
+
+        <h2>16.5 Commands</h2>
+
+        <h3>Build &amp; Start Everything</h3>
+        <pre>
+# From the project root (new-project/)
+docker compose up --build</pre>
+
+        <p>This will:</p>
+        <ol>
+            <li>Start Postgres and wait for it to pass the health check</li>
+            <li>Build the backend image (install deps, generate Prisma client)</li>
+            <li>Run the entrypoint: wait for DB connectivity, push the Prisma schema, start uvicorn</li>
+        </ol>
+
+        <h3>Build &amp; Start with Seed Data</h3>
+        <p>To also seed the database with sample data on first start:</p>
+        <pre>SEED_DB=true docker compose up --build</pre>
+
+        <p>Or change <code>SEED_DB: "false"</code> to <code>SEED_DB: "true"</code> in <code>docker-compose.yml</code>.</p>
+
+        <h3>Run in Background (Detached)</h3>
+        <pre>docker compose up --build -d</pre>
+
+        <h3>View Logs</h3>
+        <pre>
+# All services
+docker compose logs -f
+
+# Backend only
+docker compose logs -f backend
+
+# Database only
+docker compose logs -f db</pre>
+
+        <h3>Stop Everything</h3>
+        <pre>
+# Stop containers (data preserved in volume)
+docker compose down
+
+# Stop AND delete all data (fresh start)
+docker compose down -v</pre>
+
+        <h3>Rebuild After Code Changes</h3>
+        <pre>docker compose up --build</pre>
+
+        <p>Docker will detect changes in <code>backend/</code> and rebuild the image.</p>
+
+        <h3>Quick Reference</h3>
+        <table>
+            <thead>
+                <tr><th>Command</th><th>What it does</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>docker compose up --build</code></td><td>Build &amp; start DB + Backend</td></tr>
+                <tr><td><code>docker compose up --build -d</code></td><td>Same, but in background</td></tr>
+                <tr><td><code>SEED_DB=true docker compose up --build</code></td><td>Build, start, and seed the database</td></tr>
+                <tr><td><code>docker compose down</code></td><td>Stop everything (data preserved)</td></tr>
+                <tr><td><code>docker compose down -v</code></td><td>Stop &amp; wipe all data</td></tr>
+                <tr><td><code>docker compose logs -f backend</code></td><td>Tail backend logs</td></tr>
+                <tr><td><code>docker compose ps</code></td><td>Show running containers</td></tr>
+            </tbody>
+        </table>
+
+        <h2>16.6 Endpoints After Docker Start</h2>
+        <table>
+            <thead>
+                <tr><th>Service</th><th>URL</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>API</td><td><a href="http://localhost:8000" target="_blank">http://localhost:8000</a></td></tr>
+                <tr><td>Swagger Docs</td><td><a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a></td></tr>
+                <tr><td>Health Check</td><td><a href="http://localhost:8000/health" target="_blank">http://localhost:8000/health</a></td></tr>
+                <tr><td>PostgreSQL</td><td><code>localhost:5432</code></td></tr>
+            </tbody>
+        </table>
+
+        <div class="warning-box">
+            <strong>Port conflicts:</strong> If you're already running Postgres locally
+            on port 5432, or the backend on port 8000, Docker will fail to bind those
+            ports. Either stop the local services first, or change the host-side ports
+            in <code>docker-compose.yml</code> (e.g. <code>"5433:5432"</code>).
+        </div>
+
+        <div class="note-box">
+            <strong>Local dev still works:</strong> Your <code>backend/.env</code> still
+            points to <code>localhost:5432</code>, so you can run the backend directly
+            with <code>uvicorn</code> outside of Docker when you prefer a faster
+            reload cycle during development.
+        </div>
+
         <div class="footer">
             Backend Setup Guide &bull; Cybersecurity Sales Intelligence Platform
             &bull; Generated February 2026
