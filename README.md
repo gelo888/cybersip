@@ -6,12 +6,12 @@ A specialized CRM platform for cybersecurity sales teams — focused on **compet
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js 16, React 19, TypeScript, shadcn/ui, Tailwind CSS |
-| Backend | Python, FastAPI, Pydantic |
-| Database | PostgreSQL 16 + Prisma ORM |
-| Infrastructure | Docker Compose |
+| Layer          | Technology                                                |
+| -------------- | --------------------------------------------------------- |
+| Frontend       | Next.js 16, React 19, TypeScript, shadcn/ui, Tailwind CSS |
+| Backend        | Python, FastAPI, Pydantic                                 |
+| Database       | PostgreSQL 16 + Prisma ORM                                |
+| Infrastructure | Docker Compose                                            |
 
 ## Quick Start
 
@@ -26,9 +26,9 @@ SEED_DB=true docker compose up --build
 cd frontend && npm install && npm run dev
 ```
 
-| Service | URL |
-|---|---|
-| Frontend | http://localhost:3000 |
+| Service       | URL                        |
+| ------------- | -------------------------- |
+| Frontend      | http://localhost:3000      |
 | API / Swagger | http://localhost:8000/docs |
 
 ## Documentation
@@ -40,3 +40,11 @@ cd docs && npm install && npm run dev
 ```
 
 Covers: Architecture, Installation Guide, Database Schema, Backend API (66 endpoints), Frontend, UX/UI Design, and Roadmap.
+
+## Questions & Collaboration
+
+For questions, feedback, or collaboration opportunities:
+
+- **Open an issue** — [GitHub Issues](../../issues)
+- **Start a discussion** — [GitHub Discussions](../../discussions)
+- **LinkedIn** — [Angelo Hernandez](https://www.linkedin.com/in/angelo-hernandez/)

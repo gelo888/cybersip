@@ -76,7 +76,7 @@ export default function GettingStartedPage() {
 
       <h3>1. Clone the Repository</h3>
       <pre>{`git clone <repository-url>
-cd new-project`}</pre>
+cd cybersip`}</pre>
 
       <h3>2. Start the Backend Stack</h3>
       <pre>{`# Build and start PostgreSQL + FastAPI
@@ -347,7 +347,7 @@ npm run dev`}</pre>
 
       <h2>Project Structure</h2>
 
-      <pre>{`new-project/
+      <pre>{`cybersip/
 ├── backend/
 │   ├── app/
 │   │   ├── main.py              # FastAPI entry point
