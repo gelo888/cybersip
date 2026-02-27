@@ -15,8 +15,10 @@ export default function RoadmapPage() {
       </div>
       <h1>Development Roadmap</h1>
       <p>
-        CyberSIP&apos;s development is structured in four phases, progressing
-        from core data connectivity through AI integration and UX polish.
+        CyberSIP&apos;s development is structured in four phases across{" "}
+        <strong>5 weeks</strong>, progressing from core data connectivity
+        through AI integration and UX polish. Development is accelerated with
+        AI-assisted coding (Cursor).
       </p>
 
       <h2>Current State</h2>
@@ -52,7 +54,7 @@ export default function RoadmapPage() {
 
       <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-blue-500 bg-blue-500/5 p-4">
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-blue-500">
-          Week 1–2
+          Week 1
         </p>
         <ol className="mb-0 text-sm">
           <li>Install TanStack Query, set up API client</li>
@@ -71,7 +73,7 @@ export default function RoadmapPage() {
 
       <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-amber-500 bg-amber-500/5 p-4">
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-amber-500">
-          Week 3–4
+          Week 2–3
         </p>
         <ol start={5} className="mb-0 text-sm">
           <li>
@@ -88,7 +90,7 @@ export default function RoadmapPage() {
 
       <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-green-500 bg-green-500/5 p-4">
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-green-500">
-          Week 5–6
+          Week 4
         </p>
         <ol start={9} className="mb-0 text-sm">
           <li>
@@ -104,7 +106,7 @@ export default function RoadmapPage() {
 
       <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-purple-500 bg-purple-500/5 p-4">
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-purple-500">
-          Week 7–8
+          Week 5
         </p>
         <ol start={13} className="mb-0 text-sm">
           <li>Dark mode toggle</li>
@@ -323,13 +325,371 @@ export default function RoadmapPage() {
 
       <h3>Nice-to-Have Features</h3>
       <ol start={11}>
-        <li>Email sync (Outlook/Gmail)</li>
-        <li>LinkedIn enrichment</li>
-        <li>News alert triggers</li>
-        <li>Proposal generator (one-click PDF)</li>
-        <li>Compliance tracker (GDPR, HIPAA)</li>
-        <li>Revenue forecasting</li>
+        <li>
+          <strong>Email Sync (Outlook / Gmail)</strong> — Automatic logging of
+          emails into the engagement timeline via Microsoft Graph API or Gmail
+          API. Match emails to companies/contacts by domain and auto-create
+          engagement records, eliminating manual data entry for reps.
+        </li>
+        <li>
+          <strong>LinkedIn Sales Navigator Integration</strong> — Browser
+          extension or API integration to pull contact details, track job
+          changes (your champion left → alert), and monitor LinkedIn activity
+          for prospect intent signals.
+        </li>
+        <li>
+          <strong>News Alert Triggers</strong> — Real-time notifications when a
+          prospect appears in the news (funding rounds, data breaches, M&A
+          activity). Feed via N8N scrapers into the Action Stream with
+          AI-generated relevance scoring.
+        </li>
+        <li>
+          <strong>Proposal Generator</strong> — One-click PDF generation
+          pulling dynamic data from the database: company details, recommended
+          products, competitive positioning, and pricing. Template-driven with
+          customizable branding.
+        </li>
+        <li>
+          <strong>Compliance Tracker</strong> — Track regulatory requirements
+          (GDPR, HIPAA, SOC 2, PCI DSS) per client. Auto-flag when a
+          prospect&apos;s industry has compliance mandates that align with your
+          product offerings — turning compliance into a sales angle.
+        </li>
+        <li>
+          <strong>Revenue Forecasting</strong> — Predictive revenue modeling
+          based on pipeline stage probabilities (already stored in{" "}
+          <code>engagement_stages.probability</code>), weighted by deal size,
+          historical win rates, and engagement velocity.
+        </li>
       </ol>
+
+      <h2>Phase 5 — Enterprise Integrations & Analytics</h2>
+
+      <p>
+        Beyond the core platform, CyberSIP&apos;s decoupled architecture
+        (FastAPI REST API + PostgreSQL) makes it ready for enterprise-grade
+        integrations. The backend never exposes the database directly — every
+        external system talks through the API, enabling clean integration
+        without architectural changes.
+      </p>
+
+      <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-cyan-500 bg-cyan-500/5 p-4">
+        <p className="mb-1 text-xs font-bold uppercase tracking-wider text-cyan-500">
+          Future Expansion
+        </p>
+        <ol start={18} className="mb-0 text-sm">
+          <li>Salesforce bidirectional sync (accounts, contacts, opportunities)</li>
+          <li>Power BI dashboards via direct PostgreSQL or REST API connector</li>
+          <li>Data enrichment pipeline (ZoomInfo / Apollo / Clearbit)</li>
+          <li>Slack / Microsoft Teams real-time notifications</li>
+          <li>Data warehouse export (Snowflake / BigQuery)</li>
+          <li>Custom AI models trained on win/loss data</li>
+        </ol>
+      </div>
+
+      <h3>Salesforce Integration</h3>
+
+      <p>
+        Salesforce is the most high-value integration because it eliminates the
+        dual-entry problem — sales reps shouldn&apos;t have to enter data in
+        two systems. CyberSIP becomes the{" "}
+        <strong>intelligence layer on top of Salesforce</strong>, adding the
+        competitor tracking, renewal radar, and displacement strategies that
+        Salesforce can&apos;t do natively.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Pattern</th>
+            <th>Direction</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Account Sync</strong>
+            </td>
+            <td>Salesforce → CyberSIP</td>
+            <td>
+              Pull Accounts into <code>companies</code>, Contacts into{" "}
+              <code>contacts</code>, Opportunities into{" "}
+              <code>engagements</code>. Map Salesforce fields to CyberSIP
+              schema using a configurable mapping layer.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Intel Push-Back</strong>
+            </td>
+            <td>CyberSIP → Salesforce</td>
+            <td>
+              Push competitive intelligence (battle cards, displacement scores,
+              competitor intel) back into Salesforce as custom objects or fields
+              so reps see it where they already work.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Event-Driven Sync</strong>
+            </td>
+            <td>Bidirectional</td>
+            <td>
+              N8N webhooks listen for Salesforce events (new opportunity, stage
+              change) and sync them into CyberSIP. CyberSIP updates trigger
+              Salesforce field updates via the Salesforce REST API.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Auth Flow</strong>
+            </td>
+            <td>—</td>
+            <td>
+              OAuth 2.0 Connected App flow. Store tokens securely, handle
+              refresh cycles. New FastAPI endpoint:{" "}
+              <code>/api/integrations/salesforce/</code>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div className="mb-6 rounded-lg border border-blue-500/20 bg-blue-500/5 p-4 text-sm">
+        <strong>Object mapping:</strong> Salesforce Account → CyberSIP Company
+        | Salesforce Contact → CyberSIP Contact | Salesforce Opportunity →
+        CyberSIP Engagement | Salesforce Competitor (custom) → CyberSIP
+        CompetitorIntel
+      </div>
+
+      <h3>Power BI / Analytics Integration</h3>
+
+      <p>
+        Power BI integration is the <strong>quickest win</strong> since it
+        primarily needs a data source to query. Two connection strategies are
+        available:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Pros</th>
+            <th>Cons</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Direct PostgreSQL</strong>
+            </td>
+            <td>
+              Fastest setup — just a connection string. Full SQL access. Power
+              BI data modeling maps nearly 1:1 to the Prisma schema.
+            </td>
+            <td>
+              Bypasses business logic layer. Read-only connection recommended.
+              Needs network access to DB.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>REST API Connector</strong>
+            </td>
+            <td>
+              Uses the existing 66 FastAPI endpoints. Gets calculated fields
+              (health scores, displacement rankings). Respects RBAC.
+            </td>
+            <td>
+              Custom Power BI connector needed. Pagination handling. Slightly
+              more setup.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Potential Power BI Dashboards</h3>
+
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {[
+          {
+            title: "Renewal Pipeline",
+            desc: "Competitor contracts expiring by quarter, territory, and deal size. Filterable by region and team assignment.",
+          },
+          {
+            title: "Territory Performance",
+            desc: "Win/loss heatmaps by region, team, and individual rep. Compare territory coverage against revenue targets.",
+          },
+          {
+            title: "Competitive Landscape",
+            desc: "Market share visualization showing which competitors own which accounts. Track displacement success rates over time.",
+          },
+          {
+            title: "Pipeline Velocity",
+            desc: "How fast deals move through displacement stages. Identify bottlenecks (e.g., deals stuck at 'Proof of Concept' > 14 days).",
+          },
+          {
+            title: "Revenue Forecasting",
+            desc: "Weighted pipeline value based on engagement_stages.probability, historical close rates, and deal aging.",
+          },
+          {
+            title: "Rep Activity Scorecard",
+            desc: "Engagement frequency, response times, meeting-to-close ratios. Manager visibility across team performance.",
+          },
+        ].map((item) => (
+          <div
+            key={item.title}
+            className="rounded-lg border border-border p-4"
+          >
+            <h3 className="mt-0 mb-1 text-sm font-semibold">{item.title}</h3>
+            <p className="mb-0 text-sm">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      <h2>Future Integration Landscape</h2>
+
+      <p>
+        The decoupled REST API architecture means any external system can
+        integrate without touching the database directly. Here is the full
+        landscape of planned and potential integrations:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Integration</th>
+            <th>Category</th>
+            <th>What It Enables</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Salesforce</strong>
+            </td>
+            <td>CRM Sync</td>
+            <td>
+              Bidirectional account/contact/opportunity sync. CyberSIP becomes
+              the intelligence layer Salesforce lacks.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Power BI</strong>
+            </td>
+            <td>Analytics</td>
+            <td>
+              Executive dashboards, pipeline forecasting, territory performance
+              heatmaps via direct PostgreSQL or API connector.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>LinkedIn Sales Navigator</strong>
+            </td>
+            <td>Enrichment</td>
+            <td>
+              Auto-enrich contacts, track job changes (champion left → alert),
+              monitor prospect intent signals from LinkedIn activity.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>ZoomInfo / Apollo / Clearbit</strong>
+            </td>
+            <td>Enrichment</td>
+            <td>
+              Company enrichment for the Smart-Add modal flow. Auto-fill
+              industry, employee count, revenue range, tech stack on company
+              creation.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Slack / Microsoft Teams</strong>
+            </td>
+            <td>Notifications</td>
+            <td>
+              Real-time alerts when competitor contracts near expiry, deal stage
+              changes, or new intel is logged. Channel-per-territory pattern.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Outlook / Gmail</strong>
+            </td>
+            <td>Email Sync</td>
+            <td>
+              Auto-log email interactions into engagement timeline. Match by
+              contact email or company domain. Eliminate manual activity
+              logging.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>NIST NVD / CyberWire</strong>
+            </td>
+            <td>Threat Intel</td>
+            <td>
+              Feed CVE and breach data into the Action Stream. Auto-correlate
+              vulnerabilities with tracked competitors to create displacement
+              opportunities.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Snowflake / BigQuery</strong>
+            </td>
+            <td>Data Warehouse</td>
+            <td>
+              Export historical data for long-term trend analysis beyond what
+              PostgreSQL + Power BI handles. Cross-reference with external
+              market data.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Custom AI Models</strong>
+            </td>
+            <td>ML / Prediction</td>
+            <td>
+              Train on historical win/loss data to predict displacement
+              likelihood per account. Personalized next-best-action
+              recommendations for reps.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>DocuSign / PandaDoc</strong>
+            </td>
+            <td>Documents</td>
+            <td>
+              One-click proposal generation from the Vault. Track document
+              status (sent, viewed, signed) and auto-update contract records.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Calendly / Cal.com</strong>
+            </td>
+            <td>Scheduling</td>
+            <td>
+              Embed scheduling links in displacement emails. Auto-create
+              engagement records when meetings are booked.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div className="mt-6 mb-6 rounded-lg border border-blue-500/20 bg-blue-500/5 p-4 text-sm">
+        <strong>Architecture advantage:</strong> All integrations connect
+        through FastAPI endpoints (e.g.,{" "}
+        <code>/api/integrations/salesforce/</code>,{" "}
+        <code>/api/integrations/powerbi/</code>). The frontend never calls
+        external services directly — keeping the security boundary clean and
+        the integration logic centralized on the backend.
+      </div>
 
       <DocsPager
         prev={{ title: "UX / UI Design", href: "/design", description: "Design system & patterns" }}

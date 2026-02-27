@@ -49,7 +49,7 @@ export default function DesignPage() {
           </tr>
           <tr>
             <td>Typography</td>
-            <td>Inter / Geist Sans</td>
+            <td>Inter + Lexend</td>
           </tr>
         </tbody>
       </table>
