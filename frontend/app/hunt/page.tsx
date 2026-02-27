@@ -1,4 +1,4 @@
-import { Crosshair, Shield, Clock, GripVertical } from "lucide-react"
+import { Shield, Clock, GripVertical } from "lucide-react"
 
 type Stage =
   | "intelligence_gathering"
@@ -179,21 +179,8 @@ function DealCard({ deal }: { deal: (typeof deals)[number] }) {
 }
 
 export default function HuntPage() {
-  const totalValue = deals.reduce((sum, d) => sum + parseInt(d.value.replace(/[$,]/g, "")), 0)
-
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h3>
-            <strong>The Hunt</strong>
-          </h3>
-          <p className="text-muted-foreground">
-            Competitive displacement pipeline — {deals.length} active pursuits worth ${totalValue.toLocaleString()}.
-          </p>
-        </div>
-      </div>
-
       {/* Kanban Board */}
       <div className="overflow-x-auto pb-4">
         <div className="inline-flex gap-4 min-w-max">

@@ -197,15 +197,6 @@ function daysUntil(dateStr: string) {
 export default function IntelligencePage() {
   return (
     <div className="p-6 space-y-8">
-      <div>
-        <h3>
-          <strong>Intelligence Hub</strong>
-        </h3>
-        <p className="text-muted-foreground">
-          Competitor tracking, market signals, and displacement opportunities.
-        </p>
-      </div>
-
       {/* Market News / Action Stream */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">

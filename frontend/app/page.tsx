@@ -1,4 +1,4 @@
-import { Shield, Clock, TrendingUp, TrendingDown, Minus, AlertTriangle, Newspaper, LayoutDashboard, Zap } from "lucide-react"
+import { Shield, Clock, TrendingUp, TrendingDown, AlertTriangle, Newspaper, LayoutDashboard, Zap } from "lucide-react"
 
 const renewalRadar: {
   company: string
@@ -83,15 +83,6 @@ function ActionIcon({ type }: { type: string }) {
 export default function Home() {
   return (
     <div className="p-6 space-y-8">
-      <div>
-        <h3>
-          <strong>Command Center</strong>
-        </h3>
-        <p className="text-muted-foreground">
-          Proactive dashboard — upcoming attacks and displacement opportunities.
-        </p>
-      </div>
-
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {kpis.map((kpi) => (

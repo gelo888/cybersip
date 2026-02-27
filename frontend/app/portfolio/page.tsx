@@ -108,15 +108,6 @@ function daysUntil(dateStr: string) {
 export default function PortfolioPage() {
   return (
     <div className="p-6 space-y-8">
-      <div>
-        <h3>
-          <strong>Portfolio</strong>
-        </h3>
-        <p className="text-muted-foreground">
-          Companies &amp; Contacts under your coverage.
-        </p>
-      </div>
-
       {/* Companies Table */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">

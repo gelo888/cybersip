@@ -1,4 +1,4 @@
-import { Lock, FileText, FileSignature, Clock, CheckCircle2, AlertTriangle, XCircle, Send } from "lucide-react"
+import { FileSignature, Clock, CheckCircle2, AlertTriangle, XCircle, Send } from "lucide-react"
 
 const contracts = [
   {
@@ -147,15 +147,6 @@ export default function VaultPage() {
 
   return (
     <div className="p-6 space-y-8">
-      <div>
-        <h3>
-          <strong>Vault</strong>
-        </h3>
-        <p className="text-muted-foreground">
-          Contracts &amp; Proposals — your revenue foundation.
-        </p>
-      </div>
-
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-lg border p-4 space-y-1">

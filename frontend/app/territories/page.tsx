@@ -1,4 +1,4 @@
-import { Map, Users, Shield, TrendingUp, TrendingDown, Minus, Building2 } from "lucide-react"
+import { Map, Users, Shield, TrendingUp, TrendingDown, Minus } from "lucide-react"
 
 const territories = [
   {
@@ -119,15 +119,6 @@ function HeatBar({ wins, losses, pending }: { wins: number; losses: number; pend
 export default function TerritoriesPage() {
   return (
     <div className="p-6 space-y-8">
-      <div>
-        <h3>
-          <strong>Territories</strong>
-        </h3>
-        <p className="text-muted-foreground">
-          Geographic &amp; team performance across all regions.
-        </p>
-      </div>
-
       {/* Region Summary Cards */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { Settings, User2, Bell, Shield, Palette, Globe, Key } from "lucide-react"
+import { User2, Bell, Palette, Key } from "lucide-react"
 
 const profile = {
   name: "Alex Rivera",
@@ -54,15 +54,6 @@ function ConnectionBadge({ status }: { status: "connected" | "disconnected" }) {
 export default function SettingsPage() {
   return (
     <div className="p-6 space-y-8 max-w-3xl">
-      <div>
-        <h3>
-          <strong>Settings</strong>
-        </h3>
-        <p className="text-muted-foreground">
-          Manage your profile, notifications, and integrations.
-        </p>
-      </div>
-
       {/* Profile */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
