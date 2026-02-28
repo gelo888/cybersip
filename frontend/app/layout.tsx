@@ -39,9 +39,9 @@ export default function RootLayout({
             >
                 <SidebarProvider>
                     <AppSidebar />
-                    <SidebarInset>
+                    <SidebarInset className="min-w-0">
                         <PageHeader />
-                        <main className="flex-1">{children}</main>
+                        <div className="flex-1 overflow-auto">{children}</div>
                     </SidebarInset>
                 </SidebarProvider>
             </body>
