@@ -63,7 +63,8 @@ export function ContactFormDialog({ open, onOpenChange, contact }: Props) {
   const createMutation = useCreateContact()
   const updateMutation = useUpdateContact()
   const mutation = isEdit ? updateMutation : createMutation
-  const companies = useCompanies()
+
+  const companies = useCompanies({ page: 0, pageSize: 100 })
 
   const [form, setForm] = useState<ContactPayload>(EMPTY_FORM)
   const [prevOpen, setPrevOpen] = useState(false)
@@ -112,18 +113,22 @@ export function ContactFormDialog({ open, onOpenChange, contact }: Props) {
 
         <form onSubmit={handleSubmit} className="grid gap-4 py-2">
           <div className="grid gap-2">
-            <Label>Company *</Label>
-            <Select value={form.company_id || "__none__"} onValueChange={(v) => set("company_id", v === "__none__" ? "" : v)}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select company" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__none__" disabled>Select company</SelectItem>
-                {companies.data?.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.current_name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label>Company {isEdit ? "" : "*"}</Label>
+            {isEdit ? (
+              <Input value={contact!.company_name} disabled />
+            ) : (
+              <Select value={form.company_id || "__none__"} onValueChange={(v) => set("company_id", v === "__none__" ? "" : v)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select company" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__" disabled>Select company</SelectItem>
+                  {companies.data?.items?.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.current_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

@@ -13,27 +13,10 @@ import {
 const PAGE_SIZE_OPTIONS = [10, 15, 20, 25] as const;
 export const DEFAULT_PAGE_SIZE = 10;
 
-export function usePagination<T>(
-    data: T[] | undefined,
-    page: number,
-    pageSize: number,
-) {
-    const total = data?.length ?? 0;
-    const pageCount = Math.max(1, Math.ceil(total / pageSize));
-    const safePage = Math.min(page, pageCount - 1);
-    const start = safePage * pageSize;
-    const pageData = data?.slice(start, start + pageSize) ?? [];
-
-    return { pageData, page: safePage, pageCount, total, start };
-}
-
 interface Props {
     page: number;
     pageSize: number;
-    pageCount: number;
     total: number;
-    start: number;
-    pageDataLength: number;
     onPageChange: (page: number) => void;
     onPageSizeChange: (size: number) => void;
 }
@@ -41,14 +24,15 @@ interface Props {
 export function TablePagination({
     page,
     pageSize,
-    pageCount,
     total,
-    start,
-    pageDataLength,
     onPageChange,
     onPageSizeChange,
 }: Props) {
     if (total === 0) return null;
+
+    const pageCount = Math.max(1, Math.ceil(total / pageSize));
+    const start = page * pageSize;
+    const end = Math.min(start + pageSize, total);
 
     return (
         <div className="flex items-center justify-between px-4 py-2 border-t text-xs text-muted-foreground">
@@ -76,7 +60,7 @@ export function TablePagination({
 
             <div className="flex items-center gap-1">
                 <span className="pr-2">
-                    {start + 1}–{start + pageDataLength} of {total}
+                    {start + 1}–{end} of {total}
                 </span>
                 <Button
                     variant="ghost"

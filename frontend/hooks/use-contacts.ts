@@ -1,11 +1,18 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { get, post, put, del } from "@/lib/api";
-import type { Contact, ContactPayload } from "@/lib/types";
+import type { Contact, ContactPayload, PaginatedResponse } from "@/lib/types";
 
-export function useContacts() {
+interface ContactListParams {
+    page: number;
+    pageSize: number;
+}
+
+export function useContacts({ page, pageSize }: ContactListParams) {
+    const skip = page * pageSize;
     return useQuery({
-        queryKey: ["contacts"],
-        queryFn: () => get<Contact[]>("/api/contacts/"),
+        queryKey: ["contacts", "list", { skip, take: pageSize }],
+        queryFn: () => get<PaginatedResponse<Contact>>(`/api/contacts/?skip=${skip}&take=${pageSize}`),
+        placeholderData: keepPreviousData,
     });
 }
 

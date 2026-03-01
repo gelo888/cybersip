@@ -1,11 +1,18 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { get, post, put, del } from "@/lib/api";
-import type { Company, CompanyPayload } from "@/lib/types";
+import type { Company, CompanyPayload, PaginatedResponse } from "@/lib/types";
 
-export function useCompanies() {
+interface CompanyListParams {
+    page: number;
+    pageSize: number;
+}
+
+export function useCompanies({ page, pageSize }: CompanyListParams) {
+    const skip = page * pageSize;
     return useQuery({
-        queryKey: ["companies"],
-        queryFn: () => get<Company[]>("/api/companies/"),
+        queryKey: ["companies", "list", { skip, take: pageSize }],
+        queryFn: () => get<PaginatedResponse<Company>>(`/api/companies/?skip=${skip}&take=${pageSize}`),
+        placeholderData: keepPreviousData,
     });
 }
 

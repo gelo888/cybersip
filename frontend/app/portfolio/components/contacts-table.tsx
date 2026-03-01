@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { useContacts, useDeleteContact } from "@/hooks/use-contacts"
 import { ContactFormDialog } from "./contact-form-dialog"
 import { DeleteConfirmDialog } from "./delete-confirm-dialog"
-import { TablePagination, usePagination, DEFAULT_PAGE_SIZE } from "./table-pagination"
+import { TablePagination, DEFAULT_PAGE_SIZE } from "./table-pagination"
 import type { Contact, RoleInDeal } from "@/lib/types"
 
 function RoleBadge({ role }: { role: RoleInDeal }) {
@@ -21,12 +21,14 @@ function RoleBadge({ role }: { role: RoleInDeal }) {
 }
 
 export function ContactsTable() {
-  const contacts = useContacts()
-  const deleteMutation = useDeleteContact()
-
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const { pageData, page: safePage, pageCount, total, start } = usePagination(contacts.data, page, pageSize)
+
+  const contacts = useContacts({ page, pageSize })
+  const deleteMutation = useDeleteContact()
+
+  const items = contacts.data?.items ?? []
+  const total = contacts.data?.total ?? 0
 
   const [formOpen, setFormOpen] = useState(false)
   const [editTarget, setEditTarget] = useState<Contact | null>(null)
@@ -55,7 +57,7 @@ export function ContactsTable() {
         <User2 className="size-5 text-primary" />
         <h3 className="text-base font-semibold">Key Contacts</h3>
         {contacts.data && (
-          <span className="text-xs text-muted-foreground">({contacts.data.length})</span>
+          <span className="text-xs text-muted-foreground">({total})</span>
         )}
         <div className="ml-auto">
           <Button size="sm" onClick={openCreate}>
@@ -84,6 +86,7 @@ export function ContactsTable() {
             <thead>
               <tr className="border-b bg-muted/40">
                 <th className="px-4 py-3 text-left font-medium">Name</th>
+                <th className="px-4 py-3 text-left font-medium">Company</th>
                 <th className="px-4 py-3 text-left font-medium">Title</th>
                 <th className="px-4 py-3 text-left font-medium">Seniority</th>
                 <th className="px-4 py-3 text-left font-medium">Role</th>
@@ -93,9 +96,10 @@ export function ContactsTable() {
               </tr>
             </thead>
             <tbody>
-              {pageData.map((contact) => (
+              {items.map((contact) => (
                 <tr key={contact.id} className="border-b last:border-b-0 hover:bg-muted/20 transition-colors">
                   <td className="px-4 py-3 font-medium">{contact.first_name} {contact.last_name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{contact.company_name}</td>
                   <td className="px-4 py-3 text-muted-foreground">{contact.title ?? "—"}</td>
                   <td className="px-4 py-3 text-muted-foreground">{contact.seniority?.replace("_", " ") ?? "—"}</td>
                   <td className="px-4 py-3">
@@ -122,12 +126,9 @@ export function ContactsTable() {
             </tbody>
           </table>
           <TablePagination
-            page={safePage}
+            page={page}
             pageSize={pageSize}
-            pageCount={pageCount}
             total={total}
-            start={start}
-            pageDataLength={pageData.length}
             onPageChange={setPage}
             onPageSizeChange={(size) => { setPageSize(size); setPage(0) }}
           />

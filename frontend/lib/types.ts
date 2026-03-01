@@ -1,3 +1,10 @@
+// ── Pagination ──
+
+export interface PaginatedResponse<T> {
+    items: T[];
+    total: number;
+}
+
 // ── Company ──
 
 export type CompanyStatus =
@@ -38,6 +45,7 @@ export type RoleInDeal =
 export interface Contact {
     id: string;
     company_id: string;
+    company_name: string;
     first_name: string;
     last_name: string;
     title: string | null;
@@ -48,4 +56,4 @@ export interface Contact {
     is_active: boolean;
 }
 
-export type ContactPayload = Omit<Contact, "id">;
+export type ContactPayload = Omit<Contact, "id" | "company_name">;
