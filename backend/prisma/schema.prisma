@@ -249,8 +249,9 @@ model ContractLineItem {
 model Competitor {
   id         String            @id @default(uuid()) @db.Uuid
   name       String
-  strengths  String?
-  weaknesses String?
+  website    String?
+  strengths  String[]
+  weaknesses String[]
 
   intel      CompetitorIntel[]
 

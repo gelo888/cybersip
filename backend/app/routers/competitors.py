@@ -24,6 +24,7 @@ async def create_competitor(body: CompetitorCreate):
     competitor = await db.competitor.create(
         data={
             "name": body.name,
+            "website": body.website,
             "strengths": body.strengths,
             "weaknesses": body.weaknesses,
         }
@@ -34,7 +35,7 @@ async def create_competitor(body: CompetitorCreate):
 @router.get("/api/competitors", response_model=list[CompetitorResponse])
 async def list_competitors(
     skip: int = Query(0, ge=0),
-    take: int = Query(20, ge=1, le=100),
+    take: int = Query(20, ge=1, le=500),
 ):
     """List all known competitors."""
     competitors = await db.competitor.find_many(
@@ -64,6 +65,8 @@ async def update_competitor(competitor_id: str, body: CompetitorUpdate):
     update_data = {}
     if body.name is not None:
         update_data["name"] = body.name
+    if body.website is not None:
+        update_data["website"] = body.website
     if body.strengths is not None:
         update_data["strengths"] = body.strengths
     if body.weaknesses is not None:
@@ -109,7 +112,8 @@ async def create_intel(body: IntelCreate):
             "productName": body.product_name,
             "contractEnd": body.contract_end,
             "confidence": body.confidence.value,
-        }
+        },
+        include={"company": True, "competitor": True},
     )
     return _intel_to_response(intel)
 
@@ -120,7 +124,7 @@ async def list_intel(
     competitor_id: Optional[str] = Query(None, description="Filter by competitor"),
     confidence: Optional[IntelConfidence] = Query(None, description="Filter by confidence level"),
     skip: int = Query(0, ge=0),
-    take: int = Query(20, ge=1, le=100),
+    take: int = Query(20, ge=1, le=500),
 ):
     """List competitor intelligence records with optional filters."""
     where = {}
@@ -133,6 +137,7 @@ async def list_intel(
 
     records = await db.competitorintel.find_many(
         where=where,
+        include={"company": True, "competitor": True},
         skip=skip,
         take=take,
     )
@@ -142,7 +147,10 @@ async def list_intel(
 @router.get("/api/intel/{intel_id}", response_model=IntelResponse)
 async def get_intel(intel_id: str):
     """Get a single intel record by ID."""
-    intel = await db.competitorintel.find_unique(where={"id": intel_id})
+    intel = await db.competitorintel.find_unique(
+        where={"id": intel_id},
+        include={"company": True, "competitor": True},
+    )
     if not intel:
         raise HTTPException(status_code=404, detail="Intel record not found")
     return _intel_to_response(intel)
@@ -164,11 +172,16 @@ async def update_intel(intel_id: str, body: IntelUpdate):
         update_data["confidence"] = body.confidence.value
 
     if not update_data:
+        existing = await db.competitorintel.find_unique(
+            where={"id": intel_id},
+            include={"company": True, "competitor": True},
+        )
         return _intel_to_response(existing)
 
     intel = await db.competitorintel.update(
         where={"id": intel_id},
         data=update_data,
+        include={"company": True, "competitor": True},
     )
     return _intel_to_response(intel)
 
@@ -189,6 +202,7 @@ def _competitor_to_response(competitor) -> dict:
     return {
         "id": competitor.id,
         "name": competitor.name,
+        "website": competitor.website,
         "strengths": competitor.strengths,
         "weaknesses": competitor.weaknesses,
     }
@@ -198,7 +212,9 @@ def _intel_to_response(intel) -> dict:
     return {
         "id": intel.id,
         "company_id": intel.companyId,
+        "company_name": intel.company.currentName if intel.company else "Unknown",
         "competitor_id": intel.competitorId,
+        "competitor_name": intel.competitor.name if intel.competitor else "Unknown",
         "product_name": intel.productName,
         "contract_end": intel.contractEnd,
         "confidence": intel.confidence,

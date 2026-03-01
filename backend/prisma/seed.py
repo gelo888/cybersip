@@ -13,6 +13,8 @@ Populates the database with:
   - Sample engagements across stages
   - Product categories & products
   - Contracts with line items
+  - Competitors with strengths/weaknesses
+  - Competitor intel records (competitor presence at companies)
 
 Run:  python prisma/seed.py          (standalone)
 """
@@ -440,6 +442,106 @@ CONTRACT_LINE_ITEMS = [
     ("Equinor ASA", "Penetration Testing", 1, 28000),
 ]
 
+# ── Competitors ──────────────────────────────────────────────────────
+
+COMPETITORS = [
+    {
+        "name": "CrowdStrike",
+        "website": "https://www.crowdstrike.com",
+        "strengths": [
+            "Market leader in EDR",
+            "Strong brand recognition",
+            "FedRAMP authorized",
+        ],
+        "weaknesses": [
+            "18% price hike alienating mid-market",
+            "High cost of ownership",
+        ],
+    },
+    {
+        "name": "Palo Alto Networks",
+        "website": "https://www.paloaltonetworks.com",
+        "strengths": [
+            "Comprehensive platform (NGFW + Cortex XDR)",
+            "Large install base",
+        ],
+        "weaknesses": [
+            "Critical PAN-OS CVEs in 2026",
+            "Complex licensing model",
+        ],
+    },
+    {
+        "name": "SentinelOne",
+        "website": "https://www.sentinelone.com",
+        "strengths": [
+            "Autonomous AI-driven response",
+            "Competitive pricing",
+        ],
+        "weaknesses": [
+            "Lost FedRAMP auth for Singularity XDR",
+            "Limited enterprise references",
+        ],
+    },
+    {
+        "name": "Fortinet",
+        "website": "https://www.fortinet.com",
+        "strengths": [
+            "Strong SMB/mid-market presence",
+            "Integrated Security Fabric",
+        ],
+        "weaknesses": [
+            "SIEM acquisition causing integration friction",
+            "Weaker cloud-native story",
+        ],
+    },
+    {
+        "name": "Cisco",
+        "website": "https://www.cisco.com",
+        "strengths": [
+            "Massive networking install base",
+            "SecureX platform consolidation",
+        ],
+        "weaknesses": [
+            "AMP EOL forcing migrations",
+            "Slow to innovate in XDR space",
+        ],
+    },
+    {
+        "name": "Trend Micro",
+        "website": "https://www.trendmicro.com",
+        "strengths": [
+            "Deep email/server security roots",
+            "Vision One platform",
+        ],
+        "weaknesses": [
+            "Losing cloud-native market share",
+            "Declining mindshare with CISOs",
+        ],
+    },
+]
+
+# ── Competitor Intel Records ─────────────────────────────────────────
+# Tuple: (company_name, competitor_name, product_name, contract_end_offset_days, confidence)
+# contract_end_offset_days is relative to today (positive = future).
+
+COMPETITOR_INTEL = [
+    ("Microsoft Corporation", "CrowdStrike", "Falcon XDR", 180, "confirmed"),
+    ("Deutsche Bank", "Palo Alto Networks", "Cortex XDR", 120, "confirmed"),
+    ("Samsung Electronics", "SentinelOne", "Singularity XDR", 240, "confirmed"),
+    ("Petrobras", "Fortinet", "FortiEDR", -30, "confirmed"),
+    ("Duke Energy", "Cisco", "SecureX", 90, "confirmed"),
+    ("HSBC Holdings", "CrowdStrike", "Falcon Complete", 150, "rumor"),
+    ("Mitsubishi UFJ Financial", "Trend Micro", "Vision One", 300, "inferred"),
+    ("Saudi Aramco", "Fortinet", "FortiGate NGFW", 85, "confirmed"),
+    ("Banco Santander", "Palo Alto Networks", "Prisma Cloud", 200, "rumor"),
+    ("Royal Bank of Canada", "CrowdStrike", "Falcon Insight", 60, "inferred"),
+    ("Lockheed Martin", "CrowdStrike", "Falcon Platform", 365, "confirmed"),
+    ("Tata Consultancy Services", "Trend Micro", "Apex One", 140, "rumor"),
+    ("JPMorgan Chase", "Palo Alto Networks", "Cortex XSOAR", 270, "inferred"),
+    ("Verizon Communications", "Cisco", "Umbrella DNS Security", 110, "confirmed"),
+    ("Siemens AG", "Fortinet", "FortiSIEM", 190, "rumor"),
+]
+
 # ── Pipeline Stages ──────────────────────────────────────────────────
 # Ordered by probability (low → high) to mirror the sales funnel.
 
@@ -485,6 +587,7 @@ async def seed():
     await db.engagement.delete_many()
     await db.engagementstage.delete_many()
     await db.competitorintel.delete_many()
+    await db.competitor.delete_many()
     await db.contractlineitem.delete_many()
     await db.contract.delete_many()
     await db.productservice.delete_many()
@@ -718,6 +821,47 @@ async def seed():
         li_count += 1
 
     print(f"Seeded {li_count} contract line items.")
+
+    # ── Competitors ────────────────────────────────────────────────────
+    print("Seeding competitors…")
+    competitor_id_map: dict[str, str] = {}
+    for comp in COMPETITORS:
+        c = await db.competitor.create(
+            data={
+                "name": comp["name"],
+                "website": comp.get("website"),
+                "strengths": comp["strengths"],
+                "weaknesses": comp["weaknesses"],
+            }
+        )
+        competitor_id_map[comp["name"]] = c.id
+
+    print(f"Seeded {len(COMPETITORS)} competitors.")
+
+    # ── Competitor Intel ───────────────────────────────────────────────
+    print("Seeding competitor intel…")
+    intel_count = 0
+    for company_name, competitor_name, product, end_off, conf in COMPETITOR_INTEL:
+        cid = company_id_map.get(company_name)
+        comp_id = competitor_id_map.get(competitor_name)
+        if not cid or not comp_id:
+            print(f"  ⚠ Skipping intel: {company_name} / {competitor_name}")
+            continue
+
+        contract_end = datetime.now(timezone.utc) + timedelta(days=end_off) if end_off else None
+
+        await db.competitorintel.create(
+            data={
+                "companyId": cid,
+                "competitorId": comp_id,
+                "productName": product,
+                "contractEnd": contract_end,
+                "confidence": conf,
+            }
+        )
+        intel_count += 1
+
+    print(f"Seeded {intel_count} competitor intel records.")
     await db.disconnect()
 
 

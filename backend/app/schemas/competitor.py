@@ -17,23 +17,26 @@ class IntelConfidence(str, Enum):
 class CompetitorCreate(BaseModel):
     """Request body for creating a competitor record."""
     name: str = Field(..., min_length=1, max_length=255)
-    strengths: Optional[str] = None
-    weaknesses: Optional[str] = None
+    website: Optional[str] = None
+    strengths: list[str] = Field(default_factory=list)
+    weaknesses: list[str] = Field(default_factory=list)
 
 
 class CompetitorUpdate(BaseModel):
     """Request body for updating a competitor."""
     name: Optional[str] = Field(None, min_length=1, max_length=255)
-    strengths: Optional[str] = None
-    weaknesses: Optional[str] = None
+    website: Optional[str] = None
+    strengths: Optional[list[str]] = None
+    weaknesses: Optional[list[str]] = None
 
 
 class CompetitorResponse(BaseModel):
     """Response body for a competitor."""
     id: str
     name: str
-    strengths: Optional[str] = None
-    weaknesses: Optional[str] = None
+    website: Optional[str] = None
+    strengths: list[str]
+    weaknesses: list[str]
 
     class Config:
         from_attributes = True
@@ -61,7 +64,9 @@ class IntelResponse(BaseModel):
     """Response body for competitor intelligence."""
     id: str
     company_id: str
+    company_name: str
     competitor_id: str
+    competitor_name: str
     product_name: Optional[str] = None
     contract_end: Optional[datetime] = None
     confidence: IntelConfidence
