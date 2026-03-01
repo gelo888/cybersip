@@ -78,7 +78,22 @@ export default function GettingStartedPage() {
       <pre>{`git clone <repository-url>
 cd cybersip`}</pre>
 
-      <h3>2. Start the Backend Stack</h3>
+      <h3>2. Configure Environment</h3>
+      <p>
+        Copy the example file and fill in your credentials:
+      </p>
+      <pre>{`cp .env.example .env`}</pre>
+      <p>
+        Edit <code>.env</code> in the project root:
+      </p>
+      <pre>{`POSTGRES_USER=<your-db-username>
+POSTGRES_PASSWORD=<your-secure-password>
+POSTGRES_DB=cybersec_sip
+
+# Comma-separated list of allowed CORS origins for the backend API
+CORS_ALLOWED_ORIGINS=http://localhost:3000`}</pre>
+
+      <h3>3. Start the Backend Stack</h3>
       <pre>{`# Build and start PostgreSQL + FastAPI
 docker compose up --build
 
@@ -94,7 +109,7 @@ docker compose up --build -d`}</pre>
         server on port <code>8000</code>.
       </p>
 
-      <h3>3. Start the Frontend</h3>
+      <h3>4. Start the Frontend</h3>
       <pre>{`cd frontend
 npm install
 npm run dev`}</pre>
@@ -107,7 +122,7 @@ npm run dev`}</pre>
         .
       </p>
 
-      <h3>4. Verify</h3>
+      <h3>5. Verify</h3>
 
       <table>
         <thead>
@@ -179,7 +194,10 @@ pip install -r requirements.txt`}</pre>
       <p>
         Create a <code>.env</code> file in the <code>backend/</code> directory:
       </p>
-      <pre>{`DATABASE_URL="postgresql://admin:password@localhost:5432/cybersec_sip"`}</pre>
+      <pre>{`DATABASE_URL="postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:5432/<POSTGRES_DB>"
+
+# Optional — defaults to http://localhost:3000 if not set
+CORS_ALLOWED_ORIGINS=http://localhost:3000`}</pre>
 
       <h3>4. Initialize the Database</h3>
       <pre>{`# Generate the Python Prisma client

@@ -1,4 +1,6 @@
+import os
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from prisma import Prisma
@@ -23,11 +25,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Allow the Next.js frontend (localhost:3000) to make cross-origin requests
-# to this API. Without this, browser fetch calls would be blocked by CORS policy.
+cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
