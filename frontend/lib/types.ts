@@ -23,6 +23,8 @@ export interface Company {
     updated_at: string;
 }
 
+export type CompanyPayload = Omit<Company, "id" | "created_at" | "updated_at">;
+
 // ── Contact ──
 
 export type ContactSeniority = "C_Suite" | "VP" | "Director" | "Manager";
@@ -45,3 +47,5 @@ export interface Contact {
     phone: string | null;
     is_active: boolean;
 }
+
+export type ContactPayload = Omit<Contact, "id">;
