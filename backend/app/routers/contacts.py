@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
@@ -5,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Query
 from app.main import db
 from app.schemas.contact import (
     ContactCreate,
+    ContactListResponse,
     ContactResponse,
     ContactUpdate,
 )
@@ -30,12 +32,13 @@ async def create_contact(body: ContactCreate):
             "email": body.email,
             "phone": body.phone,
             "isActive": body.is_active,
-        }
+        },
+        include={"company": True},
     )
     return _to_response(contact)
 
 
-@router.get("/", response_model=list[ContactResponse])
+@router.get("/", response_model=ContactListResponse)
 async def list_contacts(
     company_id: Optional[str] = Query(None, description="Filter by company"),
     skip: int = Query(0, ge=0),
@@ -46,19 +49,17 @@ async def list_contacts(
     if company_id:
         where["companyId"] = company_id
 
-    contacts = await db.contact.find_many(
-        where=where,
-        skip=skip,
-        take=take,
-        order={"firstName": "asc"},
+    contacts, total = await asyncio.gather(
+        db.contact.find_many(where=where, skip=skip, take=take, order={"firstName": "asc"}, include={"company": True}),
+        db.contact.count(where=where),
     )
-    return [_to_response(c) for c in contacts]
+    return {"items": [_to_response(c) for c in contacts], "total": total}
 
 
 @router.get("/{contact_id}", response_model=ContactResponse)
 async def get_contact(contact_id: str):
     """Get a single contact by ID."""
-    contact = await db.contact.find_unique(where={"id": contact_id})
+    contact = await db.contact.find_unique(where={"id": contact_id}, include={"company": True})
     if not contact:
         raise HTTPException(status_code=404, detail="Contact not found")
     return _to_response(contact)
@@ -95,6 +96,7 @@ async def update_contact(contact_id: str, body: ContactUpdate):
     contact = await db.contact.update(
         where={"id": contact_id},
         data=update_data,
+        include={"company": True},
     )
     return _to_response(contact)
 
@@ -110,10 +112,11 @@ async def delete_contact(contact_id: str):
 
 
 def _to_response(contact) -> dict:
-    """Maps Prisma Contact to the ContactResponse shape."""
+    """Maps Prisma Contact (with included company) to the ContactResponse shape."""
     return {
         "id": contact.id,
         "company_id": contact.companyId,
+        "company_name": contact.company.currentName if contact.company else "",
         "first_name": contact.firstName,
         "last_name": contact.lastName,
         "title": contact.title,

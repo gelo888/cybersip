@@ -49,6 +49,7 @@ class ContactResponse(BaseModel):
     """Response body returned when reading a contact."""
     id: str
     company_id: str
+    company_name: str
     first_name: str
     last_name: str
     title: Optional[str] = None
@@ -60,3 +61,8 @@ class ContactResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ContactListResponse(BaseModel):
+    items: list[ContactResponse]
+    total: int

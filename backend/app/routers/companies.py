@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
@@ -5,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Query
 from app.main import db
 from app.schemas.company import (
     CompanyCreate,
+    CompanyListResponse,
     CompanyResponse,
     CompanyStatus,
     CompanyUpdate,
@@ -31,7 +33,7 @@ async def create_company(body: CompanyCreate):
     return _to_response(company)
 
 
-@router.get("/", response_model=list[CompanyResponse])
+@router.get("/", response_model=CompanyListResponse)
 async def list_companies(
     status: Optional[CompanyStatus] = Query(None, description="Filter by company status"),
     skip: int = Query(0, ge=0, description="Number of records to skip"),
@@ -42,13 +44,11 @@ async def list_companies(
     if status:
         where["status"] = status.value
 
-    companies = await db.company.find_many(
-        where=where,
-        skip=skip,
-        take=take,
-        order={"createdAt": "desc"},
+    companies, total = await asyncio.gather(
+        db.company.find_many(where=where, skip=skip, take=take, order={"createdAt": "desc"}),
+        db.company.count(where=where),
     )
-    return [_to_response(c) for c in companies]
+    return {"items": [_to_response(c) for c in companies], "total": total}
 
 
 @router.get("/{company_id}", response_model=CompanyResponse)

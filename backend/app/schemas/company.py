@@ -65,3 +65,8 @@ class CompanyResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class CompanyListResponse(BaseModel):
+    items: list[CompanyResponse]
+    total: int
