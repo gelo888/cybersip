@@ -12,7 +12,7 @@ prisma db push --skip-generate
 
 if [ "$SEED_DB" = "true" ]; then
   echo "Seeding database..."
-  python -m prisma.seed
+  python prisma/seed.py
 fi
 
 echo "Starting FastAPI server..."

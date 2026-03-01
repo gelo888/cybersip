@@ -8,9 +8,9 @@ Populates the database with:
   - ~150 companies with a realistic size distribution
     (≈40 % SMB, ≈25 % Mid-Market, ≈25 % Enterprise, ≈10 % Government)
   - Company ↔ territory-group and company ↔ industry links
+  - Contacts across Enterprise, Mid-Market, and Government companies
 
-Run:  python -m prisma.seed          (if configured in pyproject.toml)
-  or: python prisma/seed.py          (standalone)
+Run:  python prisma/seed.py          (standalone)
 """
 
 import asyncio
@@ -264,6 +264,95 @@ COMPANIES_AMERICAS = [
 ]
 
 
+# ── Contacts ──────────────────────────────────────────────────────────
+# Tuple: (company_name, first, last, title, seniority, role_in_deal, email)
+# Contacts are linked to companies by name lookup after companies are seeded.
+
+CONTACTS = [
+    # APJ — Enterprise
+    ("NTT Data Corporation", "Kenji", "Yamamoto", "CISO", "C_Suite", "decision_maker", "k.yamamoto@nttdata.com"),
+    ("NTT Data Corporation", "Aiko", "Suzuki", "Security Architect", "Director", "champion", "a.suzuki@nttdata.com"),
+    ("NTT Data Corporation", "Takeshi", "Ito", "VP Infrastructure", "VP", "influencer", "t.ito@nttdata.com"),
+    ("Commonwealth Bank of Australia", "Liam", "Fletcher", "CISO", "C_Suite", "decision_maker", "l.fletcher@commbank.com.au"),
+    ("Commonwealth Bank of Australia", "Mia", "Thompson", "Head of Security Ops", "Director", "champion", "m.thompson@commbank.com.au"),
+    ("DBS Group Holdings", "Wei Lin", "Tan", "Group CISO", "C_Suite", "decision_maker", "wl.tan@dbs.com"),
+    ("DBS Group Holdings", "Priya", "Menon", "VP Cyber Defense", "VP", "champion", "p.menon@dbs.com"),
+    ("Tata Consultancy Services", "Rajesh", "Krishnan", "Global CISO", "C_Suite", "decision_maker", "r.krishnan@tcs.com"),
+    ("Tata Consultancy Services", "Ananya", "Patel", "Director Security Engineering", "Director", "influencer", "a.patel@tcs.com"),
+    ("Samsung Electronics", "Jae-won", "Kim", "VP Information Security", "VP", "decision_maker", "jw.kim@samsung.com"),
+    ("Samsung Electronics", "Soo-jin", "Park", "Security Operations Manager", "Manager", "champion", "sj.park@samsung.com"),
+    ("Mitsubishi UFJ Financial", "Hiroshi", "Nakamura", "CISO", "C_Suite", "decision_maker", "h.nakamura@mufg.jp"),
+    ("HDFC Bank", "Vikram", "Sharma", "Head of IT Security", "VP", "decision_maker", "v.sharma@hdfcbank.com"),
+    ("Telstra Corporation", "James", "O'Brien", "CISO", "C_Suite", "decision_maker", "j.obrien@telstra.com.au"),
+    ("Infosys Limited", "Deepak", "Gupta", "VP Cybersecurity", "VP", "champion", "d.gupta@infosys.com"),
+    # APJ — Mid-Market
+    ("Grab Holdings", "Nurul", "Hassan", "Head of Security", "Director", "decision_maker", "n.hassan@grab.com"),
+    ("Freshworks", "Arjun", "Reddy", "Director of IT", "Director", "champion", "a.reddy@freshworks.com"),
+    ("Xero Limited", "Sophie", "Walker", "Security Lead", "Manager", "champion", "s.walker@xero.com"),
+    # APJ — Government
+    ("Australian Cyber Security Centre", "David", "Campbell", "Director Partnerships", "Director", "decision_maker", "d.campbell@cyber.gov.au"),
+    ("Korea Internet & Security Agency", "Min-ho", "Lee", "Deputy Director", "Director", "influencer", "mh.lee@kisa.or.kr"),
+    # EMEA — Enterprise
+    ("HSBC Holdings", "Charlotte", "Evans", "Group CISO", "C_Suite", "decision_maker", "c.evans@hsbc.com"),
+    ("HSBC Holdings", "Oliver", "Wright", "VP Security Architecture", "VP", "champion", "o.wright@hsbc.com"),
+    ("HSBC Holdings", "Fatima", "Al-Rashid", "Director Threat Intelligence", "Director", "influencer", "f.alrashid@hsbc.com"),
+    ("BAE Systems", "George", "Harrison", "CISO", "C_Suite", "decision_maker", "g.harrison@baesystems.com"),
+    ("BAE Systems", "Emma", "Clarke", "Head of Cyber Programs", "Director", "champion", "e.clarke@baesystems.com"),
+    ("Siemens AG", "Markus", "Weber", "Global CISO", "C_Suite", "decision_maker", "m.weber@siemens.com"),
+    ("Siemens AG", "Laura", "Fischer", "VP IT Security", "VP", "influencer", "l.fischer@siemens.com"),
+    ("SAP SE", "Thomas", "Muller", "CISO", "C_Suite", "decision_maker", "t.muller@sap.com"),
+    ("SAP SE", "Anna", "Schneider", "Security Engineering Lead", "Manager", "champion", "a.schneider@sap.com"),
+    ("Deutsche Bank", "Klaus", "Hoffman", "Group CISO", "C_Suite", "decision_maker", "k.hoffman@db.com"),
+    ("Ericsson", "Erik", "Lindqvist", "VP Security", "VP", "decision_maker", "e.lindqvist@ericsson.com"),
+    ("TotalEnergies SE", "Pierre", "Dubois", "CISO", "C_Suite", "decision_maker", "p.dubois@totalenergies.com"),
+    ("Banco Santander", "Carlos", "Ruiz", "CISO", "C_Suite", "decision_maker", "c.ruiz@santander.com"),
+    ("Banco Santander", "Maria", "Garcia", "Director Security Ops", "Director", "champion", "m.garcia@santander.com"),
+    ("Saudi Aramco", "Ahmed", "Al-Fahad", "VP Cybersecurity", "VP", "decision_maker", "a.alfahad@aramco.com"),
+    ("Equinor ASA", "Lars", "Henriksen", "CISO", "C_Suite", "decision_maker", "l.henriksen@equinor.com"),
+    # EMEA — Mid-Market
+    ("Rolls-Royce Holdings", "William", "Turner", "Head of Cyber", "Director", "decision_maker", "w.turner@rolls-royce.com"),
+    ("Allianz SE", "Petra", "Braun", "IT Security Director", "Director", "decision_maker", "p.braun@allianz.com"),
+    ("Nokia Corporation", "Mikko", "Virtanen", "CISO", "C_Suite", "blocker", "m.virtanen@nokia.com"),
+    ("Maersk", "Henrik", "Andersen", "Head of IT Security", "Director", "champion", "h.andersen@maersk.com"),
+    ("Emirates NBD", "Khalid", "Al-Mansoori", "VP Technology", "VP", "decision_maker", "k.almansoori@emiratesnbd.com"),
+    ("MTN Group", "Thabo", "Molefe", "Group Security Lead", "Director", "champion", "t.molefe@mtn.com"),
+    # EMEA — Government
+    ("UK National Cyber Security Centre", "James", "Crawford", "Deputy Director", "Director", "decision_maker", "j.crawford@ncsc.gov.uk"),
+    ("German Federal Office for IT Security", "Stefan", "Klein", "Head of Partnerships", "Director", "influencer", "s.klein@bsi.bund.de"),
+    # Americas — Enterprise
+    ("JPMorgan Chase", "Sarah", "Chen", "Global CISO", "C_Suite", "decision_maker", "s.chen@jpmorganchase.com"),
+    ("JPMorgan Chase", "Marcus", "Webb", "VP Threat Detection", "VP", "champion", "m.webb@jpmorganchase.com"),
+    ("JPMorgan Chase", "Rachel", "Torres", "Director Security Engineering", "Director", "influencer", "r.torres@jpmorganchase.com"),
+    ("Verizon Communications", "David", "Park", "CISO", "C_Suite", "decision_maker", "d.park@verizon.com"),
+    ("Verizon Communications", "Jennifer", "Liu", "VP Network Security", "VP", "champion", "j.liu@verizon.com"),
+    ("Lockheed Martin", "Robert", "Mitchell", "VP Cybersecurity", "VP", "decision_maker", "r.mitchell@lockheedmartin.com"),
+    ("Lockheed Martin", "Karen", "Davis", "Director Cyber Programs", "Director", "champion", "k.davis@lockheedmartin.com"),
+    ("Microsoft Corporation", "Alex", "Rivera", "Deputy CISO", "VP", "decision_maker", "a.rivera@microsoft.com"),
+    ("Microsoft Corporation", "Priya", "Sharma", "Principal Security Architect", "Director", "champion", "p.sharma@microsoft.com"),
+    ("Salesforce Inc.", "Jordan", "Ellis", "VP Security", "VP", "decision_maker", "j.ellis@salesforce.com"),
+    ("Chevron Corporation", "Michael", "Brooks", "CISO", "C_Suite", "decision_maker", "m.brooks@chevron.com"),
+    ("Abbott Laboratories", "Lisa", "Nguyen", "Director IT Security", "Director", "decision_maker", "l.nguyen@abbott.com"),
+    ("Royal Bank of Canada", "Patrick", "O'Connor", "CISO", "C_Suite", "decision_maker", "p.oconnor@rbc.com"),
+    ("Royal Bank of Canada", "Sophie", "Laurent", "VP Security Operations", "VP", "champion", "s.laurent@rbc.com"),
+    ("Itaú Unibanco", "Fernando", "Costa", "CISO", "C_Suite", "decision_maker", "f.costa@itau.com.br"),
+    ("Petrobras", "Ricardo", "Oliveira", "Head of Cybersecurity", "Director", "decision_maker", "r.oliveira@petrobras.com.br"),
+    ("Duke Energy", "Amanda", "Foster", "CISO", "C_Suite", "decision_maker", "a.foster@duke-energy.com"),
+    ("Caterpillar Inc.", "Brian", "Kowalski", "VP IT Security", "VP", "blocker", "b.kowalski@caterpillar.com"),
+    ("América Móvil", "Diego", "Hernandez", "Director Cybersecurity", "Director", "decision_maker", "d.hernandez@americamovil.com"),
+    # Americas — Mid-Market
+    ("Goldman Sachs", "Nathan", "Price", "VP Information Security", "VP", "decision_maker", "n.price@goldmansachs.com"),
+    ("Palantir Technologies", "Emily", "Chang", "Head of Security", "Director", "champion", "e.chang@palantir.com"),
+    ("Shopify Inc.", "Kenji", "Tanaka", "Security Lead", "Manager", "champion", "k.tanaka@shopify.com"),
+    ("Nubank", "Camila", "Santos", "CISO", "C_Suite", "decision_maker", "c.santos@nu.com.br"),
+    ("Datadog Inc.", "Ryan", "Murphy", "Director Security", "Director", "influencer", "r.murphy@datadoghq.com"),
+    ("CrowdStrike Holdings", "Derek", "Hunt", "VP Engineering", "VP", "blocker", "d.hunt@crowdstrike.com"),
+    # Americas — Government
+    ("US Cyber Command (USCYBERCOM)", "Col. James", "Patterson", "Cyber Operations Director", "Director", "decision_maker", "j.patterson@cybercom.mil"),
+    ("CISA", "Elena", "Voss", "Deputy Director Partnerships", "Director", "champion", "e.voss@cisa.gov"),
+    ("NASA", "Dr. Raymond", "Lee", "Chief Information Security Officer", "C_Suite", "decision_maker", "r.lee@nasa.gov"),
+]
+
+
 async def seed():
     db = Prisma()
     await db.connect()
@@ -366,6 +455,35 @@ async def seed():
             )
 
     print(f"Seeded {len(all_companies)} companies across 3 regions.")
+
+    # ── Contacts ───────────────────────────────────────────────────────
+    print("Seeding contacts…")
+    company_id_map: dict[str, str] = {}
+    all_db_companies = await db.company.find_many()
+    for c in all_db_companies:
+        company_id_map[c.currentName] = c.id
+
+    contact_count = 0
+    for company_name, first, last, title, seniority, role, email in CONTACTS:
+        cid = company_id_map.get(company_name)
+        if not cid:
+            print(f"  ⚠ Company not found for contact: {first} {last} → {company_name}")
+            continue
+        await db.contact.create(
+            data={
+                "companyId": cid,
+                "firstName": first,
+                "lastName": last,
+                "title": title,
+                "seniority": seniority,
+                "roleInDeal": role,
+                "email": email,
+                "isActive": True,
+            }
+        )
+        contact_count += 1
+
+    print(f"Seeded {contact_count} contacts.")
     await db.disconnect()
 
 
