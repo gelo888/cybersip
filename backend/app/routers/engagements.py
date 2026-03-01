@@ -94,7 +94,8 @@ async def create_engagement(body: EngagementCreate):
             "type": body.type.value,
             "outcome": body.outcome,
             "nextActionDate": body.next_action_date,
-        }
+        },
+        include={"company": True, "stage": True},
     )
     return _engagement_to_response(engagement)
 
@@ -102,19 +103,23 @@ async def create_engagement(body: EngagementCreate):
 @router.get("/api/engagements", response_model=list[EngagementResponse])
 async def list_engagements(
     company_id: Optional[str] = Query(None, description="Filter by company"),
+    stage_id: Optional[str] = Query(None, description="Filter by pipeline stage"),
     type: Optional[EngagementType] = Query(None, description="Filter by type"),
     skip: int = Query(0, ge=0),
-    take: int = Query(20, ge=1, le=100),
+    take: int = Query(20, ge=1, le=500),
 ):
-    """List engagements, optionally filtered by company and/or type."""
+    """List engagements, optionally filtered by company, stage, and/or type."""
     where = {}
     if company_id:
         where["companyId"] = company_id
+    if stage_id:
+        where["stageId"] = stage_id
     if type:
         where["type"] = type.value
 
     engagements = await db.engagement.find_many(
         where=where,
+        include={"company": True, "stage": True},
         skip=skip,
         take=take,
         order={"createdAt": "desc"},
@@ -125,7 +130,10 @@ async def list_engagements(
 @router.get("/api/engagements/{engagement_id}", response_model=EngagementResponse)
 async def get_engagement(engagement_id: str):
     """Get a single engagement by ID."""
-    engagement = await db.engagement.find_unique(where={"id": engagement_id})
+    engagement = await db.engagement.find_unique(
+        where={"id": engagement_id},
+        include={"company": True, "stage": True},
+    )
     if not engagement:
         raise HTTPException(status_code=404, detail="Engagement not found")
     return _engagement_to_response(engagement)
@@ -152,11 +160,16 @@ async def update_engagement(engagement_id: str, body: EngagementUpdate):
         update_data["nextActionDate"] = body.next_action_date
 
     if not update_data:
+        existing = await db.engagement.find_unique(
+            where={"id": engagement_id},
+            include={"company": True, "stage": True},
+        )
         return _engagement_to_response(existing)
 
     engagement = await db.engagement.update(
         where={"id": engagement_id},
         data=update_data,
+        include={"company": True, "stage": True},
     )
     return _engagement_to_response(engagement)
 
@@ -185,7 +198,9 @@ def _engagement_to_response(engagement) -> dict:
     return {
         "id": engagement.id,
         "company_id": engagement.companyId,
+        "company_name": engagement.company.currentName if engagement.company else "Unknown",
         "stage_id": engagement.stageId,
+        "stage_name": engagement.stage.name if engagement.stage else "Unknown",
         "type": engagement.type,
         "outcome": engagement.outcome,
         "next_action_date": engagement.nextActionDate,

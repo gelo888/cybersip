@@ -60,7 +60,9 @@ class EngagementResponse(BaseModel):
     """Response body returned when reading an engagement."""
     id: str
     company_id: str
+    company_name: str
     stage_id: str
+    stage_name: str
     type: EngagementType
     outcome: Optional[str] = None
     next_action_date: Optional[datetime] = None
