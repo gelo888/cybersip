@@ -57,3 +57,56 @@ export interface Contact {
 }
 
 export type ContactPayload = Omit<Contact, "id" | "company_name">;
+
+// ── Engagement ──
+
+export type EngagementType = "call" | "email" | "meeting" | "demo";
+
+export interface Engagement {
+    id: string;
+    company_id: string;
+    stage_id: string;
+    type: EngagementType;
+    outcome: string | null;
+    next_action_date: string | null;
+    created_at: string;
+}
+
+// ── Contract ──
+
+export type ContractType = "our_contract" | "competitor_contract";
+export type ContractStatus = "active" | "expired" | "renewed" | "pending";
+
+export interface Contract {
+    id: string;
+    company_id: string;
+    type: ContractType;
+    status: ContractStatus;
+    start_date: string | null;
+    end_date: string | null;
+    total_value: number | null;
+    renewal_notice_days: number | null;
+}
+
+// ── Competitor Intel ──
+
+export type IntelConfidence = "confirmed" | "rumor" | "inferred";
+
+export interface CompetitorIntel {
+    id: string;
+    company_id: string;
+    competitor_id: string;
+    product_name: string | null;
+    contract_end: string | null;
+    confidence: IntelConfidence;
+}
+
+// ── Assignment ──
+
+export type AssignmentRole = "owner" | "collaborator";
+
+export interface Assignment {
+    company_id: string;
+    user_id: string;
+    role: AssignmentRole;
+}

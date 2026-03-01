@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
     Building2,
     Loader2,
@@ -157,7 +158,12 @@ export function CompaniesTable() {
                                     className="border-b last:border-b-0 hover:bg-muted/20 transition-colors"
                                 >
                                     <td className="px-4 py-3 font-medium">
-                                        {company.current_name}
+                                        <Link
+                                            href={`/portfolio/${company.id}`}
+                                            className="hover:text-primary hover:underline transition-colors"
+                                        >
+                                            {company.current_name}
+                                        </Link>
                                     </td>
                                     <td className="px-4 py-3">
                                         <StatusBadge status={company.status} />

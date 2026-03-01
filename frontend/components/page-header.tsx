@@ -37,9 +37,22 @@ const pageConfig: Record<string, { title: string; description: string }> = {
     },
 };
 
+function resolvePageConfig(pathname: string) {
+    if (pageConfig[pathname]) return pageConfig[pathname];
+
+    if (pathname.startsWith("/portfolio/")) {
+        return {
+            title: "Company 360",
+            description: "Full view of company relationships, engagements, and contracts.",
+        };
+    }
+
+    return null;
+}
+
 export function PageHeader() {
     const pathname = usePathname();
-    const page = pageConfig[pathname];
+    const page = resolvePageConfig(pathname);
 
     return (
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
