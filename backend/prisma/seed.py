@@ -9,6 +9,8 @@ Populates the database with:
     (≈40 % SMB, ≈25 % Mid-Market, ≈25 % Enterprise, ≈10 % Government)
   - Company ↔ territory-group and company ↔ industry links
   - Contacts across Enterprise, Mid-Market, and Government companies
+  - 6 pipeline stages
+  - Sample engagements across stages
 
 Run:  python prisma/seed.py          (standalone)
 """
@@ -353,6 +355,41 @@ CONTACTS = [
 ]
 
 
+# ── Pipeline Stages ──────────────────────────────────────────────────
+# Ordered by probability (low → high) to mirror the sales funnel.
+
+STAGES = [
+    {"name": "Intelligence Gathering", "probability": 5},
+    {"name": "Vulnerability Identified", "probability": 15},
+    {"name": "Initial Infiltration", "probability": 30},
+    {"name": "Proof of Concept", "probability": 50},
+    {"name": "Final Assault", "probability": 75},
+    {"name": "Extraction", "probability": 95},
+]
+
+# ── Sample Engagements ───────────────────────────────────────────────
+# Tuple: (company_name, stage_name, type, outcome, days_ago)
+# days_ago controls how far back created_at is set.
+
+ENGAGEMENTS = [
+    ("HSBC Holdings", "Intelligence Gathering", "call", "Identified upcoming renewal — CrowdStrike contract ends Q3", 3),
+    ("Deutsche Bank", "Intelligence Gathering", "email", "Sent intro deck to CISO office", 7),
+    ("Mitsubishi UFJ Financial", "Intelligence Gathering", "meeting", "Met at RSA conference, discussed pain points", 2),
+    ("Saudi Aramco", "Vulnerability Identified", "call", "Confirmed Fortinet renewal in 90 days — budget approved", 12),
+    ("Petrobras", "Vulnerability Identified", "email", "Competitor contract ending, decision-maker interested", 5),
+    ("Duke Energy", "Vulnerability Identified", "meeting", "Security assessment revealed gaps in current stack", 9),
+    ("JPMorgan Chase", "Initial Infiltration", "meeting", "First meeting with CISO — positive reception", 18),
+    ("Microsoft Corporation", "Initial Infiltration", "demo", "Showed XDR platform to security team", 10),
+    ("Verizon Communications", "Initial Infiltration", "call", "Technical deep-dive with VP Network Security", 14),
+    ("Samsung Electronics", "Proof of Concept", "demo", "POC deployed in test environment — 2 week eval", 22),
+    ("Tata Consultancy Services", "Proof of Concept", "meeting", "Executive sponsor aligned, legal reviewing terms", 16),
+    ("Salesforce Inc.", "Final Assault", "meeting", "Proposal submitted — awaiting procurement review", 25),
+    ("Lockheed Martin", "Final Assault", "call", "Final pricing negotiation, verbal commitment received", 20),
+    ("Royal Bank of Canada", "Extraction", "meeting", "Contract signed — onboarding kickoff scheduled", 30),
+    ("Itaú Unibanco", "Extraction", "call", "Competitor displaced — migration plan in progress", 8),
+]
+
+
 async def seed():
     db = Prisma()
     await db.connect()
@@ -361,6 +398,7 @@ async def seed():
     await db.companyterritorygroup.delete_many()
     await db.companyindustry.delete_many()
     await db.engagement.delete_many()
+    await db.engagementstage.delete_many()
     await db.competitorintel.delete_many()
     await db.contractlineitem.delete_many()
     await db.contract.delete_many()
@@ -484,6 +522,46 @@ async def seed():
         contact_count += 1
 
     print(f"Seeded {contact_count} contacts.")
+
+    # ── Pipeline Stages ────────────────────────────────────────────────
+    print("Seeding pipeline stages…")
+    stage_id_map: dict[str, str] = {}
+    for s in STAGES:
+        stage = await db.engagementstage.create(
+            data={"name": s["name"], "probability": s["probability"]}
+        )
+        stage_id_map[s["name"]] = stage.id
+
+    print(f"Seeded {len(STAGES)} pipeline stages.")
+
+    # ── Engagements ────────────────────────────────────────────────────
+    print("Seeding engagements…")
+    from datetime import datetime, timedelta, timezone
+
+    engagement_count = 0
+    for company_name, stage_name, eng_type, outcome, days_ago in ENGAGEMENTS:
+        cid = company_id_map.get(company_name)
+        sid = stage_id_map.get(stage_name)
+        if not cid or not sid:
+            print(f"  ⚠ Skipping engagement: {company_name} / {stage_name}")
+            continue
+
+        created = datetime.now(timezone.utc) - timedelta(days=days_ago)
+        next_action = created + timedelta(days=random.randint(3, 14))
+
+        await db.engagement.create(
+            data={
+                "companyId": cid,
+                "stageId": sid,
+                "type": eng_type,
+                "outcome": outcome,
+                "nextActionDate": next_action,
+                "createdAt": created,
+            }
+        )
+        engagement_count += 1
+
+    print(f"Seeded {engagement_count} engagements.")
     await db.disconnect()
 
 
