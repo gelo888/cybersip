@@ -58,6 +58,16 @@ export interface Contact {
 
 export type ContactPayload = Omit<Contact, "id" | "company_name">;
 
+// ── Pipeline Stage ──
+
+export interface Stage {
+    id: string;
+    name: string;
+    probability: number;
+}
+
+export type StagePayload = Omit<Stage, "id">;
+
 // ── Engagement ──
 
 export type EngagementType = "call" | "email" | "meeting" | "demo";
@@ -65,12 +75,24 @@ export type EngagementType = "call" | "email" | "meeting" | "demo";
 export interface Engagement {
     id: string;
     company_id: string;
+    company_name: string;
     stage_id: string;
+    stage_name: string;
     type: EngagementType;
     outcome: string | null;
     next_action_date: string | null;
     created_at: string;
 }
+
+export interface EngagementPayload {
+    company_id: string;
+    stage_id: string;
+    type: EngagementType;
+    outcome?: string | null;
+    next_action_date?: string | null;
+}
+
+export type EngagementUpdatePayload = Partial<Omit<EngagementPayload, "company_id">>;
 
 // ── Contract ──
 
