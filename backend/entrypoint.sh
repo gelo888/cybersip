@@ -8,7 +8,7 @@ done
 echo "PostgreSQL is ready."
 
 echo "Pushing Prisma schema to database..."
-prisma db push --skip-generate
+prisma db push --skip-generate --accept-data-loss
 
 if [ "$SEED_DB" = "true" ]; then
   echo "Seeding database..."
