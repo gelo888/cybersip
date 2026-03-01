@@ -77,6 +77,7 @@ export default function FrontendPage() {
           <tr>
             <th>Route</th>
             <th>Page Name</th>
+            <th>Status</th>
             <th>Purpose</th>
           </tr>
         </thead>
@@ -84,36 +85,49 @@ export default function FrontendPage() {
           <tr>
             <td><code>/</code></td>
             <td>Command Center</td>
+            <td>Mock data</td>
             <td>Proactive dashboard with Renewal Radar, Win/Loss Heatmap, Action Stream</td>
           </tr>
           <tr>
             <td><code>/intelligence</code></td>
             <td>Intelligence Hub</td>
+            <td>Mock data</td>
             <td>Competitor tracking, market news, vulnerability monitoring</td>
           </tr>
           <tr>
             <td><code>/hunt</code></td>
             <td>The Hunt</td>
-            <td>Competitive Kanban pipeline with displacement stages</td>
+            <td>Live API</td>
+            <td>Kanban pipeline with engagement CRUD, company links</td>
           </tr>
           <tr>
             <td><code>/portfolio</code></td>
             <td>Portfolio</td>
-            <td>Companies and contacts management</td>
+            <td>Live API</td>
+            <td>Companies and contacts management with full CRUD</td>
+          </tr>
+          <tr>
+            <td><code>/portfolio/[id]</code></td>
+            <td>Company 360</td>
+            <td>Live API</td>
+            <td>Contacts, engagements, contracts, intel with context-aware breadcrumbs</td>
           </tr>
           <tr>
             <td><code>/territories</code></td>
             <td>Territories</td>
+            <td>Mock data</td>
             <td>Geographic and team views</td>
           </tr>
           <tr>
             <td><code>/vault</code></td>
             <td>Vault</td>
-            <td>Contracts and proposals</td>
+            <td>Live API</td>
+            <td>Contracts table with CRUD and summary cards</td>
           </tr>
           <tr>
             <td><code>/settings</code></td>
             <td>Settings</td>
+            <td>Static</td>
             <td>Application configuration</td>
           </tr>
         </tbody>
@@ -128,31 +142,47 @@ export default function FrontendPage() {
 │   ├── intelligence/
 │   │   └── page.tsx           # Intelligence Hub
 │   ├── hunt/
-│   │   └── page.tsx           # Pipeline Kanban
+│   │   ├── page.tsx           # Pipeline Kanban (Live API)
+│   │   └── components/
+│   │       ├── kanban-board.tsx
+│   │       ├── engagement-card.tsx
+│   │       └── engagement-form-dialog.tsx
 │   ├── portfolio/
-│   │   └── page.tsx           # Companies & Contacts
+│   │   ├── page.tsx           # Companies & Contacts (Live API)
+│   │   ├── components/        # Table, form dialogs, pagination
+│   │   └── [id]/
+│   │       ├── page.tsx       # Company 360 (Live API)
+│   │       └── components/    # Section components
 │   ├── territories/
 │   │   └── page.tsx           # Geographic / Team views
 │   ├── vault/
-│   │   └── page.tsx           # Contracts & Proposals
+│   │   ├── page.tsx           # Contracts & Proposals (Live API)
+│   │   └── components/
+│   │       ├── contracts-table.tsx
+│   │       └── contract-form-dialog.tsx
 │   └── settings/
 │       └── page.tsx           # Application settings
 │
 ├── components/
 │   ├── app-sidebar.tsx        # Main navigation sidebar
 │   └── ui/                    # shadcn/ui components
-│       ├── button.tsx
-│       ├── input.tsx
-│       ├── sheet.tsx
-│       ├── sidebar.tsx
-│       ├── skeleton.tsx
-│       ├── tooltip.tsx
-│       └── separator.tsx
+│       ├── button.tsx, dialog.tsx, input.tsx, label.tsx
+│       ├── select.tsx, separator.tsx, sheet.tsx
+│       ├── sidebar.tsx, skeleton.tsx, switch.tsx
+│       └── tooltip.tsx
 │
-├── hooks/
-│   └── use-mobile.ts          # Mobile detection hook
+├── hooks/                     # TanStack Query data hooks
+│   ├── use-companies.ts       # Company list + CRUD
+│   ├── use-company-detail.ts  # Single company fetch
+│   ├── use-contacts.ts        # Contact list + CRUD
+│   ├── use-stages.ts          # Pipeline stage CRUD
+│   ├── use-engagements.ts     # Engagement list + CRUD
+│   ├── use-contracts.ts       # Contract + line-item CRUD
+│   └── use-mobile.ts          # Mobile detection
 │
 ├── lib/
+│   ├── api.ts                 # Centralized fetch (get, post, patch, del)
+│   ├── types.ts               # Shared TypeScript interfaces
 │   └── utils.ts               # cn() utility for class merging
 │
 └── package.json`}</pre>
@@ -184,6 +214,42 @@ export default function FrontendPage() {
           <strong>Vault</strong> — Contracts and proposals
         </li>
       </ul>
+
+      <h2>Data Fetching Pattern</h2>
+
+      <p>
+        All API data flows through <strong>TanStack Query</strong> hooks in
+        the <code>hooks/</code> directory. Each hook wraps the centralized API
+        client (<code>lib/api.ts</code>) and provides caching, refetching, and
+        optimistic updates.
+      </p>
+
+      <pre>{`// Example: hooks/use-contracts.ts
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { get, post, patch, del } from "@/lib/api";
+import type { Contract, ContractPayload } from "@/lib/types";
+
+export function useContracts() {
+  return useQuery({
+    queryKey: ["contracts"],
+    queryFn: () => get<Contract[]>("/api/contracts?take=500"),
+  });
+}
+
+export function useCreateContract() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: ContractPayload) =>
+      post<Contract>("/api/contracts", data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["contracts"] }),
+  });
+}`}</pre>
+
+      <p>
+        Page components are thin orchestrators that compose page-specific
+        components from a colocated <code>components/</code> subfolder. Shared
+        types live in <code>lib/types.ts</code>.
+      </p>
 
       <h2>Component System</h2>
 
@@ -279,14 +345,15 @@ export default function FrontendPage() {
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
           <h3 className="mt-0 mb-2 text-sm font-semibold text-green-600">
-            Working
+            Live API (Phase 1 + 1.5)
           </h3>
           <ul className="mb-0 text-sm">
-            <li>7 static frontend pages</li>
-            <li>Sidebar navigation grouped by intent</li>
-            <li>Responsive layout with mobile support</li>
-            <li>shadcn/ui component system</li>
-            <li>Light/dark theme tokens</li>
+            <li>TanStack Query + centralized API client</li>
+            <li>Portfolio — companies &amp; contacts with full CRUD</li>
+            <li>Company 360 — live data (contacts, engagements, contracts, intel)</li>
+            <li>Hunt — Kanban pipeline with engagement CRUD, linked to Company 360</li>
+            <li>Vault — contracts table with CRUD, summary cards, company links</li>
+            <li>Context-aware breadcrumbs (Hunt → Company 360 → back to Hunt)</li>
           </ul>
         </div>
         <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4">
@@ -294,10 +361,9 @@ export default function FrontendPage() {
             Pending
           </h3>
           <ul className="mb-0 text-sm">
-            <li>All pages use hardcoded mock data</li>
-            <li>No API integration (TanStack Query planned)</li>
+            <li>3 pages still use mock data (Command Center, Intelligence, Territories)</li>
+            <li>Hunt ↔ Vault cross-reference (contract indicators on pipeline cards)</li>
             <li>No authentication / authorization</li>
-            <li>Missing key interactive components</li>
             <li>Dark mode toggle not implemented</li>
           </ul>
         </div>

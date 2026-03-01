@@ -200,7 +200,9 @@ class CompanyResponse(BaseModel):
       <h2>Engagements & Stages</h2>
       <p>
         Tracks interactions (calls, emails, meetings, demos) with companies.
-        Includes pipeline stage management.
+        Includes pipeline stage management. Engagement responses are enriched
+        with <code>company_name</code> and <code>stage_name</code> via Prisma
+        relation includes.
       </p>
 
       <h3>Pipeline Stages</h3>
@@ -217,7 +219,7 @@ class CompanyResponse(BaseModel):
       <EndpointTable
         endpoints={[
           { method: "POST", path: "/api/engagements", description: "Log a new engagement" },
-          { method: "GET", path: "/api/engagements", description: "List engagements (filter by company & type)" },
+          { method: "GET", path: "/api/engagements", description: "List engagements (filter by company, type, stage_id)" },
           { method: "GET", path: "/api/engagements/{id}", description: "Get a single engagement" },
           { method: "PATCH", path: "/api/engagements/{id}", description: "Update an engagement" },
           { method: "DELETE", path: "/api/engagements/{id}", description: "Delete an engagement" },
@@ -265,7 +267,9 @@ class CompanyResponse(BaseModel):
       <h2>Contracts</h2>
       <p>
         Tracks both internal and competitor contracts. Each contract can have
-        multiple line items linking to products/services.
+        multiple line items linking to products/services. Contract responses
+        are enriched with <code>company_name</code> via Prisma relation
+        includes.
       </p>
 
       <h3>Contracts</h3>

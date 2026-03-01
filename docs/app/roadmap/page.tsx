@@ -34,9 +34,13 @@ export default function RoadmapPage() {
             <li>Prisma schema with rich relationships</li>
             <li>Docker Compose (PostgreSQL + backend)</li>
             <li>Sidebar navigation grouped by strategic intent</li>
-            <li>TanStack Query + API client wired up</li>
+            <li>TanStack Query + centralized API client (get, post, patch, del)</li>
             <li>Portfolio connected to real API (companies + contacts CRUD)</li>
             <li>Company 360 page with live data (contacts, engagements, contracts, intel)</li>
+            <li>Hunt page — live Kanban pipeline with engagement CRUD, linked to Company 360</li>
+            <li>Vault page — contracts table with CRUD, summary cards, company links</li>
+            <li>Context-aware breadcrumbs (Hunt / Vault → Company 360 → back)</li>
+            <li>Seed script with stages, engagements, products, contracts, and line items</li>
           </ul>
         </div>
         <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4">
@@ -44,12 +48,13 @@ export default function RoadmapPage() {
             The Gap
           </h3>
           <ul className="mb-0 text-sm">
-            <li>5 pages still use hardcoded mock data (Command Center, Hunt, Vault, Territories, Intelligence)</li>
+            <li>3 pages still use hardcoded mock data (Command Center, Intelligence, Territories)</li>
             <li>Company 360 sub-sections are read-only (no create/edit for engagements, contracts, intel)</li>
+            <li>Hunt ↔ Vault cross-reference not yet implemented (contract indicators on pipeline cards)</li>
             <li>No authentication / authorization</li>
             <li>No AI integration</li>
             <li>No N8N automation workflows</li>
-            <li>Missing key interactive components from the spec</li>
+            <li>Missing key interactive components (CMD+K, drag-and-drop, inline editing)</li>
           </ul>
         </div>
       </div>
@@ -90,15 +95,15 @@ export default function RoadmapPage() {
           Priority 1 — High value, backend ready
         </p>
         <ol start={5} className="mb-4 text-sm">
-          <li>
+          <li className="line-through opacity-60">
             Connect Hunt page to <code>/api/engagements</code> and{" "}
-            <code>/api/stages</code> — replace static Kanban with real deal
-            pipeline data
+            <code>/api/stages</code> — live Kanban pipeline with engagement
+            CRUD, company links, context-aware breadcrumbs
           </li>
-          <li>
+          <li className="line-through opacity-60">
             Connect Vault page to <code>/api/contracts</code> and{" "}
-            <code>/api/contracts/&#123;id&#125;/line-items</code> — list real
-            contracts with CRUD modals
+            <code>/api/contracts/&#123;id&#125;/line-items</code> — contracts
+            table with CRUD, summary cards, company links
           </li>
           <li>
             Connect Intelligence page to <code>/api/competitors</code> and{" "}
@@ -118,6 +123,11 @@ export default function RoadmapPage() {
           <li>
             Add CRUD to Company 360 sub-sections — create/edit modals for
             engagements, contracts, and competitor intel (currently read-only)
+          </li>
+          <li>
+            Hunt ↔ Vault cross-reference — show contract status indicators on
+            Hunt engagement cards (proposal submitted, contract signed) and
+            link Vault rows to their related engagements
           </li>
         </ol>
 
@@ -178,6 +188,12 @@ export default function RoadmapPage() {
           <li>Inline editing on tables</li>
           <li>Battle Card generation with AI</li>
           <li>Displacement email template generation</li>
+          <li>
+            Advanced Hunt ↔ Vault integration — &quot;Create Proposal&quot;
+            action from engagement cards, auto-stage transitions on contract
+            signing, dedicated Proposal model with versioning and approval
+            workflow
+          </li>
         </ol>
       </div>
 
