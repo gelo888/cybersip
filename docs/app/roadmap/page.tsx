@@ -15,10 +15,10 @@ export default function RoadmapPage() {
       </div>
       <h1>Development Roadmap</h1>
       <p>
-        CyberSIP&apos;s development is structured in four phases across{" "}
-        <strong>5 weeks</strong>, progressing from core data connectivity
-        through AI integration and UX polish. Development is accelerated with
-        AI-assisted coding (Cursor).
+        CyberSIP&apos;s development is structured in five phases across{" "}
+        <strong>5+ weeks</strong>, progressing from core data connectivity
+        through full API wiring, AI integration, automation, and UX polish.
+        Development is accelerated with AI-assisted coding (Cursor).
       </p>
 
       <h2>Current State</h2>
@@ -29,11 +29,14 @@ export default function RoadmapPage() {
             What&apos;s Working
           </h3>
           <ul className="mb-0 text-sm">
-            <li>7 static frontend pages (Next.js 16 + shadcn/ui)</li>
+            <li>7 frontend pages (Next.js 16 + shadcn/ui)</li>
             <li>FastAPI backend with 9 CRUD routers (66 endpoints)</li>
             <li>Prisma schema with rich relationships</li>
             <li>Docker Compose (PostgreSQL + backend)</li>
             <li>Sidebar navigation grouped by strategic intent</li>
+            <li>TanStack Query + API client wired up</li>
+            <li>Portfolio connected to real API (companies + contacts CRUD)</li>
+            <li>Company 360 page with live data (contacts, engagements, contracts, intel)</li>
           </ul>
         </div>
         <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4">
@@ -41,7 +44,8 @@ export default function RoadmapPage() {
             The Gap
           </h3>
           <ul className="mb-0 text-sm">
-            <li>All pages use hardcoded mock data — zero API calls</li>
+            <li>5 pages still use hardcoded mock data (Command Center, Hunt, Vault, Territories, Intelligence)</li>
+            <li>Company 360 sub-sections are read-only (no create/edit for engagements, contracts, intel)</li>
             <li>No authentication / authorization</li>
             <li>No AI integration</li>
             <li>No N8N automation workflows</li>
@@ -54,17 +58,77 @@ export default function RoadmapPage() {
 
       <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-blue-500 bg-blue-500/5 p-4">
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-blue-500">
-          Week 1
+          Week 1 — Done
         </p>
         <ol className="mb-0 text-sm">
-          <li>Install TanStack Query, set up API client</li>
-          <li>
+          <li className="line-through opacity-60">Install TanStack Query, set up API client</li>
+          <li className="line-through opacity-60">
             Connect Portfolio page to <code>/api/companies</code> and{" "}
             <code>/api/contacts</code>
           </li>
-          <li>Add Create / Edit / Delete modals for companies and contacts</li>
-          <li>
+          <li className="line-through opacity-60">Add Create / Edit / Delete modals for companies and contacts</li>
+          <li className="line-through opacity-60">
             Build the Company 360 page (<code>/portfolio/[id]</code>)
+          </li>
+        </ol>
+      </div>
+
+      <h2>Phase 1.5 — Connect the Rest</h2>
+
+      <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-blue-500 bg-blue-500/5 p-4">
+        <p className="mb-1 text-xs font-bold uppercase tracking-wider text-blue-500">
+          Week 1–2
+        </p>
+        <p className="mb-3 text-sm text-muted-foreground">
+          The backend already has full CRUD for all entities (66 endpoints across
+          9 routers). These tasks wire the remaining static pages to real API
+          data using the same pattern established in Phase 1: TanStack Query
+          hook → replace mock data → add CRUD modals.
+        </p>
+
+        <p className="mb-1 text-xs font-semibold uppercase tracking-wider">
+          Priority 1 — High value, backend ready
+        </p>
+        <ol start={5} className="mb-4 text-sm">
+          <li>
+            Connect Hunt page to <code>/api/engagements</code> and{" "}
+            <code>/api/stages</code> — replace static Kanban with real deal
+            pipeline data
+          </li>
+          <li>
+            Connect Vault page to <code>/api/contracts</code> and{" "}
+            <code>/api/contracts/&#123;id&#125;/line-items</code> — list real
+            contracts with CRUD modals
+          </li>
+          <li>
+            Connect Intelligence page to <code>/api/competitors</code> and{" "}
+            <code>/api/intel</code> — show real competitor tracking and intel
+          </li>
+        </ol>
+
+        <p className="mb-1 text-xs font-semibold uppercase tracking-wider">
+          Priority 2 — More complex wiring
+        </p>
+        <ol start={8} className="mb-4 text-sm">
+          <li>
+            Connect Territories page to <code>/api/regions</code>,{" "}
+            <code>/api/territory-groups</code>, and <code>/api/teams</code> —
+            real region/team data with assignment management
+          </li>
+          <li>
+            Add CRUD to Company 360 sub-sections — create/edit modals for
+            engagements, contracts, and competitor intel (currently read-only)
+          </li>
+        </ol>
+
+        <p className="mb-1 text-xs font-semibold uppercase tracking-wider">
+          Priority 3 — Dashboard & aggregation
+        </p>
+        <ol start={10} className="mb-0 text-sm">
+          <li>
+            Connect Command Center to real data — build KPI aggregation
+            (pipeline value, contract counts, renewal radar) from connected
+            entities
           </li>
         </ol>
       </div>
@@ -73,15 +137,15 @@ export default function RoadmapPage() {
 
       <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-amber-500 bg-amber-500/5 p-4">
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-amber-500">
-          Week 2–3
+          Week 3
         </p>
-        <ol start={5} className="mb-0 text-sm">
+        <ol start={11} className="mb-0 text-sm">
           <li>
             Add a <code>/api/ai/enrich-company</code> endpoint (OpenAI or
             similar)
           </li>
           <li>Build the Smart-Add Company modal with domain enrichment</li>
-          <li>Connect Hunt kanban to engagements API + add drag-and-drop</li>
+          <li>Add drag-and-drop stage transitions on Hunt kanban</li>
           <li>Add CMD+K command palette</li>
         </ol>
       </div>
@@ -92,7 +156,7 @@ export default function RoadmapPage() {
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-green-500">
           Week 4
         </p>
-        <ol start={9} className="mb-0 text-sm">
+        <ol start={15} className="mb-0 text-sm">
           <li>
             Set up N8N (add to <code>docker-compose.yml</code>)
           </li>
@@ -108,7 +172,7 @@ export default function RoadmapPage() {
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-purple-500">
           Week 5
         </p>
-        <ol start={13} className="mb-0 text-sm">
+        <ol start={19} className="mb-0 text-sm">
           <li>Dark mode toggle</li>
           <li>Skeleton loading states everywhere</li>
           <li>Inline editing on tables</li>
@@ -377,7 +441,7 @@ export default function RoadmapPage() {
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-cyan-500">
           Future Expansion
         </p>
-        <ol start={18} className="mb-0 text-sm">
+        <ol start={24} className="mb-0 text-sm">
           <li>Salesforce bidirectional sync (accounts, contacts, opportunities)</li>
           <li>Power BI dashboards via direct PostgreSQL or REST API connector</li>
           <li>Data enrichment pipeline (ZoomInfo / Apollo / Clearbit)</li>
