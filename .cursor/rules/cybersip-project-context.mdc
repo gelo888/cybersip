@@ -1,0 +1,171 @@
+---
+description: CyberSIP project context — architecture, roadmap, conventions, and security. Always consult before making changes.
+alwaysApply: true
+---
+
+# CyberSIP — Project Context
+
+CyberSIP is a **Cybersecurity Sales Intelligence Platform** — a specialized CRM for cybersecurity sales teams focused on competitor tracking, market intelligence, and contract lifecycle management.
+
+> "Don't just record what happened; predict what should happen next."
+
+## Architecture
+
+Three-tier decoupled architecture: **Browser → Next.js → FastAPI → Prisma → PostgreSQL**
+
+| Layer      | Tech                                               | Port |
+|------------|-----------------------------------------------------|------|
+| Frontend   | Next.js 16, React 19, TypeScript, shadcn/ui, Tailwind CSS 4, TanStack Query | 3000 |
+| Backend    | Python 3.12, FastAPI, Pydantic, prisma-client-py   | 8000 |
+| Database   | PostgreSQL 16, Prisma ORM                           | 5432 |
+| Infra      | Docker Compose                                      |      |
+
+**Critical rules:**
+- The frontend is a **pure UI layer** — it NEVER touches the database directly
+- All data flows through FastAPI endpoints — the frontend only calls the backend REST API
+- Prisma lives on the **backend only** via `prisma-client-py`
+- External services (AI, N8N, enrichment) are always accessed via backend — frontend never calls them directly
+
+## Project Structure
+
+```
+cybersip/
+├── frontend/          # Next.js 16 App Router
+│   ├── app/           # Pages (Command Center, Hunt, Intelligence, Portfolio, Territories, Vault, Settings)
+│   ├── components/    # Shared UI components (shadcn/ui based)
+│   ├── hooks/         # TanStack Query hooks (use-companies, etc.)
+│   └── lib/           # API client (lib/api.ts), types (lib/types.ts), utilities
+├── backend/           # FastAPI Python API
+│   ├── app/main.py    # FastAPI app entry
+│   ├── app/routers/   # 9 CRUD routers (companies, contacts, engagements, assignments, products, contracts, competitors, territories, teams)
+│   ├── app/schemas/   # Pydantic schemas
+│   └── prisma/        # Prisma schema + migrations
+├── docs/              # Standalone Next.js documentation site
+└── docker-compose.yml
+```
+
+## Backend API (66 endpoints across 9 routers)
+
+| Router         | Prefix              | Purpose                    |
+|----------------|----------------------|----------------------------|
+| companies      | `/api/companies`     | Company CRUD               |
+| contacts       | `/api/contacts`      | Contact CRUD               |
+| engagements    | `/api/engagements`   | Pipeline / deal management |
+| assignments    | `/api/assignments`   | User-Company links         |
+| products       | `/api/products`      | Product catalog            |
+| contracts      | `/api/contracts`     | Contract lifecycle         |
+| competitors    | `/api/competitors`   | Competitive intel          |
+| regions        | `/api/regions`       | Territory hierarchy        |
+| teams          | `/api/teams`         | Team management            |
+
+## Frontend Routes
+
+| Route              | Page                | Status        |
+|--------------------|---------------------|---------------|
+| `/`                | Command Center      | Mock data     |
+| `/hunt`            | Pipeline Kanban     | Mock data     |
+| `/intelligence`    | Intelligence Hub    | Mock data     |
+| `/portfolio`       | Companies & Contacts| Live API      |
+| `/portfolio/[id]`  | Company 360         | Live API      |
+| `/territories`     | Geographic Views    | Mock data     |
+| `/vault`           | Contracts & Proposals| Mock data    |
+
+## Frontend Page Structure Convention
+
+Each page route follows a **colocated component pattern** — page-specific components live in a `components/` subfolder next to `page.tsx`, keeping code modular and easy to read:
+
+```
+app/
+├── portfolio/              # Route: /portfolio
+│   ├── page.tsx            # Main page (imports from ./components/)
+│   ├── components/         # Page-specific components
+│   │   ├── companies-table.tsx
+│   │   ├── company-form-dialog.tsx
+│   │   ├── contact-form-dialog.tsx
+│   │   ├── contacts-table.tsx
+│   │   ├── delete-confirm-dialog.tsx
+│   │   └── table-pagination.tsx
+│   └── [id]/               # Dynamic route: /portfolio/[id]
+│       ├── page.tsx
+│       └── components/
+│           ├── contacts-section.tsx
+│           ├── contracts-section.tsx
+│           ├── engagements-section.tsx
+│           └── intel-section.tsx
+```
+
+**Rules for new pages:**
+- When a page grows beyond a single file, extract components into a `components/` subfolder within that route directory
+- `page.tsx` should be a thin orchestrator that imports and composes page-specific components
+- Page-specific components go in `app/<route>/components/` — NOT in the top-level `components/` directory
+- The top-level `frontend/components/` is reserved for **shared/reusable** components (shadcn/ui, layout, etc.)
+- Name component files descriptively: `companies-table.tsx`, `company-form-dialog.tsx`, etc.
+
+## Frontend Patterns
+
+- **Data fetching**: TanStack Query hooks in `hooks/` directory (e.g., `use-companies.ts`)
+- **API client**: Centralized in `lib/api.ts` — all fetch calls go through this
+- **Types**: Shared TypeScript types in `lib/types.ts`
+- **UI**: shadcn/ui components + Tailwind CSS 4 + Radix UI primitives + Lucide icons
+- **Pattern for wiring pages**: TanStack Query hook → replace mock data → add CRUD modals
+
+## Development Roadmap (Current Phase: 1.5)
+
+| Phase   | Focus                        | Status      |
+|---------|------------------------------|-------------|
+| **1**   | TanStack Query, Portfolio, Company 360 | Done |
+| **1.5** | Wire remaining pages (Hunt, Vault, Intelligence, Territories, Command Center) | In Progress |
+| **2**   | AI enrichment, Smart-Add, CMD+K palette | Planned |
+| **3**   | N8N automation (news scraper, contract alerts) | Planned |
+| **4**   | Dark mode, skeletons, inline editing, Battle Cards | Planned |
+| **5**   | Enterprise integrations (Salesforce, Power BI) | Future |
+
+**Phase 1.5 priorities:**
+1. Connect Hunt → `/api/engagements` + `/api/stages`
+2. Connect Vault → `/api/contracts` + line items
+3. Connect Intelligence → `/api/competitors` + `/api/intel`
+4. Connect Territories → `/api/regions` + `/api/territory-groups` + `/api/teams`
+5. Add CRUD to Company 360 sub-sections
+6. Connect Command Center to real aggregated data
+
+## Security Considerations
+
+- **No auth yet** — authentication (NextAuth.js → JWT) is planned but not implemented
+- **CORS**: Configured via `CORS_ALLOWED_ORIGINS` env var (defaults to `http://localhost:3000`)
+- **Secrets**: All credentials stored in `.env` files — NEVER commit `.env` files
+- **Frontend boundary**: Frontend never calls external services directly — all goes through FastAPI
+- **Database access**: Only the backend (Prisma) touches PostgreSQL — never expose DB credentials to frontend
+
+## Documentation
+
+Full docs are in the `docs/` directory (standalone Next.js site). Consult these before major changes:
+- `docs/app/architecture/page.tsx` — System design, data flow, CORS
+- `docs/app/getting-started/page.tsx` — Installation and setup
+- `docs/app/database/page.tsx` — Schema and relationships
+- `docs/app/backend/page.tsx` — All 66 REST endpoints
+- `docs/app/frontend/page.tsx` — Frontend patterns
+- `docs/app/design/page.tsx` — UX/UI design system
+- `docs/app/roadmap/page.tsx` — Full development roadmap with phases
+
+## Before Making Changes
+
+1. **Check the roadmap** — Is this change aligned with the current phase?
+2. **Check the docs** — Read the relevant doc page for the area being modified
+3. **Check existing patterns** — Follow established patterns (TanStack Query hooks, API client, Pydantic schemas)
+4. **Check types** — Ensure `lib/types.ts` is updated if data shapes change
+5. **Check both sides** — Frontend changes may need backend endpoints; backend changes may need frontend hooks
+6. **Never break the architecture** — Frontend stays pure UI, backend owns all data logic
+
+## When Committing Changes
+
+**Always check if the `docs/` site needs updating.** The docs site is a living reference — it must stay in sync with the codebase.
+
+- **Frontend changes** → update `docs/app/frontend/page.tsx` if new pages, routes, components, or patterns are added
+- **Backend changes** → update `docs/app/backend/page.tsx` if endpoints are added, changed, or removed
+- **Database changes** → update `docs/app/database/page.tsx` if the Prisma schema changes
+- **Architecture changes** → update `docs/app/architecture/page.tsx` if the system design or data flow changes
+- **New features / milestones** → update `docs/app/roadmap/page.tsx` to reflect progress (mark items done, add new items)
+- **Design changes** → update `docs/app/design/page.tsx` if UI patterns or design system conventions change
+- **Setup changes** → update `docs/app/getting-started/page.tsx` if env vars, Docker config, or install steps change
+
+Remind the user before committing: *"Does the docs site need updating to reflect these changes?"*
