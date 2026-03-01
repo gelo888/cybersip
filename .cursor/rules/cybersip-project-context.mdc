@@ -121,12 +121,19 @@ app/
 | **5**   | Enterprise integrations (Salesforce, Power BI) | Future |
 
 **Phase 1.5 priorities:**
-1. Connect Hunt → `/api/engagements` + `/api/stages`
-2. Connect Vault → `/api/contracts` + line items
-3. Connect Intelligence → `/api/competitors` + `/api/intel`
-4. Connect Territories → `/api/regions` + `/api/territory-groups` + `/api/teams`
-5. Add CRUD to Company 360 sub-sections
-6. Connect Command Center to real aggregated data
+1. ~~Connect Hunt → `/api/engagements` + `/api/stages`~~ ✅
+2. Connect Vault → `/api/contracts` + line items (in progress — pending contracts = proposals)
+3. Add contract status indicators on Hunt engagement cards (cross-reference Hunt ↔ Vault)
+4. Connect Intelligence → `/api/competitors` + `/api/intel`
+5. Connect Territories → `/api/regions` + `/api/territory-groups` + `/api/teams`
+6. Add CRUD to Company 360 sub-sections
+7. Connect Command Center to real aggregated data
+
+**Future enhancements (Phase 4+):**
+- Direct link from Hunt cards to specific contracts in Vault
+- Auto-create `pending` contract when engagement moves to "Final Assault"
+- Combined timeline view (engagements + contracts) per company
+- Promote proposals to dedicated model if workflow demands it (versioning, approvals, expiry)
 
 ## Security Considerations
 
