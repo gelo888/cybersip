@@ -4,6 +4,7 @@ import "./globals.css";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { PageHeader } from "@/components/page-header";
+import { Providers } from "@/components/providers";
 
 const inter = Inter({
     variable: "--font-inter",
@@ -37,13 +38,17 @@ export default function RootLayout({
             <body
                 className={`${inter.variable} ${lexend.variable} ${lexendExa.variable} antialiased`}
             >
-                <SidebarProvider>
-                    <AppSidebar />
-                    <SidebarInset className="min-w-0">
-                        <PageHeader />
-                        <div className="flex-1 overflow-auto">{children}</div>
-                    </SidebarInset>
-                </SidebarProvider>
+                <Providers>
+                    <SidebarProvider>
+                        <AppSidebar />
+                        <SidebarInset className="min-w-0">
+                            <PageHeader />
+                            <div className="flex-1 overflow-auto">
+                                {children}
+                            </div>
+                        </SidebarInset>
+                    </SidebarProvider>
+                </Providers>
             </body>
         </html>
     );
