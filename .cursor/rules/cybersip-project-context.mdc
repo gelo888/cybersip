@@ -158,6 +158,8 @@ Full docs are in the `docs/` directory (standalone Next.js site). Consult these 
 
 ## When Committing Changes
 
+**NEVER commit or run `git commit` unless the user explicitly asks you to commit.** Creating a commit message is not the same as committing. If asked to "create a commit message", only output the message text — do not execute it.
+
 **Always check if the `docs/` site needs updating.** The docs site is a living reference — it must stay in sync with the codebase.
 
 - **Frontend changes** → update `docs/app/frontend/page.tsx` if new pages, routes, components, or patterns are added
