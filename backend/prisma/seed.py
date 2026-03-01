@@ -11,12 +11,15 @@ Populates the database with:
   - Contacts across Enterprise, Mid-Market, and Government companies
   - 6 pipeline stages
   - Sample engagements across stages
+  - Product categories & products
+  - Contracts with line items
 
 Run:  python prisma/seed.py          (standalone)
 """
 
 import asyncio
 import random
+from datetime import datetime, timedelta, timezone
 
 from prisma import Prisma
 
@@ -355,6 +358,88 @@ CONTACTS = [
 ]
 
 
+# ── Product Categories & Products ────────────────────────────────────
+
+PRODUCT_CATEGORIES = [
+    {
+        "name": "Endpoint Security",
+        "products": [
+            {"name": "EDR Platform", "base_price": 45000, "pricing_model": "per_seat"},
+            {"name": "XDR Extended Detection", "base_price": 72000, "pricing_model": "per_seat"},
+        ],
+    },
+    {
+        "name": "Network Security",
+        "products": [
+            {"name": "Managed SIEM", "base_price": 120000, "pricing_model": "flat"},
+            {"name": "Firewall Management", "base_price": 36000, "pricing_model": "per_site"},
+        ],
+    },
+    {
+        "name": "Offensive Security",
+        "products": [
+            {"name": "Penetration Testing", "base_price": 28000, "pricing_model": "custom"},
+            {"name": "Red Team Assessment", "base_price": 85000, "pricing_model": "custom"},
+        ],
+    },
+    {
+        "name": "Compliance & GRC",
+        "products": [
+            {"name": "Compliance Audit", "base_price": 55000, "pricing_model": "flat"},
+            {"name": "vCISO Service", "base_price": 96000, "pricing_model": "flat"},
+        ],
+    },
+]
+
+# ── Sample Contracts ─────────────────────────────────────────────────
+# Tuple: (company_name, type, status, start_offset_days, duration_days, total_value, renewal_notice_days)
+# start_offset_days is relative to today (negative = past).
+
+CONTRACTS = [
+    ("JPMorgan Chase", "our_contract", "active", -365, 730, 420000, 90),
+    ("HSBC Holdings", "our_contract", "active", -180, 365, 285000, 60),
+    ("Siemens AG", "our_contract", "active", -270, 730, 610000, 90),
+    ("Verizon Communications", "our_contract", "active", -90, 365, 150000, 30),
+    ("Salesforce Inc.", "our_contract", "pending", -10, 365, 220000, 60),
+    ("Royal Bank of Canada", "our_contract", "active", -500, 730, 340000, 90),
+    ("Lockheed Martin", "our_contract", "active", -400, 730, 520000, 90),
+    ("Samsung Electronics", "our_contract", "renewed", -730, 365, 195000, 60),
+    ("Tata Consultancy Services", "our_contract", "active", -200, 365, 175000, 60),
+    ("Microsoft Corporation", "competitor_contract", "active", -300, 730, 800000, None),
+    ("Deutsche Bank", "competitor_contract", "active", -180, 365, 350000, None),
+    ("Petrobras", "competitor_contract", "expired", -730, 365, 280000, None),
+    ("Duke Energy", "competitor_contract", "active", -60, 365, 190000, None),
+    ("Banco Santander", "our_contract", "expired", -730, 365, 95000, 60),
+    ("Equinor ASA", "our_contract", "active", -120, 365, 310000, 90),
+]
+
+# ── Sample Contract Line Items ───────────────────────────────────────
+# Tuple: (company_name, product_name, quantity, unit_price)
+# Linked to the contract for that company (first match).
+
+CONTRACT_LINE_ITEMS = [
+    ("JPMorgan Chase", "Managed SIEM", 1, 250000),
+    ("JPMorgan Chase", "EDR Platform", 3, 45000),
+    ("JPMorgan Chase", "Penetration Testing", 1, 35000),
+    ("HSBC Holdings", "XDR Extended Detection", 2, 72000),
+    ("HSBC Holdings", "Managed SIEM", 1, 141000),
+    ("Siemens AG", "Managed SIEM", 1, 180000),
+    ("Siemens AG", "EDR Platform", 5, 50000),
+    ("Siemens AG", "Red Team Assessment", 1, 85000),
+    ("Siemens AG", "Compliance Audit", 1, 55000),
+    ("Verizon Communications", "EDR Platform", 2, 45000),
+    ("Verizon Communications", "Penetration Testing", 1, 28000),
+    ("Royal Bank of Canada", "Managed SIEM", 1, 150000),
+    ("Royal Bank of Canada", "XDR Extended Detection", 1, 72000),
+    ("Royal Bank of Canada", "vCISO Service", 1, 96000),
+    ("Lockheed Martin", "Red Team Assessment", 2, 100000),
+    ("Lockheed Martin", "Managed SIEM", 1, 200000),
+    ("Lockheed Martin", "Compliance Audit", 1, 55000),
+    ("Equinor ASA", "Managed SIEM", 1, 160000),
+    ("Equinor ASA", "EDR Platform", 2, 45000),
+    ("Equinor ASA", "Penetration Testing", 1, 28000),
+]
+
 # ── Pipeline Stages ──────────────────────────────────────────────────
 # Ordered by probability (low → high) to mirror the sales funnel.
 
@@ -402,6 +487,8 @@ async def seed():
     await db.competitorintel.delete_many()
     await db.contractlineitem.delete_many()
     await db.contract.delete_many()
+    await db.productservice.delete_many()
+    await db.productcategory.delete_many()
     await db.contact.delete_many()
     await db.companyassignment.delete_many()
     await db.companyname.delete_many()
@@ -536,8 +623,6 @@ async def seed():
 
     # ── Engagements ────────────────────────────────────────────────────
     print("Seeding engagements…")
-    from datetime import datetime, timedelta, timezone
-
     engagement_count = 0
     for company_name, stage_name, eng_type, outcome, days_ago in ENGAGEMENTS:
         cid = company_id_map.get(company_name)
@@ -562,6 +647,77 @@ async def seed():
         engagement_count += 1
 
     print(f"Seeded {engagement_count} engagements.")
+
+    # ── Product Categories & Products ──────────────────────────────────
+    print("Seeding product categories & products…")
+    product_id_map: dict[str, str] = {}
+    for cat in PRODUCT_CATEGORIES:
+        category = await db.productcategory.create(data={"name": cat["name"]})
+        for prod in cat["products"]:
+            p = await db.productservice.create(
+                data={
+                    "categoryId": category.id,
+                    "name": prod["name"],
+                    "basePrice": prod["base_price"],
+                    "pricingModel": prod["pricing_model"],
+                }
+            )
+            product_id_map[prod["name"]] = p.id
+
+    product_count = sum(len(c["products"]) for c in PRODUCT_CATEGORIES)
+    print(f"Seeded {len(PRODUCT_CATEGORIES)} categories, {product_count} products.")
+
+    # ── Contracts ──────────────────────────────────────────────────────
+    print("Seeding contracts…")
+    contract_id_map: dict[str, str] = {}
+    contract_count = 0
+    for company_name, ctype, cstatus, start_off, duration, value, renewal in CONTRACTS:
+        cid = company_id_map.get(company_name)
+        if not cid:
+            print(f"  ⚠ Skipping contract: company {company_name} not found")
+            continue
+
+        start = datetime.now(timezone.utc) + timedelta(days=start_off)
+        end = start + timedelta(days=duration)
+
+        c = await db.contract.create(
+            data={
+                "companyId": cid,
+                "type": ctype,
+                "status": cstatus,
+                "startDate": start,
+                "endDate": end,
+                "totalValue": value,
+                "renewalNoticeDays": renewal,
+            }
+        )
+        if company_name not in contract_id_map:
+            contract_id_map[company_name] = c.id
+        contract_count += 1
+
+    print(f"Seeded {contract_count} contracts.")
+
+    # ── Contract Line Items ────────────────────────────────────────────
+    print("Seeding contract line items…")
+    li_count = 0
+    for company_name, product_name, qty, price in CONTRACT_LINE_ITEMS:
+        ctr_id = contract_id_map.get(company_name)
+        prod_id = product_id_map.get(product_name)
+        if not ctr_id or not prod_id:
+            print(f"  ⚠ Skipping line item: {company_name} / {product_name}")
+            continue
+
+        await db.contractlineitem.create(
+            data={
+                "contractId": ctr_id,
+                "productServiceId": prod_id,
+                "quantity": qty,
+                "unitPrice": price,
+            }
+        )
+        li_count += 1
+
+    print(f"Seeded {li_count} contract line items.")
     await db.disconnect()
 
 

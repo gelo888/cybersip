@@ -47,6 +47,7 @@ class ContractResponse(BaseModel):
     """Response body for a contract."""
     id: str
     company_id: str
+    company_name: str
     type: ContractType
     status: ContractStatus
     start_date: Optional[datetime] = None

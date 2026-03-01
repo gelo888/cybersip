@@ -35,7 +35,8 @@ async def create_contract(body: ContractCreate):
             "endDate": body.end_date,
             "totalValue": body.total_value,
             "renewalNoticeDays": body.renewal_notice_days,
-        }
+        },
+        include={"company": True},
     )
     return _contract_to_response(contract)
 
@@ -46,7 +47,7 @@ async def list_contracts(
     type: Optional[ContractType] = Query(None, description="Filter by contract type"),
     status: Optional[ContractStatus] = Query(None, description="Filter by status"),
     skip: int = Query(0, ge=0),
-    take: int = Query(20, ge=1, le=100),
+    take: int = Query(20, ge=1, le=500),
 ):
     """List contracts with optional filters."""
     where = {}
@@ -59,6 +60,7 @@ async def list_contracts(
 
     contracts = await db.contract.find_many(
         where=where,
+        include={"company": True},
         skip=skip,
         take=take,
         order={"endDate": "asc"},
@@ -69,7 +71,10 @@ async def list_contracts(
 @router.get("/api/contracts/{contract_id}", response_model=ContractResponse)
 async def get_contract(contract_id: str):
     """Get a single contract by ID."""
-    contract = await db.contract.find_unique(where={"id": contract_id})
+    contract = await db.contract.find_unique(
+        where={"id": contract_id},
+        include={"company": True},
+    )
     if not contract:
         raise HTTPException(status_code=404, detail="Contract not found")
     return _contract_to_response(contract)
@@ -97,11 +102,16 @@ async def update_contract(contract_id: str, body: ContractUpdate):
         update_data["renewalNoticeDays"] = body.renewal_notice_days
 
     if not update_data:
+        existing = await db.contract.find_unique(
+            where={"id": contract_id},
+            include={"company": True},
+        )
         return _contract_to_response(existing)
 
     contract = await db.contract.update(
         where={"id": contract_id},
         data=update_data,
+        include={"company": True},
     )
     return _contract_to_response(contract)
 
@@ -192,6 +202,7 @@ def _contract_to_response(contract) -> dict:
     return {
         "id": contract.id,
         "company_id": contract.companyId,
+        "company_name": contract.company.currentName if contract.company else "Unknown",
         "type": contract.type,
         "status": contract.status,
         "start_date": contract.startDate,
