@@ -2,6 +2,7 @@
 
 import { use } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
     ArrowLeft,
     Building2,
@@ -89,12 +90,20 @@ function InfoCard({
     );
 }
 
+const BACK_LINKS: Record<string, { href: string; label: string }> = {
+    hunt: { href: "/hunt", label: "The Hunt" },
+    portfolio: { href: "/portfolio", label: "Portfolio" },
+};
+
 export default function CompanyDetailPage({
     params,
 }: {
     params: Promise<{ id: string }>;
 }) {
     const { id } = use(params);
+    const searchParams = useSearchParams();
+    const from = searchParams.get("from") ?? "";
+    const backLink = BACK_LINKS[from] ?? BACK_LINKS.portfolio;
     const company = useCompany(id);
 
     if (company.isLoading) {
@@ -109,10 +118,10 @@ export default function CompanyDetailPage({
     if (company.isError) {
         return (
             <div className="p-6 space-y-4">
-                <Link href="/portfolio">
+                <Link href={backLink.href}>
                     <Button variant="ghost" size="sm">
                         <ArrowLeft className="size-4 mr-1" />
-                        Back to Portfolio
+                        {backLink.label}
                     </Button>
                 </Link>
                 <div className="flex items-center justify-center py-24 text-sophos-red gap-2">
@@ -128,10 +137,10 @@ export default function CompanyDetailPage({
     return (
         <div className="p-6 space-y-6">
             {/* Back navigation */}
-            <Link href="/portfolio">
+            <Link href={backLink.href}>
                 <Button variant="ghost" size="sm" className="gap-1 -ml-2">
                     <ArrowLeft className="size-4" />
-                    Portfolio
+                    {backLink.label}
                 </Button>
             </Link>
 

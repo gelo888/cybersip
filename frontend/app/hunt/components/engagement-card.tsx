@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Phone, Mail, Users, Monitor, Clock, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { Engagement } from "@/lib/types"
@@ -35,7 +36,13 @@ export function EngagementCard({ engagement, onEdit, onDelete }: Props) {
     return (
         <div className="rounded-lg border bg-card p-3 space-y-2.5 hover:shadow-sm transition-shadow group">
             <div className="flex items-start justify-between gap-2">
-                <span className="font-medium text-sm truncate">{engagement.company_name}</span>
+                <Link
+                    href={`/portfolio/${engagement.company_id}?from=hunt`}
+                    className="font-medium text-sm truncate hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {engagement.company_name}
+                </Link>
                 <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                         variant="ghost"
