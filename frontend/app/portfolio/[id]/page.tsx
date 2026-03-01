@@ -93,6 +93,7 @@ function InfoCard({
 const BACK_LINKS: Record<string, { href: string; label: string }> = {
     hunt: { href: "/hunt", label: "The Hunt" },
     vault: { href: "/vault", label: "Vault" },
+    intelligence: { href: "/intelligence", label: "Intelligence" },
     portfolio: { href: "/portfolio", label: "Portfolio" },
 };
 
