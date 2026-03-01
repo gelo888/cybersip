@@ -102,12 +102,42 @@ export type ContractStatus = "active" | "expired" | "renewed" | "pending";
 export interface Contract {
     id: string;
     company_id: string;
+    company_name: string;
     type: ContractType;
     status: ContractStatus;
     start_date: string | null;
     end_date: string | null;
     total_value: number | null;
     renewal_notice_days: number | null;
+}
+
+export interface ContractPayload {
+    company_id: string;
+    type: ContractType;
+    status?: ContractStatus;
+    start_date?: string | null;
+    end_date?: string | null;
+    total_value?: number | null;
+    renewal_notice_days?: number | null;
+}
+
+export type ContractUpdatePayload = Omit<Partial<ContractPayload>, "company_id">;
+
+// ── Contract Line Item ──
+
+export interface LineItem {
+    id: string;
+    contract_id: string;
+    product_service_id: string;
+    quantity: number;
+    unit_price: number;
+}
+
+export interface LineItemPayload {
+    contract_id: string;
+    product_service_id: string;
+    quantity?: number;
+    unit_price: number;
 }
 
 // ── Competitor Intel ──
