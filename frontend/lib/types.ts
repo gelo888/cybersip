@@ -140,6 +140,25 @@ export interface LineItemPayload {
     unit_price: number;
 }
 
+// ── Competitor ──
+
+export interface Competitor {
+    id: string;
+    name: string;
+    website: string | null;
+    strengths: string[];
+    weaknesses: string[];
+}
+
+export interface CompetitorPayload {
+    name: string;
+    website?: string | null;
+    strengths?: string[];
+    weaknesses?: string[];
+}
+
+export type CompetitorUpdatePayload = Partial<CompetitorPayload>;
+
 // ── Competitor Intel ──
 
 export type IntelConfidence = "confirmed" | "rumor" | "inferred";
@@ -147,11 +166,23 @@ export type IntelConfidence = "confirmed" | "rumor" | "inferred";
 export interface CompetitorIntel {
     id: string;
     company_id: string;
+    company_name: string;
     competitor_id: string;
+    competitor_name: string;
     product_name: string | null;
     contract_end: string | null;
     confidence: IntelConfidence;
 }
+
+export interface IntelPayload {
+    company_id: string;
+    competitor_id: string;
+    product_name?: string | null;
+    contract_end?: string | null;
+    confidence?: IntelConfidence;
+}
+
+export type IntelUpdatePayload = Partial<Omit<IntelPayload, "company_id" | "competitor_id">>;
 
 // ── Assignment ──
 
