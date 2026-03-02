@@ -58,6 +58,11 @@ export default function FrontendPage() {
             <td>Component system (Radix UI primitives)</td>
           </tr>
           <tr>
+            <td>TanStack Query</td>
+            <td>5.x</td>
+            <td>Server-state management (caching, mutations, invalidation)</td>
+          </tr>
+          <tr>
             <td>Lucide React</td>
             <td>Latest</td>
             <td>Icon library</td>
