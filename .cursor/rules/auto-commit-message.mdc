@@ -1,0 +1,34 @@
+---
+description: After completing changes, automatically check the git diff and suggest a short commit message.
+alwaysApply: true
+---
+
+# Auto Commit Message Suggestion
+
+After completing any code changes, automatically:
+
+1. Run `git diff --stat` to review what files changed
+2. Group changed files by layer: **Backend** (`backend/`), **Frontend** (`frontend/`), **Docs** (`docs/`)
+3. Suggest one commit message per layer that has changes
+
+**Format:** Prefix each message with the layer, then a verb.
+
+```
+[Frontend] Add static market signals preview to Intelligence Hub
+[Backend] Add endpoint for competitor weakness scoring
+[Docs] Update roadmap to reflect Intelligence wired to live API
+```
+
+**Grouping rules:**
+- **`backend/`** changes → `[Backend]` commit
+- **`frontend/`** changes → `[Frontend]` commit
+- **`docs/`** changes → `[Docs]` commit
+- Root-level config files (docker-compose, .env, etc.) → include with the most relevant layer
+- `.cursor/rules/` changes → `[Config]` commit
+- If all changes fit a single concern across layers, a single combined commit is acceptable
+
+**General rules:**
+- Do NOT run `git commit` — only suggest the message(s)
+- Start with a verb after the prefix — `Add`, `Update`, `Fix`, `Remove`, `Refactor`, etc.
+- Keep each message under 72 characters when possible
+- Focus on the "why" or "what changed", not implementation details
