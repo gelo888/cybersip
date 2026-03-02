@@ -64,11 +64,11 @@ cybersip/
 |--------------------|---------------------|---------------|
 | `/`                | Command Center      | Mock data     |
 | `/hunt`            | Pipeline Kanban     | Mock data     |
-| `/intelligence`    | Intelligence Hub    | Mock data     |
+| `/intelligence`    | Intelligence Hub    | Live API      |
 | `/portfolio`       | Companies & Contacts| Live API      |
 | `/portfolio/[id]`  | Company 360         | Live API      |
 | `/territories`     | Geographic Views    | Mock data     |
-| `/vault`           | Contracts & Proposals| Mock data    |
+| `/vault`           | Contracts & Proposals| Live API     |
 
 ## Frontend Page Structure Convention
 
@@ -122,9 +122,9 @@ app/
 
 **Phase 1.5 priorities:**
 1. ~~Connect Hunt → `/api/engagements` + `/api/stages`~~ ✅
-2. Connect Vault → `/api/contracts` + line items (in progress — pending contracts = proposals)
-3. Add contract status indicators on Hunt engagement cards (cross-reference Hunt ↔ Vault)
-4. Connect Intelligence → `/api/competitors` + `/api/intel`
+2. ~~Connect Vault → `/api/contracts` + line items~~ ✅
+3. ~~Connect Intelligence → `/api/competitors` + `/api/intel`~~ ✅
+4. Add contract status indicators on Hunt engagement cards (cross-reference Hunt ↔ Vault)
 5. Connect Territories → `/api/regions` + `/api/territory-groups` + `/api/teams`
 6. Add CRUD to Company 360 sub-sections
 7. Connect Command Center to real aggregated data
