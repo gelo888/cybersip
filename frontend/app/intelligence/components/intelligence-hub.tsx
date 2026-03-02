@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import {
-    Radar, Shield, Newspaper, Plus, Pencil, Trash2, Clock, ExternalLink,
+    Radar, Shield, Newspaper, Plus, Pencil, Trash2, Clock, ExternalLink, Info,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -14,6 +14,78 @@ import { CompetitorFormDialog } from "./competitor-form-dialog"
 import { IntelFormDialog } from "./intel-form-dialog"
 import { DeleteConfirmDialog } from "@/app/portfolio/components/delete-confirm-dialog"
 import type { Competitor, CompetitorIntel } from "@/lib/types"
+
+const MOCK_MARKET_SIGNALS = [
+    {
+        id: "ms-1",
+        severity: "critical" as const,
+        title: "CrowdStrike announces 18% price increase effective Q3 2026",
+        source: "CyberWire",
+        date: "2026-02-25",
+        competitor: "CrowdStrike",
+        accountsImpacted: 48,
+    },
+    {
+        id: "ms-2",
+        severity: "critical" as const,
+        title: "Palo Alto Networks reports critical vulnerability in PAN-OS (CVE-2026-1847)",
+        source: "NIST NVD",
+        date: "2026-03-24",
+        competitor: "Palo Alto",
+        accountsImpacted: 41,
+    },
+    {
+        id: "ms-3",
+        severity: "high" as const,
+        title: "SentinelOne loses FedRAMP authorization for Singularity XDR",
+        source: "FedScoop",
+        date: "2026-02-22",
+        competitor: "SentinelOne",
+        accountsImpacted: 19,
+    },
+    {
+        id: "ms-4",
+        severity: "medium" as const,
+        title: "Fortinet acquires cloud-native SIEM startup Observa.ai for $280M",
+        source: "TechCrunch",
+        date: "2026-03-03",
+        competitor: "Fortinet",
+        accountsImpacted: 33,
+    },
+    {
+        id: "ms-5",
+        severity: "info" as const,
+        title: "Gartner releases 2026 Magic Quadrant for Endpoint Protection — market shifts noted",
+        source: "Gartner",
+        date: "2026-02-18",
+        competitor: null,
+        accountsImpacted: null,
+    },
+    {
+        id: "ms-6",
+        severity: "high" as const,
+        title: "Cisco discontinues legacy AMP product line, forces migration to SecureX",
+        source: "Cisco Blog",
+        date: "2026-02-15",
+        competitor: "Cisco",
+        accountsImpacted: 18,
+    },
+]
+
+function SeverityBadge({ severity }: { severity: "critical" | "high" | "medium" | "info" }) {
+    const config = {
+        critical: { label: "Critical", className: "bg-red-600 text-white" },
+        high: { label: "High", className: "bg-orange-500 text-white" },
+        medium: { label: "Medium", className: "bg-amber-500 text-white" },
+        info: { label: "Info", className: "bg-slate-400 text-white" },
+    }
+    const { label, className } = config[severity]
+    return (
+        <span className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-bold ${className}`}>
+            {label}
+        </span>
+    )
+}
 
 function ConfidenceBadge({ confidence }: { confidence: string }) {
     const config: Record<string, { label: string; className: string }> = {
@@ -85,16 +157,53 @@ export function IntelligenceHub() {
 
     return (
         <div className="p-6 space-y-8">
-            {/* ── Market Signals (placeholder) ── */}
+            {/* ── Market Signals (static preview) ── */}
             <section className="space-y-3">
                 <div className="flex items-center gap-2">
                     <Newspaper className="size-5 text-primary" />
                     <h3 className="text-base font-semibold">Market Signals</h3>
-                    <span className="text-xs text-muted-foreground">(Coming in Phase 3 — N8N Automation)</span>
                 </div>
-                <div className="rounded-lg border border-dashed border-muted-foreground/30 p-6 text-center text-sm text-muted-foreground">
-                    Market signals will be powered by automated N8N workflows — scraping CyberWire, NIST NVD,
-                    and vendor blogs for real-time competitive intelligence.
+
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-2.5 text-xs text-amber-700 flex items-start gap-2">
+                    <Info className="size-3.5 mt-0.5 shrink-0" />
+                    <span>
+                        <strong>Static preview.</strong> Market signals will be powered by automated N8N workflows
+                        — scraping CyberWire, NIST NVD, and vendor blogs for real-time competitive intelligence.
+                    </span>
+                </div>
+
+                <div className="space-y-2">
+                    {MOCK_MARKET_SIGNALS.map((signal) => (
+                        <div
+                            key={signal.id}
+                            className="flex items-start gap-3 rounded-lg border bg-card px-4 py-3 hover:bg-muted/30 transition-colors"
+                        >
+                            <div className="pt-0.5">
+                                <SeverityBadge severity={signal.severity} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium leading-snug">{signal.title}</p>
+                                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                                    <span>{signal.source}</span>
+                                    <span>{signal.date}</span>
+                                    {signal.competitor && (
+                                        <>
+                                            <span className="inline-flex items-center gap-1">
+                                                <Shield className="size-3 text-destructive" />
+                                                {signal.competitor}
+                                            </span>
+                                        </>
+                                    )}
+                                    {signal.accountsImpacted && (
+                                        <span>{signal.accountsImpacted} accounts impacted</span>
+                                    )}
+                                </div>
+                            </div>
+                            <button className="shrink-0 text-muted-foreground hover:text-primary transition-colors pt-0.5">
+                                <ExternalLink className="size-4" />
+                            </button>
+                        </div>
+                    ))}
                 </div>
             </section>
 
