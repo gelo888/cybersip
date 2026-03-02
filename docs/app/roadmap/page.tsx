@@ -39,6 +39,7 @@ export default function RoadmapPage() {
             <li>Company 360 page with live data (contacts, engagements, contracts, intel)</li>
             <li>Hunt page — live Kanban pipeline with engagement CRUD, linked to Company 360</li>
             <li>Vault page — contracts table with CRUD, summary cards, company links</li>
+            <li>Intelligence Hub — live competitor tracker and intel feed with CRUD, static market signals preview</li>
             <li>Context-aware breadcrumbs (Hunt / Vault → Company 360 → back)</li>
             <li>Seed script with stages, engagements, products, contracts, and line items</li>
           </ul>
@@ -48,7 +49,7 @@ export default function RoadmapPage() {
             The Gap
           </h3>
           <ul className="mb-0 text-sm">
-            <li>3 pages still use hardcoded mock data (Command Center, Intelligence, Territories)</li>
+            <li>2 pages still use hardcoded mock data (Command Center, Territories)</li>
             <li>Company 360 sub-sections are read-only (no create/edit for engagements, contracts, intel)</li>
             <li>Hunt ↔ Vault cross-reference not yet implemented (contract indicators on pipeline cards)</li>
             <li>No authentication / authorization</li>
@@ -105,9 +106,10 @@ export default function RoadmapPage() {
             <code>/api/contracts/&#123;id&#125;/line-items</code> — contracts
             table with CRUD, summary cards, company links
           </li>
-          <li>
+          <li className="line-through opacity-60">
             Connect Intelligence page to <code>/api/competitors</code> and{" "}
-            <code>/api/intel</code> — show real competitor tracking and intel
+            <code>/api/intel</code> — competitor tracker and intel feed with
+            CRUD, static market signals preview
           </li>
         </ol>
 

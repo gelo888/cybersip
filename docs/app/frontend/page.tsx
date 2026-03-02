@@ -96,8 +96,8 @@ export default function FrontendPage() {
           <tr>
             <td><code>/intelligence</code></td>
             <td>Intelligence Hub</td>
-            <td>Mock data</td>
-            <td>Competitor tracking, market news, vulnerability monitoring</td>
+            <td>Live API</td>
+            <td>Competitor tracker, intel feed with CRUD, static market signals preview</td>
           </tr>
           <tr>
             <td><code>/hunt</code></td>
@@ -358,6 +358,7 @@ export function useCreateContract() {
             <li>Company 360 — live data (contacts, engagements, contracts, intel)</li>
             <li>Hunt — Kanban pipeline with engagement CRUD, linked to Company 360</li>
             <li>Vault — contracts table with CRUD, summary cards, company links</li>
+            <li>Intelligence Hub — competitor tracker and intel feed with CRUD, static market signals preview</li>
             <li>Context-aware breadcrumbs (Hunt → Company 360 → back to Hunt)</li>
           </ul>
         </div>
@@ -366,7 +367,7 @@ export function useCreateContract() {
             Pending
           </h3>
           <ul className="mb-0 text-sm">
-            <li>3 pages still use mock data (Command Center, Intelligence, Territories)</li>
+            <li>2 pages still use mock data (Command Center, Territories)</li>
             <li>Hunt ↔ Vault cross-reference (contract indicators on pipeline cards)</li>
             <li>No authentication / authorization</li>
             <li>Dark mode toggle not implemented</li>
