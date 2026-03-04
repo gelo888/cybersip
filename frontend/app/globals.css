@@ -203,4 +203,14 @@
     letter-spacing: 0;
     font-weight: 400;
   }
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
+  }
+
+  .territory-tooltip .maplibregl-popup-content {
+    @apply bg-popover! text-popover-foreground! shadow-md! px-3! py-2! rounded-md! text-sm!;
+  }
 }

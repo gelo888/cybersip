@@ -193,3 +193,90 @@ export interface Assignment {
     user_id: string;
     role: AssignmentRole;
 }
+
+// ── Segment Label ──
+
+export interface SegmentLabel {
+    id: string;
+    name: string;
+    short_description: string | null;
+}
+
+export interface SegmentLabelPayload {
+    name: string;
+    short_description?: string | null;
+}
+
+// ── Territory ──
+
+export interface TerritoryChild {
+    id: string;
+    name: string;
+}
+
+export interface Territory {
+    id: string;
+    name: string;
+    level: number;
+    color: string;
+    region_id: string;
+    subregion_id: string;
+    gid_0: string | null;
+    gid_1: string | null;
+    children: TerritoryChild[];
+    segments: SegmentLabel[];
+    created_at: string;
+    updated_at: string;
+}
+
+export interface TerritoryPayload {
+    name: string;
+    level: number;
+    color: string;
+    region_id: string;
+    subregion_id: string;
+    gid_0?: string | null;
+    gid_1?: string | null;
+    children: TerritoryChild[];
+    segment_label_ids: string[];
+}
+
+export type TerritoryUpdatePayload = Partial<TerritoryPayload>;
+
+// ── Geographic Reference Data ──
+
+export interface GeoRegion {
+    id: string;
+    name: string;
+    center: [number, number];
+    zoom: number;
+}
+
+export interface GeoSubRegion {
+    id: string;
+    name: string;
+    center: [number, number];
+    zoom: number;
+}
+
+export interface GeoCountry {
+    id: string;
+    name: string;
+    center: [number, number];
+    zoom: number;
+}
+
+export interface AdminDivision {
+    gid: string;
+    name: string;
+}
+
+export interface CountriesByLevel {
+    level_1: string[];
+    level_2: string[];
+}
+
+export interface GeoFeatureCollection {
+    type: "FeatureCollection";
+    features: GeoJSON.Feature[];
+}
