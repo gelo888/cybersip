@@ -19,7 +19,7 @@ export function MapLoadingProgress({ loaded, total }: MapLoadingProgressProps) {
                 />
             </div>
             <span className="text-xs text-muted-foreground whitespace-nowrap">
-                {loaded + 1} / {total} territories
+                {loaded === 0 ? 0 : loaded + 1} / {total} territories
             </span>
         </div>
     );
