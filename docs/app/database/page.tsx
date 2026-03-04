@@ -33,12 +33,14 @@ export default function DatabasePage() {
   ├── competitor_intel ──────► competitors
   ├── engagements ───────────► engagement_stages
   ├── company_assignments ──► users
-  └── company_territory_groups ──► territory_groups ──► regions
+  └── company_territories ──► territories
 
-regions (APJ, EMEA, Americas)
-  └── territory_groups       (e.g., "DACH", "US East", "ANZ")
-        └── team_territory_groups ──► teams
-                                       └── team_members ──► users
+territories (level 0=country, 1=state, 2=county)
+  ├── territory_segments ──► segment_labels
+  └── team_territories ──► teams
+                            └── team_members ──► users
+
+regions (APJ, EMEA, Americas) — standalone, no territory relationship
 
 products_services
   └── product_categories`}</pre>
@@ -438,7 +440,10 @@ products_services
       </p>
 
       <h3>regions</h3>
-      <p>Top-level geographic divisions with a fixed set via enum.</p>
+      <p>
+        Top-level geographic divisions with a fixed set via enum. The Region
+        model still exists but no longer has a relationship to territories.
+      </p>
       <table>
         <thead>
           <tr>
@@ -461,8 +466,8 @@ products_services
         </tbody>
       </table>
 
-      <h3>territory_groups</h3>
-      <p>Operational territories under a region.</p>
+      <h3>segment_labels</h3>
+      <p>Labels for market segments (e.g., commercial, enterprise, public sector).</p>
       <table>
         <thead>
           <tr>
@@ -473,26 +478,162 @@ products_services
         </thead>
         <tbody>
           <tr>
-            <td><code>region_id</code></td>
-            <td>UUID FK</td>
-            <td>Reference to regions</td>
+            <td><code>id</code></td>
+            <td>UUID PK</td>
+            <td>Unique identifier</td>
           </tr>
           <tr>
             <td><code>name</code></td>
+            <td>VARCHAR UNIQUE</td>
+            <td>e.g., &apos;commercial&apos;, &apos;enterprise&apos;, &apos;public_sector&apos;</td>
+          </tr>
+          <tr>
+            <td><code>short_description</code></td>
             <td>VARCHAR</td>
-            <td>e.g., &apos;DACH&apos;, &apos;US East&apos;, &apos;ANZ&apos;</td>
+            <td>Optional description</td>
           </tr>
         </tbody>
       </table>
 
-      <div className="mb-6 rounded-lg border border-blue-500/20 bg-blue-500/5 p-4 text-sm">
-        <strong>Unique constraint:</strong> <code>(region_id, name)</code> prevents
-        duplicate territory group names within the same region.
-      </div>
+      <h3>territories</h3>
+      <p>Geographic territories with hierarchical levels (country, state/province, county).</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>UUID PK</td>
+            <td>Unique identifier</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>VARCHAR</td>
+            <td>Territory name</td>
+          </tr>
+          <tr>
+            <td><code>level</code></td>
+            <td>INT</td>
+            <td>0=country, 1=state/province, 2=county</td>
+          </tr>
+          <tr>
+            <td><code>color</code></td>
+            <td>VARCHAR</td>
+            <td>Hex color for map display</td>
+          </tr>
+          <tr>
+            <td><code>region_id</code></td>
+            <td>VARCHAR</td>
+            <td>Code from regional_territories.json (e.g., &apos;APJ&apos;). Not a FK to regions.</td>
+          </tr>
+          <tr>
+            <td><code>subregion_id</code></td>
+            <td>VARCHAR</td>
+            <td>e.g., &apos;APJ-002&apos;</td>
+          </tr>
+          <tr>
+            <td><code>gid_0</code></td>
+            <td>VARCHAR</td>
+            <td>Optional. ISO3 country code, required if level ≥ 1</td>
+          </tr>
+          <tr>
+            <td><code>gid_1</code></td>
+            <td>VARCHAR</td>
+            <td>Optional. GADM GID_1, required if level = 2</td>
+          </tr>
+          <tr>
+            <td><code>children</code></td>
+            <td>JSON</td>
+            <td>Array of &#123;id, name&#125; objects</td>
+          </tr>
+          <tr>
+            <td><code>created_at</code>, <code>updated_at</code></td>
+            <td>DateTime</td>
+            <td>Timestamps</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>territory_segments</h3>
+      <p>Join table linking territories to segment labels.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>territory_id</code></td>
+            <td>UUID FK</td>
+            <td>Reference to territories</td>
+          </tr>
+          <tr>
+            <td><code>segment_label_id</code></td>
+            <td>UUID FK</td>
+            <td>Reference to segment_labels</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>team_territories</h3>
+      <p>Join table linking teams to territories (replaces team_territory_groups).</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>team_id</code></td>
+            <td>UUID FK</td>
+            <td>Reference to teams</td>
+          </tr>
+          <tr>
+            <td><code>territory_id</code></td>
+            <td>UUID FK</td>
+            <td>Reference to territories</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>company_territories</h3>
+      <p>Join table linking companies to territories (replaces company_territory_groups).</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>company_id</code></td>
+            <td>UUID FK</td>
+            <td>Reference to companies</td>
+          </tr>
+          <tr>
+            <td><code>territory_id</code></td>
+            <td>UUID FK</td>
+            <td>Reference to territories</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h3>teams & team_members</h3>
       <p>
-        Sales teams are assigned to territory groups via a many-to-many join.
+        Sales teams are assigned to territories via <code>team_territories</code>.
         Users are added to teams as <strong>lead</strong> or{" "}
         <strong>member</strong>. A single team can cover multiple territories,
         and a large territory can have multiple teams.

@@ -40,6 +40,7 @@ export default function RoadmapPage() {
             <li>Hunt page — live Kanban pipeline with engagement CRUD, linked to Company 360</li>
             <li>Vault page — contracts table with CRUD, summary cards, company links</li>
             <li>Intelligence Hub — live competitor tracker and intel feed with CRUD, static market signals preview</li>
+            <li>Territories — map/list toggle, CRUD via /api/territories and /api/segment-labels, geo data via /api/geo/*, GeoJSON polygons</li>
             <li>Context-aware breadcrumbs (Hunt / Vault → Company 360 → back)</li>
             <li>Seed script with stages, engagements, products, contracts, and line items</li>
           </ul>
@@ -49,9 +50,10 @@ export default function RoadmapPage() {
             The Gap
           </h3>
           <ul className="mb-0 text-sm">
-            <li>2 pages still use hardcoded mock data (Command Center, Territories)</li>
+            <li>1 page still uses hardcoded mock data (Command Center)</li>
             <li>Company 360 sub-sections are read-only (no create/edit for engagements, contracts, intel)</li>
             <li>Hunt ↔ Vault cross-reference not yet implemented (contract indicators on pipeline cards)</li>
+            <li>Team-to-territory assignment UI not yet built</li>
             <li>No authentication / authorization</li>
             <li>No AI integration</li>
             <li>No N8N automation workflows</li>
@@ -117,10 +119,15 @@ export default function RoadmapPage() {
           Priority 2 — More complex wiring
         </p>
         <ol start={8} className="mb-4 text-sm">
+          <li className="line-through opacity-60">
+            Connect Territories page to <code>/api/territories</code>,{" "}
+            <code>/api/segment-labels</code>, and <code>/api/geo/*</code> —
+            map/list views with CRUD, GeoJSON polygons, hover tooltips
+          </li>
           <li>
-            Connect Territories page to <code>/api/regions</code>,{" "}
-            <code>/api/territory-groups</code>, and <code>/api/teams</code> —
-            real region/team data with assignment management
+            Add team-to-territory assignment UI on Territories page —
+            link <code>/api/teams</code> to territories via{" "}
+            <code>TeamTerritory</code> join table
           </li>
           <li>
             Add CRUD to Company 360 sub-sections — create/edit modals for
@@ -136,7 +143,7 @@ export default function RoadmapPage() {
         <p className="mb-1 text-xs font-semibold uppercase tracking-wider">
           Priority 3 — Dashboard & aggregation
         </p>
-        <ol start={10} className="mb-0 text-sm">
+        <ol start={11} className="mb-0 text-sm">
           <li>
             Connect Command Center to real data — build KPI aggregation
             (pipeline value, contract counts, renewal radar) from connected
@@ -151,7 +158,7 @@ export default function RoadmapPage() {
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-amber-500">
           Week 3
         </p>
-        <ol start={11} className="mb-0 text-sm">
+        <ol start={12} className="mb-0 text-sm">
           <li>
             Add a <code>/api/ai/enrich-company</code> endpoint (OpenAI or
             similar)
@@ -168,7 +175,7 @@ export default function RoadmapPage() {
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-green-500">
           Week 4
         </p>
-        <ol start={15} className="mb-0 text-sm">
+        <ol start={16} className="mb-0 text-sm">
           <li>
             Set up N8N (add to <code>docker-compose.yml</code>)
           </li>
@@ -184,7 +191,7 @@ export default function RoadmapPage() {
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-purple-500">
           Week 5
         </p>
-        <ol start={19} className="mb-0 text-sm">
+        <ol start={20} className="mb-0 text-sm">
           <li>Dark mode toggle</li>
           <li>Skeleton loading states everywhere</li>
           <li>Inline editing on tables</li>

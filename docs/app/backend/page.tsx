@@ -58,8 +58,8 @@ export default function BackendPage() {
       </div>
       <h1>Backend API Reference</h1>
       <p>
-        The FastAPI backend provides <strong>66 REST endpoints</strong> across{" "}
-        <strong>9 entity groups</strong>. All endpoints follow a consistent
+        The FastAPI backend provides <strong>73+ REST endpoints</strong> across{" "}
+        <strong>10 entity groups</strong>. All endpoints follow a consistent
         pattern with Pydantic validation for request/response schemas.
       </p>
 
@@ -118,12 +118,17 @@ export default function BackendPage() {
           <tr>
             <td>Territories</td>
             <td><code>territories.py</code></td>
-            <td><code>/api/regions</code>, <code>/api/territory-groups</code></td>
+            <td><code>/api/regions</code>, <code>/api/territories</code>, <code>/api/segment-labels</code>, <code>/api/company-territories</code></td>
+          </tr>
+          <tr>
+            <td>Geographic Data</td>
+            <td><code>geo.py</code></td>
+            <td><code>/api/geo</code></td>
           </tr>
           <tr>
             <td>Teams</td>
             <td><code>teams.py</code></td>
-            <td><code>/api/teams</code>, <code>/api/team-members</code></td>
+            <td><code>/api/teams</code>, <code>/api/team-members</code>, <code>/api/team-territories</code></td>
           </tr>
         </tbody>
       </table>
@@ -323,8 +328,8 @@ class CompanyResponse(BaseModel):
 
       <h2>Territories</h2>
       <p>
-        Manages the geographic hierarchy: Regions → Territory Groups →
-        Company assignments.
+        Manages the geographic hierarchy: Regions → Territories (with segments)
+        → Company assignments.
       </p>
 
       <h3>Regions</h3>
@@ -337,29 +342,56 @@ class CompanyResponse(BaseModel):
         ]}
       />
 
-      <h3>Territory Groups</h3>
+      <h3>Territories</h3>
       <EndpointTable
         endpoints={[
-          { method: "POST", path: "/api/territory-groups", description: "Create a territory group under a region" },
-          { method: "GET", path: "/api/territory-groups", description: "List territory groups (filter by region)" },
-          { method: "GET", path: "/api/territory-groups/{id}", description: "Get a single territory group" },
-          { method: "PATCH", path: "/api/territory-groups/{id}", description: "Update a territory group" },
-          { method: "DELETE", path: "/api/territory-groups/{id}", description: "Delete a territory group" },
+          { method: "POST", path: "/api/territories", description: "Create territory with segments" },
+          { method: "GET", path: "/api/territories", description: "List territories (filter by region_id, level)" },
+          { method: "GET", path: "/api/territories/{territory_id}", description: "Get single territory" },
+          { method: "PATCH", path: "/api/territories/{territory_id}", description: "Update territory" },
+          { method: "DELETE", path: "/api/territories/{territory_id}", description: "Delete territory" },
+        ]}
+      />
+
+      <h3>Segment Labels</h3>
+      <EndpointTable
+        endpoints={[
+          { method: "POST", path: "/api/segment-labels", description: "Create segment label" },
+          { method: "GET", path: "/api/segment-labels", description: "List all segment labels" },
+          { method: "PATCH", path: "/api/segment-labels/{label_id}", description: "Update segment label" },
+          { method: "DELETE", path: "/api/segment-labels/{label_id}", description: "Delete segment label" },
         ]}
       />
 
       <h3>Company ↔ Territory Assignments</h3>
       <EndpointTable
         endpoints={[
-          { method: "POST", path: "/api/company-territories", description: "Assign a company to a territory group" },
-          { method: "GET", path: "/api/company-territories", description: "List assignments (filter by company or territory)" },
-          { method: "DELETE", path: "/api/company-territories/{company_id}/{territory_group_id}", description: "Remove assignment" },
+          { method: "POST", path: "/api/company-territories", description: "Assign company to territory" },
+          { method: "GET", path: "/api/company-territories", description: "List assignments" },
+          { method: "DELETE", path: "/api/company-territories/{company_id}/{territory_id}", description: "Remove assignment" },
+        ]}
+      />
+
+      <h2>Geographic Data</h2>
+      <p>
+        Serves GADM GeoJSON data for map rendering. Provides region hierarchy,
+        admin divisions, and batch feature fetching.
+      </p>
+      <EndpointTable
+        endpoints={[
+          { method: "GET", path: "/api/geo/regions", description: "List geographic regions with centers/zoom" },
+          { method: "GET", path: "/api/geo/regions/{region_id}/subregions", description: "List subregions under a region" },
+          { method: "GET", path: "/api/geo/subregions/{subregion_id}/countries", description: "List countries under a subregion" },
+          { method: "GET", path: "/api/geo/countries-by-level", description: "Which countries have level 1/2 data" },
+          { method: "GET", path: "/api/geo/admin-divisions/{gid_0}", description: "Level 1 divisions (states/provinces)" },
+          { method: "GET", path: "/api/geo/admin-divisions/{gid_0}/{gid_1}", description: "Level 2 divisions (counties)" },
+          { method: "POST", path: "/api/geo/features", description: "Batch-fetch GeoJSON features by GID list" },
         ]}
       />
 
       <h2>Teams</h2>
       <p>
-        Sales teams assigned to territory groups with member management.
+        Sales teams assigned to territories with member management.
       </p>
 
       <h3>Teams</h3>
@@ -386,9 +418,9 @@ class CompanyResponse(BaseModel):
       <h3>Team ↔ Territory Assignments</h3>
       <EndpointTable
         endpoints={[
-          { method: "POST", path: "/api/team-territories", description: "Assign a team to a territory group" },
-          { method: "GET", path: "/api/team-territories", description: "List assignments (filter by team or territory)" },
-          { method: "DELETE", path: "/api/team-territories/{team_id}/{territory_group_id}", description: "Remove assignment" },
+          { method: "POST", path: "/api/team-territories", description: "Assign team to territory" },
+          { method: "GET", path: "/api/team-territories", description: "List assignments" },
+          { method: "DELETE", path: "/api/team-territories/{team_id}/{territory_id}", description: "Remove assignment" },
         ]}
       />
 
@@ -399,7 +431,7 @@ class CompanyResponse(BaseModel):
       <pre>{`from app.routers import (
     assignments, companies, competitors,
     contacts, contracts, engagements,
-    products, teams, territories,
+    geo, products, teams, territories,
 )
 
 app.include_router(companies.router)
@@ -410,6 +442,7 @@ app.include_router(products.router)
 app.include_router(contracts.router)
 app.include_router(competitors.router)
 app.include_router(territories.router)
+app.include_router(geo.router)
 app.include_router(teams.router)`}</pre>
 
       <DocsPager
