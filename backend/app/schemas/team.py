@@ -51,16 +51,16 @@ class TeamMemberResponse(BaseModel):
         from_attributes = True
 
 
-# ── Team ↔ Territory Group (many-to-many join) ────────────────────────
+# ── Team ↔ Territory (many-to-many join) ──────────────────────────────
 
 class TeamTerritoryCreate(BaseModel):
     team_id: str
-    territory_group_id: str
+    territory_id: str
 
 
 class TeamTerritoryResponse(BaseModel):
     team_id: str
-    territory_group_id: str
+    territory_id: str
 
     class Config:
         from_attributes = True

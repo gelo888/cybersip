@@ -126,7 +126,7 @@ model Company {
   competitorIntel CompetitorIntel[]
   engagements     Engagement[]
   assignments     CompanyAssignment[]
-  territoryGroups CompanyTerritoryGroup[]
+  territories     CompanyTerritory[]
 
   @@map("companies")
 }
@@ -328,25 +328,48 @@ model Region {
   name String     @unique
   code RegionCode @unique
 
-  territoryGroups TerritoryGroup[]
-
   @@map("regions")
 }
 
-model TerritoryGroup {
+model SegmentLabel {
+  id               String  @id @default(uuid()) @db.Uuid
+  name             String  @unique
+  shortDescription String? @map("short_description")
+
+  territories TerritorySegment[]
+
+  @@map("segment_labels")
+}
+
+model Territory {
   id          String   @id @default(uuid()) @db.Uuid
-  regionId    String   @map("region_id") @db.Uuid
   name        String
-  description String?
+  level       Int
+  color       String
+  regionId    String   @map("region_id")
+  subregionId String   @map("subregion_id")
+  gid0        String?  @map("gid_0")
+  gid1        String?  @map("gid_1")
+  children    Json     @default("[]")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  region    Region                  @relation(fields: [regionId], references: [id], onDelete: Cascade)
-  teams     TeamTerritoryGroup[]
-  companies CompanyTerritoryGroup[]
+  segments  TerritorySegment[]
+  teams     TeamTerritory[]
+  companies CompanyTerritory[]
 
-  @@unique([regionId, name])
-  @@map("territory_groups")
+  @@map("territories")
+}
+
+model TerritorySegment {
+  territoryId    String @map("territory_id") @db.Uuid
+  segmentLabelId String @map("segment_label_id") @db.Uuid
+
+  territory    Territory    @relation(fields: [territoryId], references: [id], onDelete: Cascade)
+  segmentLabel SegmentLabel @relation(fields: [segmentLabelId], references: [id], onDelete: Cascade)
+
+  @@id([territoryId, segmentLabelId])
+  @@map("territory_segments")
 }
 
 model Team {
@@ -355,21 +378,21 @@ model Team {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  members         TeamMember[]
-  territoryGroups TeamTerritoryGroup[]
+  members     TeamMember[]
+  territories TeamTerritory[]
 
   @@map("teams")
 }
 
-model TeamTerritoryGroup {
-  teamId           String @map("team_id") @db.Uuid
-  territoryGroupId String @map("territory_group_id") @db.Uuid
+model TeamTerritory {
+  teamId      String @map("team_id") @db.Uuid
+  territoryId String @map("territory_id") @db.Uuid
 
-  team           Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  territoryGroup TerritoryGroup @relation(fields: [territoryGroupId], references: [id], onDelete: Cascade)
+  team      Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  territory Territory @relation(fields: [territoryId], references: [id], onDelete: Cascade)
 
-  @@id([teamId, territoryGroupId])
-  @@map("team_territory_groups")
+  @@id([teamId, territoryId])
+  @@map("team_territories")
 }
 
 model TeamMember {
@@ -384,13 +407,13 @@ model TeamMember {
   @@map("team_members")
 }
 
-model CompanyTerritoryGroup {
-  companyId        String @map("company_id") @db.Uuid
-  territoryGroupId String @map("territory_group_id") @db.Uuid
+model CompanyTerritory {
+  companyId   String @map("company_id") @db.Uuid
+  territoryId String @map("territory_id") @db.Uuid
 
-  company        Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  territoryGroup TerritoryGroup @relation(fields: [territoryGroupId], references: [id], onDelete: Cascade)
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  territory Territory @relation(fields: [territoryId], references: [id], onDelete: Cascade)
 
-  @@id([companyId, territoryGroupId])
-  @@map("company_territory_groups")
+  @@id([companyId, territoryId])
+  @@map("company_territories")
 }

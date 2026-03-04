@@ -1,0 +1,1807 @@
+[
+  {
+    "id": 100011,
+    "name": "Philippines",
+    "region_id": "APJ",
+    "subregion_id": "APJ-002",
+    "level": "level_0",
+    "color": "#d22d2d",
+    "segment_labels": ["commercial", "enterprise"],
+    "children": [
+      {
+        "id": "PHL",
+        "name": "Philippines"
+      }
+    ]
+  },
+  {
+    "id": 100012,
+    "name": "Vietnam, Cambodia, Laos",
+    "region_id": "APJ",
+    "subregion_id": "APJ-002",
+    "level": "level_0",
+    "color": "#2dd25d",
+    "segment_labels": ["commercial", "enterprise", "public_sector"],
+    "children": [
+      {
+        "id": "VNM",
+        "name": "Vietnam"
+      },
+      {
+        "id": "KHM",
+        "name": "Cambodia"
+      },
+      {
+        "id": "LAO",
+        "name": "Laos"
+      }
+    ]
+  },
+  {
+    "id": 100013,
+    "name": "Thailand",
+    "region_id": "APJ",
+    "subregion_id": "APJ-002",
+    "level": "level_0",
+    "color": "#8d2dd2",
+    "segment_labels": ["commercial", "enterprise", "public_sector"],
+    "children": [
+      {
+        "id": "THA",
+        "name": "Thailand"
+      }
+    ]
+  },
+  {
+    "id": 100014,
+    "name": "West Malaysia",
+    "region_id": "APJ",
+    "subregion_id": "APJ-002",
+    "level": "level_1",
+    "color": "#d2be2d",
+    "segment_labels": ["mid_market", "channel"],
+    "gid_0": "MYS",
+    "children": [
+      {
+        "id": "MYS.1_1",
+        "name": "Johor"
+      },
+      {
+        "id": "MYS.2_1",
+        "name": "Kedah"
+      },
+      {
+        "id": "MYS.3_1",
+        "name": "Kelantan"
+      },
+      {
+        "id": "MYS.4_1",
+        "name": "Kuala Lumpur"
+      },
+      {
+        "id": "MYS.6_1",
+        "name": "Melaka"
+      },
+      {
+        "id": "MYS.7_1",
+        "name": "Negeri Sembilan"
+      },
+      {
+        "id": "MYS.8_1",
+        "name": "Pahang"
+      },
+      {
+        "id": "MYS.9_1",
+        "name": "Perak"
+      },
+      {
+        "id": "MYS.10_1",
+        "name": "Perlis"
+      },
+      {
+        "id": "MYS.11_1",
+        "name": "Pulau Pinang"
+      },
+      {
+        "id": "MYS.12_1",
+        "name": "Putrajaya"
+      },
+      {
+        "id": "MYS.15_1",
+        "name": "Selangor"
+      },
+      {
+        "id": "MYS.16_1",
+        "name": "Terengganu"
+      }
+    ]
+  },
+  {
+    "id": 100015,
+    "name": "East Malaysia",
+    "region_id": "APJ",
+    "subregion_id": "APJ-002",
+    "level": "level_1",
+    "color": "#2db7d2",
+    "segment_labels": ["mid_market", "channel"],
+    "gid_0": "MYS",
+    "children": [
+      {
+        "id": "MYS.5_1",
+        "name": "Labuan"
+      },
+      {
+        "id": "MYS.13_1",
+        "name": "Sabah"
+      },
+      {
+        "id": "MYS.14_1",
+        "name": "Sarawak"
+      }
+    ]
+  },
+  {
+    "id": 100016,
+    "name": "West Australia",
+    "region_id": "APJ",
+    "subregion_id": "APJ-004",
+    "level": "level_1",
+    "color": "#d22d86",
+    "segment_labels": ["enterprise"],
+    "gid_0": "AUS",
+    "children": [
+      {
+        "id": "AUS.11_1",
+        "name": "Western Australia"
+      }
+    ]
+  },
+  {
+    "id": 100017,
+    "name": "East Australia",
+    "region_id": "APJ",
+    "subregion_id": "APJ-004",
+    "level": "level_1",
+    "color": "#56d22d",
+    "segment_labels": ["enterprise"],
+    "gid_0": "AUS",
+    "children": [
+      {
+        "id": "AUS.2_1",
+        "name": "Australian Capital Territory"
+      },
+      {
+        "id": "AUS.5_1",
+        "name": "New South Wales"
+      },
+      {
+        "id": "AUS.7_1",
+        "name": "Queensland"
+      },
+      {
+        "id": "AUS.10_1",
+        "name": "Victoria"
+      }
+    ]
+  },
+  {
+    "id": 100018,
+    "name": "Nebraska",
+    "region_id": "AMERICA",
+    "subregion_id": "AMERICA-001",
+    "level": "level_1",
+    "color": "#342dd2",
+    "segment_labels": ["commercial", "enterprise", "public_sector"],
+    "gid_0": "USA",
+    "children": [
+      {
+        "id": "USA.28_1",
+        "name": "Nebraska"
+      }
+    ]
+  },
+  {
+    "id": 100019,
+    "name": "Northern California",
+    "region_id": "AMERICA",
+    "subregion_id": "AMERICA-001",
+    "level": "level_2",
+    "color": "#d2642d",
+    "segment_labels": ["commercial", "enterprise"],
+    "gid_0": "USA",
+    "gid_1": "USA.5_1",
+    "children": [
+      {
+        "id": "USA.5.8_1",
+        "name": "Del Norte"
+      },
+      {
+        "id": "USA.5.12_1",
+        "name": "Humboldt"
+      },
+      {
+        "id": "USA.5.53_1",
+        "name": "Trinity"
+      },
+      {
+        "id": "USA.5.47_1",
+        "name": "Siskiyou"
+      },
+      {
+        "id": "USA.5.25_1",
+        "name": "Modoc"
+      },
+      {
+        "id": "USA.5.18_1",
+        "name": "Lassen"
+      },
+      {
+        "id": "USA.5.32_1",
+        "name": "Plumas"
+      },
+      {
+        "id": "USA.5.46_1",
+        "name": "Sierra"
+      },
+      {
+        "id": "USA.5.29_1",
+        "name": "Nevada"
+      },
+      {
+        "id": "USA.5.31_1",
+        "name": "Placer"
+      },
+      {
+        "id": "USA.5.9_1",
+        "name": "El Dorado"
+      },
+      {
+        "id": "USA.5.58_1",
+        "name": "Yuba"
+      },
+      {
+        "id": "USA.5.51_1",
+        "name": "Sutter"
+      },
+      {
+        "id": "USA.5.6_1",
+        "name": "Colusa"
+      },
+      {
+        "id": "USA.5.11_1",
+        "name": "Glenn"
+      },
+      {
+        "id": "USA.5.52_1",
+        "name": "Tehama"
+      },
+      {
+        "id": "USA.5.45_1",
+        "name": "Shasta"
+      },
+      {
+        "id": "USA.5.4_1",
+        "name": "Butte"
+      },
+      {
+        "id": "USA.5.17_1",
+        "name": "Lake"
+      },
+      {
+        "id": "USA.5.23_1",
+        "name": "Mendocino"
+      },
+      {
+        "id": "USA.5.49_1",
+        "name": "Sonoma"
+      },
+      {
+        "id": "USA.5.28_1",
+        "name": "Napa"
+      },
+      {
+        "id": "USA.5.21_1",
+        "name": "Marin"
+      },
+      {
+        "id": "USA.5.38_1",
+        "name": "San Francisco"
+      },
+      {
+        "id": "USA.5.41_1",
+        "name": "San Mateo"
+      },
+      {
+        "id": "USA.5.1_1",
+        "name": "Alameda"
+      },
+      {
+        "id": "USA.5.7_1",
+        "name": "Contra Costa"
+      },
+      {
+        "id": "USA.5.43_1",
+        "name": "Santa Clara"
+      },
+      {
+        "id": "USA.5.44_1",
+        "name": "Santa Cruz"
+      },
+      {
+        "id": "USA.5.48_1",
+        "name": "Solano"
+      },
+      {
+        "id": "USA.5.57_1",
+        "name": "Yolo"
+      },
+      {
+        "id": "USA.5.34_1",
+        "name": "Sacramento"
+      },
+      {
+        "id": "USA.5.3_1",
+        "name": "Amador"
+      },
+      {
+        "id": "USA.5.2_1",
+        "name": "Alpine"
+      },
+      {
+        "id": "USA.5.5_1",
+        "name": "Calaveras"
+      },
+      {
+        "id": "USA.5.22_1",
+        "name": "Mariposa"
+      },
+      {
+        "id": "USA.5.55_1",
+        "name": "Tuolumne"
+      }
+    ]
+  },
+  {
+    "id": 100020,
+    "name": "Southern California",
+    "region_id": "AMERICA",
+    "subregion_id": "AMERICA-001",
+    "level": "level_2",
+    "color": "#2dd294",
+    "segment_labels": ["commercial", "enterprise"],
+    "gid_0": "USA",
+    "gid_1": "USA.5_1",
+    "children": [
+      {
+        "id": "USA.5.19_1",
+        "name": "Los Angeles"
+      },
+      {
+        "id": "USA.5.30_1",
+        "name": "Orange"
+      },
+      {
+        "id": "USA.5.37_1",
+        "name": "San Diego"
+      },
+      {
+        "id": "USA.5.33_1",
+        "name": "Riverside"
+      },
+      {
+        "id": "USA.5.36_1",
+        "name": "San Bernardino"
+      },
+      {
+        "id": "USA.5.13_1",
+        "name": "Imperial"
+      },
+      {
+        "id": "USA.5.56_1",
+        "name": "Ventura"
+      }
+    ]
+  },
+  {
+    "id": 100021,
+    "name": "Central California",
+    "region_id": "AMERICA",
+    "subregion_id": "AMERICA-001",
+    "level": "level_2",
+    "color": "#c52dd2",
+    "segment_labels": ["commercial", "enterprise"],
+    "gid_0": "USA",
+    "gid_1": "USA.5_1",
+    "children": [
+      {
+        "id": "USA.5.39_1",
+        "name": "San Joaquin"
+      },
+      {
+        "id": "USA.5.50_1",
+        "name": "Stanislaus"
+      },
+      {
+        "id": "USA.5.24_1",
+        "name": "Merced"
+      },
+      {
+        "id": "USA.5.20_1",
+        "name": "Madera"
+      },
+      {
+        "id": "USA.5.10_1",
+        "name": "Fresno"
+      },
+      {
+        "id": "USA.5.16_1",
+        "name": "Kings"
+      },
+      {
+        "id": "USA.5.54_1",
+        "name": "Tulare"
+      },
+      {
+        "id": "USA.5.15_1",
+        "name": "Kern"
+      },
+      {
+        "id": "USA.5.27_1",
+        "name": "Monterey"
+      },
+      {
+        "id": "USA.5.35_1",
+        "name": "San Benito"
+      },
+      {
+        "id": "USA.5.40_1",
+        "name": "San Luis Obispo"
+      },
+      {
+        "id": "USA.5.42_1",
+        "name": "Santa Barbara"
+      },
+      {
+        "id": "USA.5.26_1",
+        "name": "Mono"
+      },
+      {
+        "id": "USA.5.14_1",
+        "name": "Inyo"
+      }
+    ]
+  },
+  {
+    "id": 100022,
+    "name": "Western Europe",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-001",
+    "level": "level_0",
+    "color": "#b0d22d",
+    "segment_labels": ["commercial", "enterprise"],
+    "children": [
+      {
+        "id": "FRA",
+        "name": "France"
+      },
+      {
+        "id": "BEL",
+        "name": "Belgium"
+      },
+      {
+        "id": "NLD",
+        "name": "Netherlands"
+      },
+      {
+        "id": "LUX",
+        "name": "Luxembourg"
+      }
+    ]
+  },
+  {
+    "id": 100023,
+    "name": "British Isles",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-001",
+    "level": "level_0",
+    "color": "#2d7fd2",
+    "segment_labels": ["commercial", "enterprise"],
+    "children": [
+      {
+        "id": "GBR",
+        "name": "United Kingdom"
+      },
+      {
+        "id": "IRL",
+        "name": "Ireland"
+      }
+    ]
+  },
+  {
+    "id": 100024,
+    "name": "DACH",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-001",
+    "level": "level_0",
+    "color": "#d22d4f",
+    "segment_labels": ["commercial", "enterprise"],
+    "children": [
+      {
+        "id": "DEU",
+        "name": "Germany"
+      },
+      {
+        "id": "AUT",
+        "name": "Austria"
+      },
+      {
+        "id": "CHE",
+        "name": "Switzerland"
+      }
+    ]
+  },
+  {
+    "id": 100025,
+    "name": "Southern Europe",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-002",
+    "level": "level_0",
+    "color": "#2dd23a",
+    "segment_labels": ["commercial", "enterprise"],
+    "children": [
+      {
+        "id": "ESP",
+        "name": "Spain"
+      },
+      {
+        "id": "PRT",
+        "name": "Portugal"
+      },
+      {
+        "id": "ITA",
+        "name": "Italy"
+      },
+      {
+        "id": "GRC",
+        "name": "Greece"
+      }
+    ]
+  },
+  {
+    "id": 100026,
+    "name": "Northern Europe",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-003",
+    "level": "level_0",
+    "color": "#6b2dd2",
+    "segment_labels": ["commercial", "enterprise"],
+    "children": [
+      {
+        "id": "NOR",
+        "name": "Norway"
+      },
+      {
+        "id": "SWE",
+        "name": "Sweden"
+      },
+      {
+        "id": "DNK",
+        "name": "Denmark"
+      },
+      {
+        "id": "FIN",
+        "name": "Finland"
+      },
+      {
+        "id": "ISL",
+        "name": "Iceland"
+      }
+    ]
+  },
+  {
+    "id": 100027,
+    "name": "Central & Eastern Europe",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-004",
+    "level": "level_0",
+    "color": "#d29b2d",
+    "segment_labels": ["commercial", "enterprise"],
+    "children": [
+      {
+        "id": "POL",
+        "name": "Poland"
+      },
+      {
+        "id": "CZE",
+        "name": "Czech Republic"
+      },
+      {
+        "id": "SVK",
+        "name": "Slovakia"
+      },
+      {
+        "id": "HUN",
+        "name": "Hungary"
+      },
+      {
+        "id": "ROU",
+        "name": "Romania"
+      },
+      {
+        "id": "BGR",
+        "name": "Bulgaria"
+      },
+      {
+        "id": "EST",
+        "name": "Estonia"
+      },
+      {
+        "id": "LVA",
+        "name": "Latvia"
+      },
+      {
+        "id": "LTU",
+        "name": "Lithuania"
+      }
+    ]
+  },
+  {
+    "id": 100028,
+    "name": "Balkans",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-005",
+    "level": "level_0",
+    "color": "#2dd2cb",
+    "segment_labels": ["commercial", "enterprise"],
+    "children": [
+      {
+        "id": "HRV",
+        "name": "Croatia"
+      },
+      {
+        "id": "SVN",
+        "name": "Slovenia"
+      },
+      {
+        "id": "BIH",
+        "name": "Bosnia and Herzegovina"
+      },
+      {
+        "id": "SRB",
+        "name": "Serbia"
+      },
+      {
+        "id": "MNE",
+        "name": "Montenegro"
+      },
+      {
+        "id": "ALB",
+        "name": "Albania"
+      },
+      {
+        "id": "MKD",
+        "name": "North Macedonia"
+      }
+    ]
+  },
+  {
+    "id": 100029,
+    "name": "Germany",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-001",
+    "level": "level_1",
+    "color": "#d22da9",
+    "segment_labels": ["commercial", "enterprise"],
+    "gid_0": "DEU",
+    "children": [
+      {
+        "id": "DEU.1_1",
+        "name": "Baden-Württemberg"
+      },
+      {
+        "id": "DEU.2_1",
+        "name": "Bayern"
+      },
+      {
+        "id": "DEU.3_1",
+        "name": "Berlin"
+      },
+      {
+        "id": "DEU.4_1",
+        "name": "Brandenburg"
+      },
+      {
+        "id": "DEU.5_1",
+        "name": "Bremen"
+      },
+      {
+        "id": "DEU.6_1",
+        "name": "Hamburg"
+      },
+      {
+        "id": "DEU.7_1",
+        "name": "Hessen"
+      },
+      {
+        "id": "DEU.8_1",
+        "name": "Mecklenburg-Vorpommern"
+      },
+      {
+        "id": "DEU.9_1",
+        "name": "Niedersachsen"
+      },
+      {
+        "id": "DEU.10_1",
+        "name": "Nordrhein-Westfalen"
+      },
+      {
+        "id": "DEU.11_1",
+        "name": "Rheinland-Pfalz"
+      },
+      {
+        "id": "DEU.12_1",
+        "name": "Saarland"
+      },
+      {
+        "id": "DEU.14_1",
+        "name": "Sachsen"
+      },
+      {
+        "id": "DEU.13_1",
+        "name": "Sachsen-Anhalt"
+      },
+      {
+        "id": "DEU.15_1",
+        "name": "Schleswig-Holstein"
+      },
+      {
+        "id": "DEU.16_1",
+        "name": "Thüringen"
+      }
+    ]
+  },
+  {
+    "id": 100030,
+    "name": "France",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-001",
+    "level": "level_1",
+    "color": "#79d22d",
+    "segment_labels": ["commercial", "enterprise"],
+    "gid_0": "FRA",
+    "children": [
+      {
+        "id": "FRA.1_1",
+        "name": "Auvergne-Rhône-Alpes"
+      },
+      {
+        "id": "FRA.2_1",
+        "name": "Bourgogne-Franche-Comté"
+      },
+      {
+        "id": "FRA.3_1",
+        "name": "Bretagne"
+      },
+      {
+        "id": "FRA.4_1",
+        "name": "Centre-ValdeLoire"
+      },
+      {
+        "id": "FRA.5_1",
+        "name": "Corse"
+      },
+      {
+        "id": "FRA.6_1",
+        "name": "GrandEst"
+      },
+      {
+        "id": "FRA.7_1",
+        "name": "Hauts-de-France"
+      },
+      {
+        "id": "FRA.8_1",
+        "name": "Île-de-France"
+      },
+      {
+        "id": "FRA.9_1",
+        "name": "Normandie"
+      },
+      {
+        "id": "FRA.10_1",
+        "name": "Nouvelle-Aquitaine"
+      },
+      {
+        "id": "FRA.11_1",
+        "name": "Occitanie"
+      },
+      {
+        "id": "FRA.12_1",
+        "name": "PaysdelaLoire"
+      },
+      {
+        "id": "FRA.13_1",
+        "name": "Provence-Alpes-Côted'Azur"
+      }
+    ]
+  },
+  {
+    "id": 100031,
+    "name": "Spain",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-002",
+    "level": "level_1",
+    "color": "#2d48d2",
+    "segment_labels": ["commercial", "enterprise"],
+    "gid_0": "ESP",
+    "children": [
+      {
+        "id": "ESP.1_1",
+        "name": "Andalucía"
+      },
+      {
+        "id": "ESP.2_1",
+        "name": "Aragón"
+      },
+      {
+        "id": "ESP.3_1",
+        "name": "Cantabria"
+      },
+      {
+        "id": "ESP.4_1",
+        "name": "Castilla-LaMancha"
+      },
+      {
+        "id": "ESP.5_1",
+        "name": "CastillayLeón"
+      },
+      {
+        "id": "ESP.6_1",
+        "name": "Cataluña"
+      },
+      {
+        "id": "ESP.7_1",
+        "name": "CeutayMelilla"
+      },
+      {
+        "id": "ESP.8_1",
+        "name": "ComunidaddeMadrid"
+      },
+      {
+        "id": "ESP.9_1",
+        "name": "ComunidadForaldeNavarra"
+      },
+      {
+        "id": "ESP.10_1",
+        "name": "ComunidadValenciana"
+      },
+      {
+        "id": "ESP.11_1",
+        "name": "Extremadura"
+      },
+      {
+        "id": "ESP.12_1",
+        "name": "Galicia"
+      },
+      {
+        "id": "ESP.13_1",
+        "name": "IslasBaleares"
+      },
+      {
+        "id": "ESP.14_1",
+        "name": "IslasCanarias"
+      },
+      {
+        "id": "ESP.15_1",
+        "name": "LaRioja"
+      },
+      {
+        "id": "ESP.16_1",
+        "name": "PaísVasco"
+      },
+      {
+        "id": "ESP.17_1",
+        "name": "PrincipadodeAsturias"
+      },
+      {
+        "id": "ESP.18_1",
+        "name": "RegióndeMurcia"
+      }
+    ]
+  },
+  {
+    "id": 100032,
+    "name": "Italy",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-002",
+    "level": "level_1",
+    "color": "#d2412d",
+    "segment_labels": ["commercial", "enterprise"],
+    "gid_0": "ITA",
+    "children": [
+      {
+        "id": "ITA.1_1",
+        "name": "Abruzzo"
+      },
+      {
+        "id": "ITA.2_1",
+        "name": "Apulia"
+      },
+      {
+        "id": "ITA.3_1",
+        "name": "Basilicata"
+      },
+      {
+        "id": "ITA.4_1",
+        "name": "Calabria"
+      },
+      {
+        "id": "ITA.5_1",
+        "name": "Campania"
+      },
+      {
+        "id": "ITA.6_1",
+        "name": "Emilia-Romagna"
+      },
+      {
+        "id": "ITA.7_1",
+        "name": "Friuli-VeneziaGiulia"
+      },
+      {
+        "id": "ITA.8_1",
+        "name": "Lazio"
+      },
+      {
+        "id": "ITA.9_1",
+        "name": "Liguria"
+      },
+      {
+        "id": "ITA.10_1",
+        "name": "Lombardia"
+      },
+      {
+        "id": "ITA.11_1",
+        "name": "Marche"
+      },
+      {
+        "id": "ITA.12_1",
+        "name": "Molise"
+      },
+      {
+        "id": "ITA.13_1",
+        "name": "Piemonte"
+      },
+      {
+        "id": "ITA.14_1",
+        "name": "Sardegna"
+      },
+      {
+        "id": "ITA.15_1",
+        "name": "Sicily"
+      },
+      {
+        "id": "ITA.16_1",
+        "name": "Toscana"
+      },
+      {
+        "id": "ITA.17_1",
+        "name": "Trentino-AltoAdige"
+      },
+      {
+        "id": "ITA.18_1",
+        "name": "Umbria"
+      },
+      {
+        "id": "ITA.19_1",
+        "name": "Valled'Aosta"
+      },
+      {
+        "id": "ITA.20_1",
+        "name": "Veneto"
+      }
+    ]
+  },
+  {
+    "id": 100033,
+    "name": "United Kingdom",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-001",
+    "level": "level_1",
+    "color": "#2dd272",
+    "segment_labels": ["commercial", "enterprise"],
+    "gid_0": "GBR",
+    "children": [
+      {
+        "id": "GBR.1_1",
+        "name": "England"
+      },
+      {
+        "id": "GBR.2_1",
+        "name": "Northern Ireland"
+      },
+      {
+        "id": "GBR.3_1",
+        "name": "Scotland"
+      },
+      {
+        "id": "GBR.4_1",
+        "name": "Wales"
+      }
+    ]
+  },
+  {
+    "id": 100034,
+    "name": "England",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-001",
+    "level": "level_2",
+    "color": "#a22dd2",
+    "segment_labels": ["commercial", "enterprise"],
+    "gid_0": "GBR",
+    "gid_1": "GBR.1_1",
+    "children": [
+      {
+        "id": "GBR.1.2_1",
+        "name": "BathandNorthEastSomerset"
+      },
+      {
+        "id": "GBR.1.3_1",
+        "name": "Bedford"
+      },
+      {
+        "id": "GBR.1.5_1",
+        "name": "BlackburnwithDarwen"
+      },
+      {
+        "id": "GBR.1.72_1",
+        "name": "Bournemouth,ChristchurchandPo"
+      },
+      {
+        "id": "GBR.1.8_1",
+        "name": "Bournemouth,ChristchurchandPo"
+      },
+      {
+        "id": "GBR.1.9_1",
+        "name": "BracknellForest"
+      },
+      {
+        "id": "GBR.1.10_1",
+        "name": "Bradford"
+      },
+      {
+        "id": "GBR.1.11_1",
+        "name": "BrightonandHove"
+      },
+      {
+        "id": "GBR.1.15_1",
+        "name": "Calderdale"
+      },
+      {
+        "id": "GBR.1.30_1",
+        "name": "CountyDurham"
+      },
+      {
+        "id": "GBR.1.22_1",
+        "name": "Cumbria"
+      },
+      {
+        "id": "GBR.1.23_1",
+        "name": "Darlington"
+      },
+      {
+        "id": "GBR.1.24_1",
+        "name": "Derby"
+      },
+      {
+        "id": "GBR.1.34_1",
+        "name": "Gateshead"
+      },
+      {
+        "id": "GBR.1.37_1",
+        "name": "Halton"
+      },
+      {
+        "id": "GBR.1.39_1",
+        "name": "Hartlepool"
+      },
+      {
+        "id": "GBR.1.40_1",
+        "name": "Herefordshire,Countyof"
+      },
+      {
+        "id": "GBR.1.42_1",
+        "name": "IsleofWight"
+      },
+      {
+        "id": "GBR.1.43_1",
+        "name": "IslesofScilly"
+      },
+      {
+        "id": "GBR.1.44_1",
+        "name": "Kent"
+      },
+      {
+        "id": "GBR.1.45_1",
+        "name": "KingstonuponHull,Cityof"
+      },
+      {
+        "id": "GBR.1.46_1",
+        "name": "Kirklees"
+      },
+      {
+        "id": "GBR.1.49_1",
+        "name": "Leeds"
+      },
+      {
+        "id": "GBR.1.53_1",
+        "name": "Luton"
+      },
+      {
+        "id": "GBR.1.55_1",
+        "name": "Medway"
+      },
+      {
+        "id": "GBR.1.57_1",
+        "name": "MiltonKeynes"
+      },
+      {
+        "id": "GBR.1.63_1",
+        "name": "NorthYorkshire"
+      },
+      {
+        "id": "GBR.1.68_1",
+        "name": "Oldham"
+      },
+      {
+        "id": "GBR.1.70_1",
+        "name": "Peterborough"
+      },
+      {
+        "id": "GBR.1.71_1",
+        "name": "Plymouth"
+      },
+      {
+        "id": "GBR.1.83_1",
+        "name": "Sheffield"
+      },
+      {
+        "id": "GBR.1.87_1",
+        "name": "Somerset"
+      },
+      {
+        "id": "GBR.1.88_1",
+        "name": "SouthGloucestershire"
+      },
+      {
+        "id": "GBR.1.91_1",
+        "name": "Southend-on-Sea"
+      },
+      {
+        "id": "GBR.1.79_1",
+        "name": "St.Helens"
+      },
+      {
+        "id": "GBR.1.94_1",
+        "name": "Stockton-on-Tees"
+      },
+      {
+        "id": "GBR.1.96_1",
+        "name": "Suffolk"
+      },
+      {
+        "id": "GBR.1.98_1",
+        "name": "Surrey"
+      },
+      {
+        "id": "GBR.1.99_1",
+        "name": "Swindon"
+      },
+      {
+        "id": "GBR.1.101_1",
+        "name": "TelfordandWrekin"
+      },
+      {
+        "id": "GBR.1.102_1",
+        "name": "Thurrock"
+      },
+      {
+        "id": "GBR.1.103_1",
+        "name": "Torbay"
+      },
+      {
+        "id": "GBR.1.105_1",
+        "name": "Wakefield"
+      },
+      {
+        "id": "GBR.1.109_1",
+        "name": "WestBerkshire"
+      },
+      {
+        "id": "GBR.1.110_1",
+        "name": "WestSussex"
+      },
+      {
+        "id": "GBR.1.114_1",
+        "name": "Wirral"
+      },
+      {
+        "id": "GBR.1.116_1",
+        "name": "Wolverhampton"
+      },
+      {
+        "id": "GBR.1.118_1",
+        "name": "York"
+      },
+      {
+        "id": "GBR.1.100_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.104_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.106_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.107_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.108_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.111_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.112_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.113_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.115_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.117_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.12_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.13_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.14_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.16_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.17_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.18_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.1_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.20_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.21_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.25_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.26_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.27_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.28_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.29_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.31_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.32_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.33_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.36_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.38_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.41_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.47_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.48_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.4_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.50_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.51_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.52_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.54_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.56_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.58_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.59_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.60_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.61_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.62_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.64_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.65_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.66_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.67_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.69_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.73_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.74_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.75_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.76_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.77_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.78_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.7_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.80_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.81_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.82_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.84_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.85_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.86_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.89_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.90_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.92_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.93_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.95_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.97_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.19_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.1.35_1",
+        "name": "NA"
+      }
+    ]
+  },
+  {
+    "id": 100035,
+    "name": "Scotland",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-001",
+    "level": "level_2",
+    "color": "#d2d22d",
+    "segment_labels": ["commercial", "enterprise"],
+    "gid_0": "GBR",
+    "gid_1": "GBR.3_1",
+    "children": [
+      {
+        "id": "GBR.3.1_1",
+        "name": "AberdeenCity"
+      },
+      {
+        "id": "GBR.3.2_1",
+        "name": "Aberdeenshire"
+      },
+      {
+        "id": "GBR.3.3_1",
+        "name": "Angus"
+      },
+      {
+        "id": "GBR.3.4_1",
+        "name": "ArgyllandBute"
+      },
+      {
+        "id": "GBR.3.12_1",
+        "name": "CityofEdinburgh"
+      },
+      {
+        "id": "GBR.3.5_1",
+        "name": "Clackmannanshire"
+      },
+      {
+        "id": "GBR.3.6_1",
+        "name": "DumfriesandGalloway"
+      },
+      {
+        "id": "GBR.3.7_1",
+        "name": "DundeeCity"
+      },
+      {
+        "id": "GBR.3.8_1",
+        "name": "EastAyrshire"
+      },
+      {
+        "id": "GBR.3.9_1",
+        "name": "EastDunbartonshire"
+      },
+      {
+        "id": "GBR.3.10_1",
+        "name": "EastLothian"
+      },
+      {
+        "id": "GBR.3.11_1",
+        "name": "EastRenfrewshire"
+      },
+      {
+        "id": "GBR.3.14_1",
+        "name": "Falkirk"
+      },
+      {
+        "id": "GBR.3.15_1",
+        "name": "Fife"
+      },
+      {
+        "id": "GBR.3.16_1",
+        "name": "GlasgowCity"
+      },
+      {
+        "id": "GBR.3.17_1",
+        "name": "Highland"
+      },
+      {
+        "id": "GBR.3.18_1",
+        "name": "Inverclyde"
+      },
+      {
+        "id": "GBR.3.19_1",
+        "name": "Midlothian"
+      },
+      {
+        "id": "GBR.3.20_1",
+        "name": "Moray"
+      },
+      {
+        "id": "GBR.3.13_1",
+        "name": "Nah-EileananSiar"
+      },
+      {
+        "id": "GBR.3.22_1",
+        "name": "NorthLanarkshire"
+      },
+      {
+        "id": "GBR.3.23_1",
+        "name": "OrkneyIslands"
+      },
+      {
+        "id": "GBR.3.24_1",
+        "name": "PerthandKinross"
+      },
+      {
+        "id": "GBR.3.25_1",
+        "name": "Renfrewshire"
+      },
+      {
+        "id": "GBR.3.26_1",
+        "name": "ScottishBorders"
+      },
+      {
+        "id": "GBR.3.28_1",
+        "name": "SouthAyrshire"
+      },
+      {
+        "id": "GBR.3.29_1",
+        "name": "SouthLanarkshire"
+      },
+      {
+        "id": "GBR.3.30_1",
+        "name": "Stirling"
+      },
+      {
+        "id": "GBR.3.31_1",
+        "name": "WestDunbartonshire"
+      },
+      {
+        "id": "GBR.3.32_1",
+        "name": "WestLothian"
+      },
+      {
+        "id": "GBR.3.21_1",
+        "name": "NA"
+      }
+    ]
+  },
+  {
+    "id": 100036,
+    "name": "Wales",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-001",
+    "level": "level_2",
+    "color": "#2da2d2",
+    "segment_labels": ["commercial", "enterprise"],
+    "gid_0": "GBR",
+    "gid_1": "GBR.4_1",
+    "children": [
+      {
+        "id": "GBR.4.4_1",
+        "name": "Caerphilly"
+      },
+      {
+        "id": "GBR.4.5_1",
+        "name": "Cardiff"
+      },
+      {
+        "id": "GBR.4.6_1",
+        "name": "Carmarthenshire"
+      },
+      {
+        "id": "GBR.4.7_1",
+        "name": "Ceredigion"
+      },
+      {
+        "id": "GBR.4.8_1",
+        "name": "Conwy"
+      },
+      {
+        "id": "GBR.4.10_1",
+        "name": "Flintshire"
+      },
+      {
+        "id": "GBR.4.1_1",
+        "name": "IsleofAnglesey"
+      },
+      {
+        "id": "GBR.4.13_1",
+        "name": "Monmouthshire"
+      },
+      {
+        "id": "GBR.4.15_1",
+        "name": "Newport"
+      },
+      {
+        "id": "GBR.4.16_1",
+        "name": "Pembrokeshire"
+      },
+      {
+        "id": "GBR.4.17_1",
+        "name": "Powys"
+      },
+      {
+        "id": "GBR.4.18_1",
+        "name": "RhonddaCynonTaf"
+      },
+      {
+        "id": "GBR.4.11_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.4.12_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.4.14_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.4.19_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.4.20_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.4.21_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.4.22_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.4.2_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.4.3_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.4.9_1",
+        "name": "NA"
+      }
+    ]
+  },
+  {
+    "id": 100037,
+    "name": "Northern Ireland",
+    "region_id": "EMEA",
+    "subregion_id": "EMEA-001",
+    "level": "level_2",
+    "color": "#d22d72",
+    "segment_labels": ["commercial", "enterprise"],
+    "gid_0": "GBR",
+    "gid_1": "GBR.2_1",
+    "children": [
+      {
+        "id": "GBR.2.1_1",
+        "name": "AntrimandNewtownabbey"
+      },
+      {
+        "id": "GBR.2.11_1",
+        "name": "ArdsandNorthDown"
+      },
+      {
+        "id": "GBR.2.2_1",
+        "name": "ArmaghCity,BanbridgeandCraig"
+      },
+      {
+        "id": "GBR.2.3_1",
+        "name": "Belfast"
+      },
+      {
+        "id": "GBR.2.5_1",
+        "name": "DerryCityandStrabane"
+      },
+      {
+        "id": "GBR.2.6_1",
+        "name": "FermanaghandOmagh"
+      },
+      {
+        "id": "GBR.2.8_1",
+        "name": "MidandEastAntrim"
+      },
+      {
+        "id": "GBR.2.9_1",
+        "name": "MidUlster"
+      },
+      {
+        "id": "GBR.2.10_1",
+        "name": "Newry,MourneandDown"
+      },
+      {
+        "id": "GBR.2.4_1",
+        "name": "NA"
+      },
+      {
+        "id": "GBR.2.7_1",
+        "name": "NA"
+      }
+    ]
+  }
+]

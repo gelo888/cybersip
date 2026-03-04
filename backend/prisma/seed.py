@@ -3,11 +3,11 @@ Seed script for the Cybersecurity Sales Intelligence Platform.
 
 Populates the database with:
   - 3 regions (APJ, EMEA, Americas)
-  - Territory groups per region
+  - Segment labels and territories (from sample_territories.json)
   - Industries
   - ~150 companies with a realistic size distribution
     (≈40 % SMB, ≈25 % Mid-Market, ≈25 % Enterprise, ≈10 % Government)
-  - Company ↔ territory-group and company ↔ industry links
+  - Company ↔ industry links
   - Contacts across Enterprise, Mid-Market, and Government companies
   - 6 pipeline stages
   - Sample engagements across stages
@@ -20,10 +20,12 @@ Run:  python prisma/seed.py          (standalone)
 """
 
 import asyncio
+import json
 import random
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
-from prisma import Prisma
+from prisma import Json, Prisma
 
 random.seed(42)
 
@@ -582,7 +584,7 @@ async def seed():
     await db.connect()
 
     print("Clearing existing data…")
-    await db.companyterritorygroup.delete_many()
+    await db.companyterritory.delete_many()
     await db.companyindustry.delete_many()
     await db.engagement.delete_many()
     await db.engagementstage.delete_many()
@@ -598,30 +600,71 @@ async def seed():
     await db.companysite.delete_many()
     await db.company.delete_many()
     await db.teammember.delete_many()
-    await db.teamterritorygroup.delete_many()
+    await db.teamterritory.delete_many()
     await db.team.delete_many()
-    await db.territorygroup.delete_many()
+    await db.territorysegment.delete_many()
+    await db.territory.delete_many()
+    await db.segmentlabel.delete_many()
     await db.region.delete_many()
     await db.industry.delete_many()
 
-    # ── Regions & Territory Groups ────────────────────────────────────
-    print("Seeding regions & territory groups…")
+    # ── Regions ───────────────────────────────────────────────────────
+    print("Seeding regions…")
     region_map: dict[str, str] = {}
-    territory_map: dict[str, str] = {}
 
     for r in REGIONS:
         region = await db.region.create(data={"name": r["name"], "code": r["code"]})
         region_map[r["code"]] = region.id
 
-        for t in r["territories"]:
-            tg = await db.territorygroup.create(
-                data={
-                    "regionId": region.id,
-                    "name": t["name"],
-                    "description": t["description"],
-                }
-            )
-            territory_map[t["name"]] = tg.id
+    # ── Segment Labels & Territories ──────────────────────────────────
+    print("Seeding segment labels & territories…")
+
+    SEGMENT_LABELS = [
+        {"name": "commercial", "short_description": "Commercial accounts"},
+        {"name": "enterprise", "short_description": "Enterprise accounts"},
+        {"name": "public_sector", "short_description": "Government and public sector"},
+        {"name": "mid_market", "short_description": "Mid-market accounts"},
+        {"name": "channel", "short_description": "Channel and partner accounts"},
+    ]
+
+    segment_map: dict[str, str] = {}
+    for sl in SEGMENT_LABELS:
+        label = await db.segmentlabel.create(
+            data={"name": sl["name"], "shortDescription": sl["short_description"]}
+        )
+        segment_map[sl["name"]] = label.id
+
+    sample_path = Path(__file__).resolve().parent.parent / "territories" / "sample_territories.json"
+    with open(sample_path) as f:
+        sample_territories = json.load(f)
+
+    level_map = {"level_0": 0, "level_1": 1, "level_2": 2}
+    territory_map: dict[str, str] = {}
+
+    for t in sample_territories:
+        level_val = level_map.get(t["level"], 0)
+        territory = await db.territory.create(
+            data={
+                "name": t["name"],
+                "level": level_val,
+                "color": t["color"],
+                "regionId": t["region_id"],
+                "subregionId": t["subregion_id"],
+                "gid0": t.get("gid_0"),
+                "gid1": t.get("gid_1"),
+                "children": Json(t.get("children", [])),
+            }
+        )
+        territory_map[t["name"]] = territory.id
+
+        for seg_name in t.get("segment_labels", []):
+            seg_id = segment_map.get(seg_name)
+            if seg_id:
+                await db.territorysegment.create(
+                    data={"territoryId": territory.id, "segmentLabelId": seg_id}
+                )
+
+    print(f"Seeded {len(SEGMENT_LABELS)} segment labels, {len(sample_territories)} territories.")
 
     # ── Industries ────────────────────────────────────────────────────
     print("Seeding industries…")
@@ -653,13 +696,6 @@ async def seed():
                 "country": country,
             }
         )
-
-        # Link to territory group
-        tg_id = territory_map.get(territory)
-        if tg_id:
-            await db.companyterritorygroup.create(
-                data={"companyId": company.id, "territoryGroupId": tg_id}
-            )
 
         # Link primary industry
         if 0 <= ind_idx < len(industry_ids):

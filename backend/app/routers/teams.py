@@ -175,7 +175,7 @@ async def delete_team_member(team_id: str, user_id: str):
     return None
 
 
-# ── Team ↔ Territory Group assignments ────────────────────────────────
+# ── Team ↔ Territory assignments ─────────────────────────────────────
 
 @router.post(
     "/api/team-territories",
@@ -183,36 +183,31 @@ async def delete_team_member(team_id: str, user_id: str):
     status_code=201,
 )
 async def create_team_territory(body: TeamTerritoryCreate):
-    """Assign a team to a territory group."""
+    """Assign a team to a territory."""
     team = await db.team.find_unique(where={"id": body.team_id})
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")
 
-    group = await db.territorygroup.find_unique(
-        where={"id": body.territory_group_id}
-    )
-    if not group:
-        raise HTTPException(status_code=404, detail="Territory group not found")
+    territory = await db.territory.find_unique(where={"id": body.territory_id})
+    if not territory:
+        raise HTTPException(status_code=404, detail="Territory not found")
 
-    existing = await db.teamterritorygroup.find_unique(
+    existing = await db.teamterritory.find_unique(
         where={
-            "teamId_territoryGroupId": {
+            "teamId_territoryId": {
                 "teamId": body.team_id,
-                "territoryGroupId": body.territory_group_id,
+                "territoryId": body.territory_id,
             }
         }
     )
     if existing:
         raise HTTPException(
             status_code=409,
-            detail="Team is already assigned to this territory group",
+            detail="Team is already assigned to this territory",
         )
 
-    record = await db.teamterritorygroup.create(
-        data={
-            "teamId": body.team_id,
-            "territoryGroupId": body.territory_group_id,
-        }
+    record = await db.teamterritory.create(
+        data={"teamId": body.team_id, "territoryId": body.territory_id}
     )
     return _team_territory_to_response(record)
 
@@ -223,43 +218,41 @@ async def create_team_territory(body: TeamTerritoryCreate):
 )
 async def list_team_territories(
     team_id: Optional[str] = Query(None, description="Filter by team"),
-    territory_group_id: Optional[str] = Query(
-        None, description="Filter by territory group"
-    ),
+    territory_id: Optional[str] = Query(None, description="Filter by territory"),
 ):
     """List team-territory assignments."""
     where = {}
     if team_id:
         where["teamId"] = team_id
-    if territory_group_id:
-        where["territoryGroupId"] = territory_group_id
+    if territory_id:
+        where["territoryId"] = territory_id
 
-    records = await db.teamterritorygroup.find_many(where=where)
+    records = await db.teamterritory.find_many(where=where)
     return [_team_territory_to_response(r) for r in records]
 
 
 @router.delete(
-    "/api/team-territories/{team_id}/{territory_group_id}",
+    "/api/team-territories/{team_id}/{territory_id}",
     status_code=204,
 )
-async def delete_team_territory(team_id: str, territory_group_id: str):
-    """Remove a team from a territory group."""
-    existing = await db.teamterritorygroup.find_unique(
+async def delete_team_territory(team_id: str, territory_id: str):
+    """Remove a team from a territory."""
+    existing = await db.teamterritory.find_unique(
         where={
-            "teamId_territoryGroupId": {
+            "teamId_territoryId": {
                 "teamId": team_id,
-                "territoryGroupId": territory_group_id,
+                "territoryId": territory_id,
             }
         }
     )
     if not existing:
         raise HTTPException(status_code=404, detail="Assignment not found")
 
-    await db.teamterritorygroup.delete(
+    await db.teamterritory.delete(
         where={
-            "teamId_territoryGroupId": {
+            "teamId_territoryId": {
                 "teamId": team_id,
-                "territoryGroupId": territory_group_id,
+                "territoryId": territory_id,
             }
         }
     )
@@ -288,5 +281,5 @@ def _member_to_response(member) -> dict:
 def _team_territory_to_response(record) -> dict:
     return {
         "team_id": record.teamId,
-        "territory_group_id": record.territoryGroupId,
+        "territory_id": record.territoryId,
     }
