@@ -5,24 +5,42 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
-class TeamRole(str, Enum):
-    lead = "lead"
-    member = "member"
+class MemberRole(str, Enum):
+    sales_team = "sales_team"
+    leadership = "leadership"
 
 
-# ── Team ──────────────────────────────────────────────────────────────
+# ── Team Member ──────────────────────────────────────────────────────
 
-class TeamCreate(BaseModel):
-    name: str = Field(..., min_length=1, max_length=255)
+class TeamMemberCreate(BaseModel):
+    first_name: str = Field(..., min_length=1, max_length=100)
+    middle_name: Optional[str] = Field(None, max_length=100)
+    last_name: str = Field(..., min_length=1, max_length=100)
+    role: MemberRole = MemberRole.sales_team
+    position: str = Field(..., min_length=1, max_length=255)
+    email: str = Field(..., min_length=3, max_length=255)
+    phone_number: Optional[str] = Field(None, max_length=30)
 
 
-class TeamUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=255)
+class TeamMemberUpdate(BaseModel):
+    first_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    middle_name: Optional[str] = Field(None, max_length=100)
+    last_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    role: Optional[MemberRole] = None
+    position: Optional[str] = Field(None, min_length=1, max_length=255)
+    email: Optional[str] = Field(None, min_length=3, max_length=255)
+    phone_number: Optional[str] = Field(None, max_length=30)
 
 
-class TeamResponse(BaseModel):
+class TeamMemberResponse(BaseModel):
     id: str
-    name: str
+    first_name: str
+    middle_name: Optional[str] = None
+    last_name: str
+    role: MemberRole
+    position: str
+    email: str
+    phone_number: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -30,36 +48,15 @@ class TeamResponse(BaseModel):
         from_attributes = True
 
 
-# ── Team Member ───────────────────────────────────────────────────────
+# ── Territory ↔ Member (many-to-many join) ───────────────────────────
 
-class TeamMemberCreate(BaseModel):
-    team_id: str
-    user_id: str
-    role: TeamRole = TeamRole.member
-
-
-class TeamMemberUpdate(BaseModel):
-    role: TeamRole
-
-
-class TeamMemberResponse(BaseModel):
-    team_id: str
-    user_id: str
-    role: TeamRole
-
-    class Config:
-        from_attributes = True
-
-
-# ── Team ↔ Territory (many-to-many join) ──────────────────────────────
-
-class TeamTerritoryCreate(BaseModel):
-    team_id: str
+class TerritoryMemberCreate(BaseModel):
+    team_member_id: str
     territory_id: str
 
 
-class TeamTerritoryResponse(BaseModel):
-    team_id: str
+class TerritoryMemberResponse(BaseModel):
+    team_member_id: str
     territory_id: str
 
     class Config:

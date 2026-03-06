@@ -599,9 +599,8 @@ async def seed():
     await db.companyname.delete_many()
     await db.companysite.delete_many()
     await db.company.delete_many()
+    await db.territorymember.delete_many()
     await db.teammember.delete_many()
-    await db.teamterritory.delete_many()
-    await db.team.delete_many()
     await db.territorysegment.delete_many()
     await db.territory.delete_many()
     await db.segmentlabel.delete_many()
@@ -665,6 +664,64 @@ async def seed():
                 )
 
     print(f"Seeded {len(SEGMENT_LABELS)} segment labels, {len(sample_territories)} territories.")
+
+    # ── Team Members ───────────────────────────────────────────────────
+    print("Seeding team members…")
+
+    TEAM_MEMBERS = [
+        {"first_name": "Sarah", "last_name": "Chen", "role": "leadership", "position": "VP of Sales, APJ", "email": "sarah.chen@cybersip.io"},
+        {"first_name": "Marcus", "last_name": "Rodriguez", "role": "leadership", "position": "Regional Director, Americas", "email": "marcus.rodriguez@cybersip.io"},
+        {"first_name": "Elena", "last_name": "Petrov", "role": "leadership", "position": "Regional Director, EMEA", "email": "elena.petrov@cybersip.io"},
+        {"first_name": "James", "last_name": "Nakamura", "role": "sales_team", "position": "Senior Account Executive", "email": "james.nakamura@cybersip.io", "phone_number": "+81901234567"},
+        {"first_name": "Priya", "last_name": "Sharma", "role": "sales_team", "position": "Account Executive", "email": "priya.sharma@cybersip.io", "phone_number": "+919876543210"},
+        {"first_name": "David", "last_name": "Kim", "role": "sales_team", "position": "Account Executive", "email": "david.kim@cybersip.io"},
+        {"first_name": "Ana", "middle_name": "Maria", "last_name": "Santos", "role": "sales_team", "position": "Senior Account Executive", "email": "ana.santos@cybersip.io", "phone_number": "+5511987654321"},
+        {"first_name": "Michael", "last_name": "O'Brien", "role": "sales_team", "position": "Account Executive", "email": "michael.obrien@cybersip.io"},
+        {"first_name": "Fatima", "last_name": "Al-Hassan", "role": "sales_team", "position": "Account Executive", "email": "fatima.alhassan@cybersip.io", "phone_number": "+971501234567"},
+        {"first_name": "Lucas", "last_name": "Weber", "role": "sales_team", "position": "Account Executive", "email": "lucas.weber@cybersip.io"},
+    ]
+
+    member_map: dict[str, str] = {}
+    for m in TEAM_MEMBERS:
+        member = await db.teammember.create(
+            data={
+                "firstName": m["first_name"],
+                "middleName": m.get("middle_name"),
+                "lastName": m["last_name"],
+                "role": m["role"],
+                "position": m["position"],
+                "email": m["email"],
+                "phoneNumber": m.get("phone_number"),
+            }
+        )
+        member_map[m["email"]] = member.id
+
+    TERRITORY_ASSIGNMENTS = [
+        ("sarah.chen@cybersip.io", "APJ - Southeast Asia"),
+        ("sarah.chen@cybersip.io", "APJ - East Asia"),
+        ("james.nakamura@cybersip.io", "APJ - East Asia"),
+        ("priya.sharma@cybersip.io", "APJ - South Asia"),
+        ("priya.sharma@cybersip.io", "APJ - Southeast Asia"),
+        ("david.kim@cybersip.io", "APJ - Oceania"),
+        ("marcus.rodriguez@cybersip.io", "Americas - North America"),
+        ("michael.obrien@cybersip.io", "Americas - North America"),
+        ("ana.santos@cybersip.io", "Americas - South America"),
+        ("elena.petrov@cybersip.io", "EMEA - Western Europe"),
+        ("fatima.alhassan@cybersip.io", "EMEA - Middle East"),
+        ("lucas.weber@cybersip.io", "EMEA - Western Europe"),
+    ]
+
+    assigned_count = 0
+    for email, territory_name in TERRITORY_ASSIGNMENTS:
+        mid = member_map.get(email)
+        tid = territory_map.get(territory_name)
+        if mid and tid:
+            await db.territorymember.create(
+                data={"teamMemberId": mid, "territoryId": tid}
+            )
+            assigned_count += 1
+
+    print(f"Seeded {len(TEAM_MEMBERS)} team members, {assigned_count} territory assignments.")
 
     # ── Industries ────────────────────────────────────────────────────
     print("Seeding industries…")

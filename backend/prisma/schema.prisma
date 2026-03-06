@@ -98,9 +98,9 @@ enum RegionCode {
   Americas
 }
 
-enum TeamRole {
-  lead
-  member
+enum MemberRole {
+  sales_team
+  leadership
 }
 
 // ─── Models ─────────────────────────────────────────
@@ -303,8 +303,7 @@ model User {
   name  String?
   role  UserRole @default(viewer)
 
-  assignments     CompanyAssignment[]
-  teamMemberships TeamMember[]
+  assignments CompanyAssignment[]
 
   @@map("users")
 }
@@ -355,7 +354,7 @@ model Territory {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   segments  TerritorySegment[]
-  teams     TeamTerritory[]
+  members   TerritoryMember[]
   companies CompanyTerritory[]
 
   @@map("territories")
@@ -372,39 +371,32 @@ model TerritorySegment {
   @@map("territory_segments")
 }
 
-model Team {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  members     TeamMember[]
-  territories TeamTerritory[]
-
-  @@map("teams")
-}
-
-model TeamTerritory {
-  teamId      String @map("team_id") @db.Uuid
-  territoryId String @map("territory_id") @db.Uuid
-
-  team      Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  territory Territory @relation(fields: [territoryId], references: [id], onDelete: Cascade)
-
-  @@id([teamId, territoryId])
-  @@map("team_territories")
-}
-
 model TeamMember {
-  teamId String   @map("team_id") @db.Uuid
-  userId String   @map("user_id") @db.Uuid
-  role   TeamRole @default(member)
+  id          String     @id @default(uuid()) @db.Uuid
+  firstName   String     @map("first_name")
+  middleName  String?    @map("middle_name")
+  lastName    String     @map("last_name")
+  role        MemberRole @default(sales_team)
+  position    String
+  email       String     @unique
+  phoneNumber String?    @map("phone_number")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
 
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  territories TerritoryMember[]
 
-  @@id([teamId, userId])
   @@map("team_members")
+}
+
+model TerritoryMember {
+  teamMemberId String @map("team_member_id") @db.Uuid
+  territoryId  String @map("territory_id") @db.Uuid
+
+  teamMember TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+  territory  Territory  @relation(fields: [territoryId], references: [id], onDelete: Cascade)
+
+  @@id([teamMemberId, territoryId])
+  @@map("territory_members")
 }
 
 model CompanyTerritory {

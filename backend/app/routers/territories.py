@@ -174,7 +174,7 @@ async def list_territories(
         skip=skip,
         take=take,
         order={"name": "asc"},
-        include={"segments": {"include": {"segmentLabel": True}}},
+        include=_territory_include,
     )
     return [_territory_to_response(t) for t in territories]
 
@@ -344,6 +344,20 @@ def _territory_to_response(territory) -> dict:
             if ts.segmentLabel
         ]
 
+    members = []
+    if hasattr(territory, "members") and territory.members:
+        members = [
+            {
+                "id": tm.teamMember.id,
+                "first_name": tm.teamMember.firstName,
+                "last_name": tm.teamMember.lastName,
+                "role": tm.teamMember.role,
+                "position": tm.teamMember.position,
+            }
+            for tm in territory.members
+            if tm.teamMember
+        ]
+
     return {
         "id": territory.id,
         "name": territory.name,
@@ -355,15 +369,22 @@ def _territory_to_response(territory) -> dict:
         "gid_1": territory.gid1,
         "children": territory.children,
         "segments": segments,
+        "members": members,
         "created_at": territory.createdAt,
         "updated_at": territory.updatedAt,
     }
 
 
+_territory_include = {
+    "segments": {"include": {"segmentLabel": True}},
+    "members": {"include": {"teamMember": True}},
+}
+
+
 async def _load_territory_response(territory_id: str) -> dict:
     territory = await db.territory.find_unique(
         where={"id": territory_id},
-        include={"segments": {"include": {"segmentLabel": True}}},
+        include=_territory_include,
     )
     if not territory:
         raise HTTPException(status_code=404, detail="Territory not found")

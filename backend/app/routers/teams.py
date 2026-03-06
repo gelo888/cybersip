@@ -4,105 +4,30 @@ from fastapi import APIRouter, HTTPException, Query
 
 from app.main import db
 from app.schemas.team import (
-    TeamCreate,
     TeamMemberCreate,
     TeamMemberResponse,
     TeamMemberUpdate,
-    TeamResponse,
-    TeamTerritoryCreate,
-    TeamTerritoryResponse,
-    TeamUpdate,
+    TerritoryMemberCreate,
+    TerritoryMemberResponse,
 )
 
-router = APIRouter(tags=["Teams"])
+router = APIRouter(tags=["Team Members"])
 
 
-# ── Teams ─────────────────────────────────────────────────────────────
+# ── Team Members CRUD ─────────────────────────────────────────────────
 
-@router.post("/api/teams", response_model=TeamResponse, status_code=201)
-async def create_team(body: TeamCreate):
-    """Create a new team."""
-    team = await db.team.create(data={"name": body.name})
-    return _team_to_response(team)
-
-
-@router.get("/api/teams", response_model=list[TeamResponse])
-async def list_teams():
-    """List all teams."""
-    teams = await db.team.find_many(order={"name": "asc"})
-    return [_team_to_response(t) for t in teams]
-
-
-@router.get("/api/teams/{team_id}", response_model=TeamResponse)
-async def get_team(team_id: str):
-    """Get a single team by ID."""
-    team = await db.team.find_unique(where={"id": team_id})
-    if not team:
-        raise HTTPException(status_code=404, detail="Team not found")
-    return _team_to_response(team)
-
-
-@router.patch("/api/teams/{team_id}", response_model=TeamResponse)
-async def update_team(team_id: str, body: TeamUpdate):
-    """Update a team's name."""
-    existing = await db.team.find_unique(where={"id": team_id})
-    if not existing:
-        raise HTTPException(status_code=404, detail="Team not found")
-
-    update_data = {}
-    if body.name is not None:
-        update_data["name"] = body.name
-
-    if not update_data:
-        return _team_to_response(existing)
-
-    team = await db.team.update(where={"id": team_id}, data=update_data)
-    return _team_to_response(team)
-
-
-@router.delete("/api/teams/{team_id}", status_code=204)
-async def delete_team(team_id: str):
-    """Delete a team."""
-    existing = await db.team.find_unique(where={"id": team_id})
-    if not existing:
-        raise HTTPException(status_code=404, detail="Team not found")
-    await db.team.delete(where={"id": team_id})
-    return None
-
-
-# ── Team Members ──────────────────────────────────────────────────────
-
-@router.post(
-    "/api/team-members", response_model=TeamMemberResponse, status_code=201
-)
+@router.post("/api/team-members", response_model=TeamMemberResponse, status_code=201)
 async def create_team_member(body: TeamMemberCreate):
-    """Add a user to a team."""
-    team = await db.team.find_unique(where={"id": body.team_id})
-    if not team:
-        raise HTTPException(status_code=404, detail="Team not found")
-
-    user = await db.user.find_unique(where={"id": body.user_id})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    existing = await db.teammember.find_unique(
-        where={
-            "teamId_userId": {
-                "teamId": body.team_id,
-                "userId": body.user_id,
-            }
-        }
-    )
-    if existing:
-        raise HTTPException(
-            status_code=409, detail="User is already a member of this team"
-        )
-
+    """Create a new team member."""
     member = await db.teammember.create(
         data={
-            "teamId": body.team_id,
-            "userId": body.user_id,
+            "firstName": body.first_name,
+            "middleName": body.middle_name,
+            "lastName": body.last_name,
             "role": body.role.value,
+            "position": body.position,
+            "email": body.email,
+            "phoneNumber": body.phone_number,
         }
     )
     return _member_to_response(member)
@@ -110,92 +35,90 @@ async def create_team_member(body: TeamMemberCreate):
 
 @router.get("/api/team-members", response_model=list[TeamMemberResponse])
 async def list_team_members(
-    team_id: Optional[str] = Query(None, description="Filter by team"),
+    role: Optional[str] = Query(None, description="Filter by role (sales_team, leadership)"),
 ):
-    """List team members, optionally filtered by team."""
-    where = {}
-    if team_id:
-        where["teamId"] = team_id
+    """List all team members."""
+    where: dict = {}
+    if role:
+        where["role"] = role
 
-    members = await db.teammember.find_many(where=where)
+    members = await db.teammember.find_many(
+        where=where,
+        order={"lastName": "asc"},
+    )
     return [_member_to_response(m) for m in members]
 
 
-@router.patch(
-    "/api/team-members/{team_id}/{user_id}",
-    response_model=TeamMemberResponse,
-)
-async def update_team_member(team_id: str, user_id: str, body: TeamMemberUpdate):
-    """Change a team member's role (lead / member)."""
-    existing = await db.teammember.find_unique(
-        where={
-            "teamId_userId": {
-                "teamId": team_id,
-                "userId": user_id,
-            }
-        }
-    )
-    if not existing:
+@router.get("/api/team-members/{member_id}", response_model=TeamMemberResponse)
+async def get_team_member(member_id: str):
+    """Get a single team member."""
+    member = await db.teammember.find_unique(where={"id": member_id})
+    if not member:
         raise HTTPException(status_code=404, detail="Team member not found")
-
-    member = await db.teammember.update(
-        where={
-            "teamId_userId": {
-                "teamId": team_id,
-                "userId": user_id,
-            }
-        },
-        data={"role": body.role.value},
-    )
     return _member_to_response(member)
 
 
-@router.delete("/api/team-members/{team_id}/{user_id}", status_code=204)
-async def delete_team_member(team_id: str, user_id: str):
-    """Remove a user from a team."""
-    existing = await db.teammember.find_unique(
-        where={
-            "teamId_userId": {
-                "teamId": team_id,
-                "userId": user_id,
-            }
-        }
-    )
+@router.patch("/api/team-members/{member_id}", response_model=TeamMemberResponse)
+async def update_team_member(member_id: str, body: TeamMemberUpdate):
+    """Update a team member."""
+    existing = await db.teammember.find_unique(where={"id": member_id})
     if not existing:
         raise HTTPException(status_code=404, detail="Team member not found")
 
-    await db.teammember.delete(
-        where={
-            "teamId_userId": {
-                "teamId": team_id,
-                "userId": user_id,
-            }
-        }
-    )
+    update_data: dict = {}
+    if body.first_name is not None:
+        update_data["firstName"] = body.first_name
+    if body.middle_name is not None:
+        update_data["middleName"] = body.middle_name
+    if body.last_name is not None:
+        update_data["lastName"] = body.last_name
+    if body.role is not None:
+        update_data["role"] = body.role.value
+    if body.position is not None:
+        update_data["position"] = body.position
+    if body.email is not None:
+        update_data["email"] = body.email
+    if body.phone_number is not None:
+        update_data["phoneNumber"] = body.phone_number
+
+    if not update_data:
+        return _member_to_response(existing)
+
+    member = await db.teammember.update(where={"id": member_id}, data=update_data)
+    return _member_to_response(member)
+
+
+@router.delete("/api/team-members/{member_id}", status_code=204)
+async def delete_team_member(member_id: str):
+    """Delete a team member."""
+    existing = await db.teammember.find_unique(where={"id": member_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Team member not found")
+    await db.teammember.delete(where={"id": member_id})
     return None
 
 
-# ── Team ↔ Territory assignments ─────────────────────────────────────
+# ── Territory ↔ Member assignments ────────────────────────────────────
 
 @router.post(
-    "/api/team-territories",
-    response_model=TeamTerritoryResponse,
+    "/api/territory-members",
+    response_model=TerritoryMemberResponse,
     status_code=201,
 )
-async def create_team_territory(body: TeamTerritoryCreate):
-    """Assign a team to a territory."""
-    team = await db.team.find_unique(where={"id": body.team_id})
-    if not team:
-        raise HTTPException(status_code=404, detail="Team not found")
+async def assign_member_to_territory(body: TerritoryMemberCreate):
+    """Assign a team member to a territory."""
+    member = await db.teammember.find_unique(where={"id": body.team_member_id})
+    if not member:
+        raise HTTPException(status_code=404, detail="Team member not found")
 
     territory = await db.territory.find_unique(where={"id": body.territory_id})
     if not territory:
         raise HTTPException(status_code=404, detail="Territory not found")
 
-    existing = await db.teamterritory.find_unique(
+    existing = await db.territorymember.find_unique(
         where={
-            "teamId_territoryId": {
-                "teamId": body.team_id,
+            "teamMemberId_territoryId": {
+                "teamMemberId": body.team_member_id,
                 "territoryId": body.territory_id,
             }
         }
@@ -203,44 +126,47 @@ async def create_team_territory(body: TeamTerritoryCreate):
     if existing:
         raise HTTPException(
             status_code=409,
-            detail="Team is already assigned to this territory",
+            detail="Member is already assigned to this territory",
         )
 
-    record = await db.teamterritory.create(
-        data={"teamId": body.team_id, "territoryId": body.territory_id}
+    record = await db.territorymember.create(
+        data={
+            "teamMemberId": body.team_member_id,
+            "territoryId": body.territory_id,
+        }
     )
-    return _team_territory_to_response(record)
+    return _territory_member_to_response(record)
 
 
 @router.get(
-    "/api/team-territories",
-    response_model=list[TeamTerritoryResponse],
+    "/api/territory-members",
+    response_model=list[TerritoryMemberResponse],
 )
-async def list_team_territories(
-    team_id: Optional[str] = Query(None, description="Filter by team"),
+async def list_territory_members(
+    team_member_id: Optional[str] = Query(None, description="Filter by member"),
     territory_id: Optional[str] = Query(None, description="Filter by territory"),
 ):
-    """List team-territory assignments."""
-    where = {}
-    if team_id:
-        where["teamId"] = team_id
+    """List territory-member assignments."""
+    where: dict = {}
+    if team_member_id:
+        where["teamMemberId"] = team_member_id
     if territory_id:
         where["territoryId"] = territory_id
 
-    records = await db.teamterritory.find_many(where=where)
-    return [_team_territory_to_response(r) for r in records]
+    records = await db.territorymember.find_many(where=where)
+    return [_territory_member_to_response(r) for r in records]
 
 
 @router.delete(
-    "/api/team-territories/{team_id}/{territory_id}",
+    "/api/territory-members/{member_id}/{territory_id}",
     status_code=204,
 )
-async def delete_team_territory(team_id: str, territory_id: str):
-    """Remove a team from a territory."""
-    existing = await db.teamterritory.find_unique(
+async def unassign_member_from_territory(member_id: str, territory_id: str):
+    """Remove a member from a territory."""
+    existing = await db.territorymember.find_unique(
         where={
-            "teamId_territoryId": {
-                "teamId": team_id,
+            "teamMemberId_territoryId": {
+                "teamMemberId": member_id,
                 "territoryId": territory_id,
             }
         }
@@ -248,10 +174,10 @@ async def delete_team_territory(team_id: str, territory_id: str):
     if not existing:
         raise HTTPException(status_code=404, detail="Assignment not found")
 
-    await db.teamterritory.delete(
+    await db.territorymember.delete(
         where={
-            "teamId_territoryId": {
-                "teamId": team_id,
+            "teamMemberId_territoryId": {
+                "teamMemberId": member_id,
                 "territoryId": territory_id,
             }
         }
@@ -261,25 +187,23 @@ async def delete_team_territory(team_id: str, territory_id: str):
 
 # ── Helpers ───────────────────────────────────────────────────────────
 
-def _team_to_response(team) -> dict:
-    return {
-        "id": team.id,
-        "name": team.name,
-        "created_at": team.createdAt,
-        "updated_at": team.updatedAt,
-    }
-
-
 def _member_to_response(member) -> dict:
     return {
-        "team_id": member.teamId,
-        "user_id": member.userId,
+        "id": member.id,
+        "first_name": member.firstName,
+        "middle_name": member.middleName,
+        "last_name": member.lastName,
         "role": member.role,
+        "position": member.position,
+        "email": member.email,
+        "phone_number": member.phoneNumber,
+        "created_at": member.createdAt,
+        "updated_at": member.updatedAt,
     }
 
 
-def _team_territory_to_response(record) -> dict:
+def _territory_member_to_response(record) -> dict:
     return {
-        "team_id": record.teamId,
+        "team_member_id": record.teamMemberId,
         "territory_id": record.territoryId,
     }

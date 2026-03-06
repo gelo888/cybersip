@@ -83,6 +83,14 @@ class TerritoryUpdate(BaseModel):
     segment_label_ids: Optional[list[str]] = None
 
 
+class TerritoryMemberRef(BaseModel):
+    id: str
+    first_name: str
+    last_name: str
+    role: str
+    position: str
+
+
 class TerritoryResponse(BaseModel):
     id: str
     name: str
@@ -94,6 +102,7 @@ class TerritoryResponse(BaseModel):
     gid_1: Optional[str] = None
     children: Any = []
     segments: list[SegmentLabelResponse] = []
+    members: list[TerritoryMemberRef] = []
     created_at: datetime
     updated_at: datetime
 
