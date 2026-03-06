@@ -9,6 +9,7 @@ import { TerritoryListView } from "./components/territory-list-view";
 import { TerritoryMapView } from "./components/territory-map-view";
 import { TerritoryFormDialog } from "./components/territory-form-dialog";
 import { DeleteConfirmDialog } from "./components/delete-confirm-dialog";
+import { TeamAssignmentDialog } from "./components/team-assignment-dialog";
 
 type ViewMode = "map" | "list";
 
@@ -17,6 +18,7 @@ export default function TerritoriesPage() {
     const [formOpen, setFormOpen] = useState(false);
     const [editTerritory, setEditTerritory] = useState<Territory | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<Territory | null>(null);
+    const [teamTarget, setTeamTarget] = useState<Territory | null>(null);
 
     const { data: territories = [], isLoading } = useTerritories();
     const deleteMutation = useDeleteTerritory();
@@ -90,6 +92,7 @@ export default function TerritoriesPage() {
                     territories={territories}
                     onEdit={handleEdit}
                     onDelete={setDeleteTarget}
+                    onManageTeams={setTeamTarget}
                 />
             )}
 
@@ -106,6 +109,16 @@ export default function TerritoriesPage() {
                 onConfirm={handleDeleteConfirm}
                 isPending={deleteMutation.isPending}
             />
+
+            {teamTarget && (
+                <TeamAssignmentDialog
+                    open={!!teamTarget}
+                    onOpenChange={(open) => !open && setTeamTarget(null)}
+                    territory={
+                        territories.find((t) => t.id === teamTarget.id) ?? teamTarget
+                    }
+                />
+            )}
         </div>
     );
 }

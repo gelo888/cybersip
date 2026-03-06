@@ -207,6 +207,48 @@ export interface SegmentLabelPayload {
     short_description?: string | null;
 }
 
+// ── Team Member ──
+
+export type MemberRole = "sales_team" | "leadership";
+
+export interface TeamMember {
+    id: string;
+    first_name: string;
+    middle_name: string | null;
+    last_name: string;
+    role: MemberRole;
+    position: string;
+    email: string;
+    phone_number: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface TeamMemberPayload {
+    first_name: string;
+    middle_name?: string | null;
+    last_name: string;
+    role?: MemberRole;
+    position: string;
+    email: string;
+    phone_number?: string | null;
+}
+
+export type TeamMemberUpdatePayload = Partial<TeamMemberPayload>;
+
+export interface TerritoryMemberPayload {
+    team_member_id: string;
+    territory_id: string;
+}
+
+export interface MemberRef {
+    id: string;
+    first_name: string;
+    last_name: string;
+    role: string;
+    position: string;
+}
+
 // ── Territory ──
 
 export interface TerritoryChild {
@@ -225,6 +267,7 @@ export interface Territory {
     gid_1: string | null;
     children: TerritoryChild[];
     segments: SegmentLabel[];
+    members?: MemberRef[];
     created_at: string;
     updated_at: string;
 }

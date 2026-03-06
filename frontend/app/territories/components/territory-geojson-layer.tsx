@@ -61,10 +61,14 @@ export function TerritoryGeoJsonLayer({
 
         const onMouseMove = (e: maplibregl.MapMouseEvent) => {
             const levelLabel = LEVEL_LABELS[territory.level] ?? `Level ${territory.level}`;
+            const members = territory.members ?? [];
+            const membersHtml = members.length > 0
+                ? `<br/><span style="opacity:0.7;font-size:11px">&#x1F465; ${members.map((m) => `${m.first_name} ${m.last_name}`).join(", ")}</span>`
+                : "";
             popup
                 .setLngLat(e.lngLat)
                 .setHTML(
-                    `<strong>${territory.name}</strong><br/><span style="opacity:0.7;font-size:12px">${levelLabel}</span>`,
+                    `<strong>${territory.name}</strong><br/><span style="opacity:0.7;font-size:12px">${levelLabel}</span>${membersHtml}`,
                 )
                 .addTo(map);
         };
@@ -96,7 +100,7 @@ export function TerritoryGeoJsonLayer({
             }
             addedRef.current = false;
         };
-    }, [map, isLoaded, geojson, territory.id, territory.color, territory.name, territory.level, onLoaded]);
+    }, [map, isLoaded, geojson, territory.id, territory.color, territory.name, territory.level, territory.members, onLoaded]);
 
     return null;
 }
