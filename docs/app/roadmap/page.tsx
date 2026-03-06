@@ -40,7 +40,7 @@ export default function RoadmapPage() {
             <li>Hunt page — live Kanban pipeline with engagement CRUD, linked to Company 360</li>
             <li>Vault page — contracts table with CRUD, summary cards, company links</li>
             <li>Intelligence Hub — live competitor tracker and intel feed with CRUD, static market signals preview</li>
-            <li>Territories — map/list toggle, CRUD via /api/territories and /api/segment-labels, geo data via /api/geo/*, GeoJSON polygons</li>
+            <li>Territories — map/list toggle, CRUD via /api/territories and /api/segment-labels, geo data via /api/geo/*, GeoJSON polygons, team member assignment</li>
             <li>Context-aware breadcrumbs (Hunt / Vault → Company 360 → back)</li>
             <li>Seed script with stages, engagements, products, contracts, and line items</li>
           </ul>
@@ -53,7 +53,6 @@ export default function RoadmapPage() {
             <li>1 page still uses hardcoded mock data (Command Center)</li>
             <li>Company 360 sub-sections are read-only (no create/edit for engagements, contracts, intel)</li>
             <li>Hunt ↔ Vault cross-reference not yet implemented (contract indicators on pipeline cards)</li>
-            <li>Team-to-territory assignment UI not yet built</li>
             <li>No authentication / authorization</li>
             <li>No AI integration</li>
             <li>No N8N automation workflows</li>
@@ -124,10 +123,11 @@ export default function RoadmapPage() {
             <code>/api/segment-labels</code>, and <code>/api/geo/*</code> —
             map/list views with CRUD, GeoJSON polygons, hover tooltips
           </li>
-          <li>
-            Add team-to-territory assignment UI on Territories page —
-            link <code>/api/teams</code> to territories via{" "}
-            <code>TeamTerritory</code> join table
+          <li className="line-through opacity-60">
+            Add team member assignment on Territories page —
+            assign members to territories via{" "}
+            <code>/api/team-members</code> and{" "}
+            <code>/api/territory-members</code>
           </li>
           <li>
             Add CRUD to Company 360 sub-sections — create/edit modals for

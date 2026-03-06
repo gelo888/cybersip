@@ -121,7 +121,7 @@ export default function FrontendPage() {
             <td><code>/territories</code></td>
             <td>Territories</td>
             <td>Live API</td>
-            <td>Map/list toggle (mapcn/MapLibre GL), CRUD via /api/territories and /api/segment-labels, geo data via /api/geo/*, multi-step creation form with cascading selects, GeoJSON polygons with color coding</td>
+            <td>Map/list toggle (mapcn/MapLibre GL), CRUD via /api/territories and /api/segment-labels, geo data via /api/geo/*, multi-step creation form with cascading selects, GeoJSON polygons with color coding, team member assignment via /api/team-members and /api/territory-members</td>
           </tr>
           <tr>
             <td><code>/vault</code></td>
@@ -185,6 +185,7 @@ export default function FrontendPage() {
 │   ├── use-engagements.ts     # Engagement list + CRUD
 │   ├── use-contracts.ts       # Contract + line-item CRUD
 │   ├── use-territories.ts     # useTerritories, useCreateTerritory, useUpdateTerritory, useDeleteTerritory, useSegmentLabels, useCreateSegmentLabel
+│   ├── use-teams.ts           # useTeamMembers, useCreateTeamMember, useAssignMemberTerritory, useUnassignMemberTerritory
 │   ├── use-geo-data.ts        # useGeoRegions, useGeoSubRegions, useGeoCountries, useCountriesByLevel, useAdminDivisions, useGeoFeatures
 │   └── use-mobile.ts          # Mobile detection
 │
@@ -362,7 +363,7 @@ export function useCreateContract() {
             <li>Hunt — Kanban pipeline with engagement CRUD, linked to Company 360</li>
             <li>Vault — contracts table with CRUD, summary cards, company links</li>
             <li>Intelligence Hub — competitor tracker and intel feed with CRUD, static market signals preview</li>
-            <li>Territories — map/list toggle, CRUD via /api/territories and /api/segment-labels, geo data via /api/geo/*, GeoJSON polygons</li>
+            <li>Territories — map/list toggle, CRUD via /api/territories and /api/segment-labels, geo data via /api/geo/*, GeoJSON polygons, team member assignment</li>
             <li>Context-aware breadcrumbs (Hunt → Company 360 → back to Hunt)</li>
           </ul>
         </div>

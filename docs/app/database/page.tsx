@@ -37,8 +37,7 @@ export default function DatabasePage() {
 
 territories (level 0=country, 1=state, 2=county)
   ├── territory_segments ──► segment_labels
-  └── team_territories ──► teams
-                            └── team_members ──► users
+  └── territory_members ──► team_members (individual people)
 
 regions (APJ, EMEA, Americas) — standalone, no territory relationship
 
@@ -583,8 +582,8 @@ products_services
         </tbody>
       </table>
 
-      <h3>team_territories</h3>
-      <p>Join table linking teams to territories (replaces team_territory_groups).</p>
+      <h3>team_members</h3>
+      <p>Individual sales team members who can be assigned to territories.</p>
       <table>
         <thead>
           <tr>
@@ -595,9 +594,63 @@ products_services
         </thead>
         <tbody>
           <tr>
-            <td><code>team_id</code></td>
+            <td><code>id</code></td>
+            <td>UUID PK</td>
+            <td>Primary key</td>
+          </tr>
+          <tr>
+            <td><code>first_name</code></td>
+            <td>String</td>
+            <td>First name</td>
+          </tr>
+          <tr>
+            <td><code>middle_name</code></td>
+            <td>String?</td>
+            <td>Middle name (optional)</td>
+          </tr>
+          <tr>
+            <td><code>last_name</code></td>
+            <td>String</td>
+            <td>Last name</td>
+          </tr>
+          <tr>
+            <td><code>role</code></td>
+            <td>MemberRole</td>
+            <td>sales_team or leadership</td>
+          </tr>
+          <tr>
+            <td><code>position</code></td>
+            <td>String</td>
+            <td>Job title (e.g. Account Executive)</td>
+          </tr>
+          <tr>
+            <td><code>email</code></td>
+            <td>String (unique)</td>
+            <td>Email address</td>
+          </tr>
+          <tr>
+            <td><code>phone_number</code></td>
+            <td>String?</td>
+            <td>Phone number (optional)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>territory_members</h3>
+      <p>Join table assigning team members to territories. A territory acts as the team.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>team_member_id</code></td>
             <td>UUID FK</td>
-            <td>Reference to teams</td>
+            <td>Reference to team_members</td>
           </tr>
           <tr>
             <td><code>territory_id</code></td>
@@ -631,12 +684,10 @@ products_services
         </tbody>
       </table>
 
-      <h3>teams & team_members</h3>
       <p>
-        Sales teams are assigned to territories via <code>team_territories</code>.
-        Users are added to teams as <strong>lead</strong> or{" "}
-        <strong>member</strong>. A single team can cover multiple territories,
-        and a large territory can have multiple teams.
+        Territories act as teams — team members are assigned directly to
+        territories via <code>territory_members</code>. A member can belong to
+        multiple territories.
       </p>
 
       <h2>Access Control</h2>

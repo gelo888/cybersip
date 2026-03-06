@@ -126,9 +126,9 @@ export default function BackendPage() {
             <td><code>/api/geo</code></td>
           </tr>
           <tr>
-            <td>Teams</td>
+            <td>Team Members</td>
             <td><code>teams.py</code></td>
-            <td><code>/api/teams</code>, <code>/api/team-members</code>, <code>/api/team-territories</code></td>
+            <td><code>/api/team-members</code>, <code>/api/territory-members</code></td>
           </tr>
         </tbody>
       </table>
@@ -346,8 +346,8 @@ class CompanyResponse(BaseModel):
       <EndpointTable
         endpoints={[
           { method: "POST", path: "/api/territories", description: "Create territory with segments" },
-          { method: "GET", path: "/api/territories", description: "List territories (filter by region_id, level)" },
-          { method: "GET", path: "/api/territories/{territory_id}", description: "Get single territory" },
+          { method: "GET", path: "/api/territories", description: "List territories with segments and assigned teams" },
+          { method: "GET", path: "/api/territories/{territory_id}", description: "Get single territory with segments and teams" },
           { method: "PATCH", path: "/api/territories/{territory_id}", description: "Update territory" },
           { method: "DELETE", path: "/api/territories/{territory_id}", description: "Delete territory" },
         ]}
@@ -389,38 +389,30 @@ class CompanyResponse(BaseModel):
         ]}
       />
 
-      <h2>Teams</h2>
+      <h2>Team Members</h2>
       <p>
-        Sales teams assigned to territories with member management.
+        Sales team members (individual people) assigned directly to territories.
+        A territory acts as the team — whoever is assigned to it is part of that
+        territory&apos;s team. Members can belong to multiple territories.
       </p>
-
-      <h3>Teams</h3>
-      <EndpointTable
-        endpoints={[
-          { method: "POST", path: "/api/teams", description: "Create a team" },
-          { method: "GET", path: "/api/teams", description: "List all teams" },
-          { method: "GET", path: "/api/teams/{id}", description: "Get a single team (includes members & territories)" },
-          { method: "PATCH", path: "/api/teams/{id}", description: "Update a team" },
-          { method: "DELETE", path: "/api/teams/{id}", description: "Delete a team" },
-        ]}
-      />
 
       <h3>Team Members</h3>
       <EndpointTable
         endpoints={[
-          { method: "POST", path: "/api/team-members", description: "Add a user to a team" },
-          { method: "GET", path: "/api/team-members", description: "List members (filter by team)" },
-          { method: "PATCH", path: "/api/team-members/{team_id}/{user_id}", description: "Change member role (lead/member)" },
-          { method: "DELETE", path: "/api/team-members/{team_id}/{user_id}", description: "Remove a user from a team" },
+          { method: "POST", path: "/api/team-members", description: "Create a team member" },
+          { method: "GET", path: "/api/team-members", description: "List all members (filter by role)" },
+          { method: "GET", path: "/api/team-members/{id}", description: "Get a single member" },
+          { method: "PATCH", path: "/api/team-members/{id}", description: "Update a member" },
+          { method: "DELETE", path: "/api/team-members/{id}", description: "Delete a member" },
         ]}
       />
 
-      <h3>Team ↔ Territory Assignments</h3>
+      <h3>Territory ↔ Member Assignments</h3>
       <EndpointTable
         endpoints={[
-          { method: "POST", path: "/api/team-territories", description: "Assign team to territory" },
-          { method: "GET", path: "/api/team-territories", description: "List assignments" },
-          { method: "DELETE", path: "/api/team-territories/{team_id}/{territory_id}", description: "Remove assignment" },
+          { method: "POST", path: "/api/territory-members", description: "Assign member to territory" },
+          { method: "GET", path: "/api/territory-members", description: "List assignments (filter by member or territory)" },
+          { method: "DELETE", path: "/api/territory-members/{member_id}/{territory_id}", description: "Remove assignment" },
         ]}
       />
 
