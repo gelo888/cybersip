@@ -53,9 +53,11 @@ interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
   company?: Company | null
+  /** Called after a successful create with the new company (e.g. select it in another view). */
+  onCreated?: (company: Company) => void
 }
 
-export function CompanyFormDialog({ open, onOpenChange, company }: Props) {
+export function CompanyFormDialog({ open, onOpenChange, company, onCreated }: Props) {
   const isEdit = !!company
   const createMutation = useCreateCompany()
   const updateMutation = useUpdateCompany()
@@ -90,7 +92,12 @@ export function CompanyFormDialog({ open, onOpenChange, company }: Props) {
     if (isEdit) {
       updateMutation.mutate({ id: company!.id, data: payload }, { onSuccess: () => onOpenChange(false) })
     } else {
-      createMutation.mutate(payload, { onSuccess: () => onOpenChange(false) })
+      createMutation.mutate(payload, {
+        onSuccess: (created) => {
+          onCreated?.(created)
+          onOpenChange(false)
+        },
+      })
     }
   }
 

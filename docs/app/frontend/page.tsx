@@ -100,6 +100,12 @@ export default function FrontendPage() {
             <td>Competitor tracker, intel feed with CRUD, static market signals preview</td>
           </tr>
           <tr>
+            <td><code>/sales-recon</code></td>
+            <td>Sales Recon</td>
+            <td>Live API (picker) + preview</td>
+            <td>GTM / account recon: prospect account cards (filled sample recon fields from CRM prospects), portfolio account select, illustrative public-source signals with external links; <code>useCompanies</code> supports optional <code>status</code> filter; full-width layout</td>
+          </tr>
+          <tr>
             <td><code>/hunt</code></td>
             <td>The Hunt</td>
             <td>Live API</td>
@@ -146,6 +152,10 @@ export default function FrontendPage() {
 │   ├── page.tsx               # Command Center (Dashboard)
 │   ├── intelligence/
 │   │   └── page.tsx           # Intelligence Hub
+│   ├── sales-recon/
+│   │   ├── page.tsx           # Sales Recon (GTM recon)
+│   │   └── components/
+│   │       └── sales-recon-hub.tsx
 │   ├── hunt/
 │   │   ├── page.tsx           # Pipeline Kanban (Live API)
 │   │   └── components/
@@ -178,7 +188,7 @@ export default function FrontendPage() {
 │       └── tooltip.tsx
 │
 ├── hooks/                     # TanStack Query data hooks
-│   ├── use-companies.ts       # Company list + CRUD
+│   ├── use-companies.ts       # Company list + CRUD (optional status query for /api/companies)
 │   ├── use-company-detail.ts  # Single company fetch
 │   ├── use-contacts.ts        # Contact list + CRUD
 │   ├── use-stages.ts          # Pipeline stage CRUD
@@ -209,6 +219,9 @@ export default function FrontendPage() {
         </li>
         <li>
           <strong>Intelligence Hub</strong> — Competitor tracking and market news
+        </li>
+        <li>
+          <strong>Sales Recon</strong> — GTM and account recon workspace (public-source signal preview, full width)
         </li>
         <li>
           <strong>The Hunt</strong> — Pipeline and Kanban board

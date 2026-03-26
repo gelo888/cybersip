@@ -112,6 +112,13 @@ export default function RoadmapPage() {
             <code>/api/intel</code> — competitor tracker and intel feed with
             CRUD, static market signals preview
           </li>
+          <li>
+            <strong>Sales Recon</strong> —{" "}
+            <code>/sales-recon</code> GTM recon workspace: account picker
+            (portfolio companies), illustrative signals for LinkedIn / social /
+            hiring / news with external links; live ingestion via backend APIs
+            next
+          </li>
         </ol>
 
         <p className="mb-1 text-xs font-semibold uppercase tracking-wider">
