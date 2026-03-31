@@ -12,6 +12,7 @@ import {
 
 import { ChartPanel } from "@/components/chart-panel";
 import { useChartColors } from "@/hooks/use-chart-colors";
+import { buildRenewalMonthBuckets } from "@/lib/command-center-derive";
 import {
     rechartsTooltipContentStyle,
     rechartsTooltipItemStyle,
@@ -19,50 +20,56 @@ import {
 } from "@/lib/recharts-tooltip-styles";
 import type { RenewalRadarItem } from "@/lib/types";
 
-export function buildRenewalExpiryBuckets(
-    items: RenewalRadarItem[],
-): { name: string; count: number }[] {
-    const map = new Map<
-        string,
-        { sortKey: string; name: string; count: number }
-    >();
-    for (const r of items) {
-        if (!r.end_date) continue;
-        const d = new Date(r.end_date);
-        if (Number.isNaN(d.getTime())) continue;
-        const sortKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-        const name = d.toLocaleDateString("en-US", {
-            month: "short",
-            year: "numeric",
-        });
-        const cur = map.get(sortKey);
-        if (cur) cur.count += 1;
-        else map.set(sortKey, { sortKey, name, count: 1 });
-    }
-    return Array.from(map.values())
-        .sort((a, b) => a.sortKey.localeCompare(b.sortKey))
-        .map(({ name, count }) => ({ name, count }));
+export type RenewalsChartMetric = "count" | "valueM";
+
+function formatCompactUsd(n: number) {
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: n >= 1 ? 1 : 2,
+    }).format(n * 1_000_000);
 }
 
 export function RenewalsByMonthChart({
     items,
     isLoading,
+    metric = "count",
 }: {
     items: RenewalRadarItem[];
     isLoading: boolean;
+    metric?: RenewalsChartMetric;
 }) {
     const colors = useChartColors();
-    const chartData = buildRenewalExpiryBuckets(items);
+    const buckets = buildRenewalMonthBuckets(items);
+    const chartData =
+        metric === "count"
+            ? buckets.map((b) => ({ name: b.name, count: b.count }))
+            : buckets.map((b) => ({
+                  name: b.name,
+                  valueM: b.valueSum / 1_000_000,
+              }));
     const isEmpty = chartData.length === 0;
     const emptyMessage =
         items.length === 0
             ? "No active contracts expiring in the next 90 days."
             : "No valid expiry dates to group in this window.";
 
+    const title =
+        metric === "count"
+            ? "Renewals by expiry month"
+            : "Renewal exposure by month";
+    const description =
+        metric === "count"
+            ? "Contract count per calendar month (expiry date)"
+            : "Sum of contract value ($M) expiring per month";
+
+    const dataKey = metric === "count" ? "count" : "valueM";
+    const seriesName = metric === "count" ? "Contracts" : "Value ($M)";
+
     return (
         <ChartPanel
-            title="Renewals by expiry month"
-            description="Renewal radar · contract count per month"
+            title={title}
+            description={description}
             isLoading={isLoading}
             isEmpty={!isLoading && isEmpty}
             emptyMessage={emptyMessage}
@@ -87,14 +94,22 @@ export function RenewalsByMonthChart({
                         tickLine={false}
                     />
                     <YAxis
-                        allowDecimals={false}
+                        allowDecimals={metric === "valueM"}
                         tick={{
                             fontSize: 11,
                             fill: "var(--muted-foreground)",
                         }}
+                        tickFormatter={
+                            metric === "valueM"
+                                ? (v) =>
+                                      typeof v === "number"
+                                          ? `$${v.toFixed(v < 1 ? 1 : 0)}`
+                                          : String(v)
+                                : undefined
+                        }
                         axisLine={false}
                         tickLine={false}
-                        width={36}
+                        width={metric === "valueM" ? 44 : 36}
                     />
                     <Tooltip
                         cursor={{
@@ -104,10 +119,15 @@ export function RenewalsByMonthChart({
                         contentStyle={rechartsTooltipContentStyle}
                         labelStyle={rechartsTooltipLabelStyle}
                         itemStyle={rechartsTooltipItemStyle}
+                        formatter={(value: number) =>
+                            metric === "valueM"
+                                ? [formatCompactUsd(value), "Exposure"]
+                                : [value, "Contracts"]
+                        }
                     />
                     <Bar
-                        dataKey="count"
-                        name="Contracts"
+                        dataKey={dataKey}
+                        name={seriesName}
                         fill={colors[0] ?? "var(--chart-1)"}
                         radius={[4, 4, 0, 0]}
                         maxBarSize={56}
