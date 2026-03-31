@@ -63,6 +63,14 @@ export default function FrontendPage() {
             <td>Server-state management (caching, mutations, invalidation)</td>
           </tr>
           <tr>
+            <td>Recharts</td>
+            <td>2.x</td>
+            <td>
+              Dashboard charts; series colors from <code>--chart-*</code> via{" "}
+              <code>useChartColors()</code>
+            </td>
+          </tr>
+          <tr>
             <td>Lucide React</td>
             <td>Latest</td>
             <td>Icon library</td>
@@ -87,6 +95,17 @@ export default function FrontendPage() {
           </tr>
         </tbody>
       </table>
+
+      <h2>Charts &amp; KPI primitives</h2>
+      <p>
+        Shared building blocks live under <code>components/chart-panel.tsx</code>{" "}
+        (card shell, optional top accent, empty/loading slots) and{" "}
+        <code>components/metric-stat-card.tsx</code> (dense KPI tiles). Chart tooltips
+        use CSS variables (<code>lib/recharts-tooltip-styles.ts</code>) so they match
+        popover/border tokens in light and dark. Prefer real or client-aggregated
+        series; when the API returns nothing, show the panel empty state instead of
+        fabricating data.
+      </p>
 
       <h2>Interactive shell</h2>
 
