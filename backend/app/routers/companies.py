@@ -37,7 +37,7 @@ async def create_company(body: CompanyCreate):
 async def list_companies(
     status: Optional[CompanyStatus] = Query(None, description="Filter by company status"),
     skip: int = Query(0, ge=0, description="Number of records to skip"),
-    take: int = Query(20, ge=1, le=100, description="Number of records to return"),
+    take: int = Query(20, ge=1, le=500, description="Number of records to return"),
 ):
     """List companies with optional status filter and pagination."""
     where = {}
