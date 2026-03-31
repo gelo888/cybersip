@@ -22,6 +22,7 @@ Run:  python prisma/seed.py          (standalone)
 import asyncio
 import json
 import random
+from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -393,55 +394,159 @@ PRODUCT_CATEGORIES = [
             {"name": "vCISO Service", "base_price": 96000, "pricing_model": "flat"},
         ],
     },
+    {
+        "name": "Cloud & Managed Detection",
+        "products": [
+            {"name": "SOC-as-a-Service", "base_price": 198000, "pricing_model": "flat"},
+            {"name": "Cloud Workload Protection", "base_price": 92000, "pricing_model": "per_seat"},
+            {"name": "Threat Intelligence Feed", "base_price": 48000, "pricing_model": "flat"},
+            {"name": "Incident Response Retainer", "base_price": 125000, "pricing_model": "custom"},
+        ],
+    },
 ]
 
 # ── Sample Contracts ─────────────────────────────────────────────────
-# Tuple: (company_name, type, status, start_offset_days, duration_days, total_value, renewal_notice_days)
-# start_offset_days is relative to today (negative = past).
+# Tuple: (company_name, type, status, days_until_end, duration_days, total_value, renewal_notice_days)
+# Contract end = today + days_until_end; start = end - duration_days.
+# Use days_until_end between ~5 and ~88 for active renewal-radar showcase.
 
 CONTRACTS = [
-    ("JPMorgan Chase", "our_contract", "active", -365, 730, 420000, 90),
-    ("HSBC Holdings", "our_contract", "active", -180, 365, 285000, 60),
-    ("Siemens AG", "our_contract", "active", -270, 730, 610000, 90),
-    ("Verizon Communications", "our_contract", "active", -90, 365, 150000, 30),
-    ("Salesforce Inc.", "our_contract", "pending", -10, 365, 220000, 60),
-    ("Royal Bank of Canada", "our_contract", "active", -500, 730, 340000, 90),
-    ("Lockheed Martin", "our_contract", "active", -400, 730, 520000, 90),
-    ("Samsung Electronics", "our_contract", "renewed", -730, 365, 195000, 60),
-    ("Tata Consultancy Services", "our_contract", "active", -200, 365, 175000, 60),
-    ("Microsoft Corporation", "competitor_contract", "active", -300, 730, 800000, None),
-    ("Deutsche Bank", "competitor_contract", "active", -180, 365, 350000, None),
-    ("Petrobras", "competitor_contract", "expired", -730, 365, 280000, None),
-    ("Duke Energy", "competitor_contract", "active", -60, 365, 190000, None),
-    ("Banco Santander", "our_contract", "expired", -730, 365, 95000, 60),
-    ("Equinor ASA", "our_contract", "active", -120, 365, 310000, 90),
+    # Urgent / soon (Command Center renewal radar)
+    ("Royal Bank of Canada", "our_contract", "active", 5, 380, 412000, 90),
+    ("Verizon Communications", "our_contract", "active", 9, 340, 168000, 30),
+    ("Goldman Sachs", "our_contract", "active", 11, 365, 295000, 60),
+    ("Nairobi Cloud Services", "our_contract", "active", 14, 300, 88000, 45),
+    ("DBS Group Holdings", "our_contract", "active", 17, 420, 356000, 60),
+    ("JPMorgan Chase", "our_contract", "active", 19, 400, 1280000, 90),
+    ("Peachtree Wealth Advisors", "our_contract", "active", 21, 290, 112000, 30),
+    ("HSBC Holdings", "our_contract", "active", 24, 410, 302000, 60),
+    ("Abbott Laboratories", "our_contract", "active", 26, 365, 445000, 90),
+    ("NTT Data Corporation", "our_contract", "active", 29, 520, 687000, 90),
+    ("Siemens AG", "our_contract", "active", 33, 730, 640000, 90),
+    ("SAP SE", "our_contract", "active", 36, 400, 515000, 60),
+    ("Shopify Inc.", "our_contract", "active", 39, 350, 198000, 60),
+    ("Samsung Electronics", "our_contract", "active", 42, 365, 223000, 60),
+    ("Equinor ASA", "our_contract", "active", 45, 380, 328000, 90),
+    ("Banco Santander", "competitor_contract", "active", 47, 360, 890000, None),
+    ("Tata Consultancy Services", "our_contract", "active", 51, 400, 189000, 60),
+    ("Itaú Unibanco", "our_contract", "active", 54, 370, 267000, 60),
+    ("Saudi Aramco", "competitor_contract", "active", 56, 540, 1200000, None),
+    ("Lockheed Martin", "our_contract", "active", 59, 730, 548000, 90),
+    ("BAE Systems", "our_contract", "active", 62, 400, 412000, 90),
+    ("Palantir Technologies", "our_contract", "active", 64, 320, 176000, 45),
+    ("Ericsson", "competitor_contract", "active", 66, 400, 702000, None),
+    ("Commonwealth Bank of Australia", "our_contract", "active", 69, 450, 501000, 90),
+    ("Telstra Corporation", "our_contract", "active", 72, 380, 334000, 60),
+    ("Bristol Cyber Consulting", "our_contract", "active", 75, 280, 96000, 30),
+    ("Chevron Corporation", "competitor_contract", "active", 77, 500, 910000, None),
+    ("TotalEnergies SE", "competitor_contract", "active", 80, 620, 1050000, None),
+    ("Petrobras", "competitor_contract", "active", 83, 330, 410000, None),
+    ("Deutsche Bank", "competitor_contract", "active", 86, 400, 378000, None),
+    ("Microsoft Corporation", "competitor_contract", "active", 12, 540, 920000, None),
+    ("Duke Energy", "competitor_contract", "active", 28, 350, 205000, None),
+    ("Netflix Inc.", "our_contract", "active", 210, 400, 142000, 60),
+    # Pipeline / other statuses (not on renewal radar strip)
+    ("Salesforce Inc.", "our_contract", "pending", 120, 365, 220000, 60),
+    ("Datadog Inc.", "our_contract", "pending", 200, 365, 188000, 45),
+    ("Nubank", "our_contract", "pending", 90, 365, 134000, 60),
+    ("Banco Santander", "our_contract", "expired", -40, 365, 95000, 60),
+    ("Petrobras", "competitor_contract", "expired", -20, 400, 280000, None),
 ]
 
-# ── Sample Contract Line Items ───────────────────────────────────────
-# Tuple: (company_name, product_name, quantity, unit_price)
-# Linked to the contract for that company (first match).
+# ── Contract line items ──────────────────────────────────────────────
+# Tuple: (company_name, contract_index, product_name, quantity, unit_price)
+# contract_index is 0-based order of contracts for that company in CONTRACTS.
 
 CONTRACT_LINE_ITEMS = [
-    ("JPMorgan Chase", "Managed SIEM", 1, 250000),
-    ("JPMorgan Chase", "EDR Platform", 3, 45000),
-    ("JPMorgan Chase", "Penetration Testing", 1, 35000),
-    ("HSBC Holdings", "XDR Extended Detection", 2, 72000),
-    ("HSBC Holdings", "Managed SIEM", 1, 141000),
-    ("Siemens AG", "Managed SIEM", 1, 180000),
-    ("Siemens AG", "EDR Platform", 5, 50000),
-    ("Siemens AG", "Red Team Assessment", 1, 85000),
-    ("Siemens AG", "Compliance Audit", 1, 55000),
-    ("Verizon Communications", "EDR Platform", 2, 45000),
-    ("Verizon Communications", "Penetration Testing", 1, 28000),
-    ("Royal Bank of Canada", "Managed SIEM", 1, 150000),
-    ("Royal Bank of Canada", "XDR Extended Detection", 1, 72000),
-    ("Royal Bank of Canada", "vCISO Service", 1, 96000),
-    ("Lockheed Martin", "Red Team Assessment", 2, 100000),
-    ("Lockheed Martin", "Managed SIEM", 1, 200000),
-    ("Lockheed Martin", "Compliance Audit", 1, 55000),
-    ("Equinor ASA", "Managed SIEM", 1, 160000),
-    ("Equinor ASA", "EDR Platform", 2, 45000),
-    ("Equinor ASA", "Penetration Testing", 1, 28000),
+    ("JPMorgan Chase", 0, "Managed SIEM", 1, 520000),
+    ("JPMorgan Chase", 0, "EDR Platform", 4, 62000),
+    ("JPMorgan Chase", 0, "SOC-as-a-Service", 1, 198000),
+    ("JPMorgan Chase", 0, "Threat Intelligence Feed", 1, 48000),
+    ("HSBC Holdings", 0, "XDR Extended Detection", 2, 78000),
+    ("HSBC Holdings", 0, "Penetration Testing", 1, 32000),
+    ("HSBC Holdings", 0, "Compliance Audit", 1, 55000),
+    ("Verizon Communications", 0, "EDR Platform", 3, 48000),
+    ("Verizon Communications", 0, "Firewall Management", 2, 42000),
+    ("Verizon Communications", 0, "Incident Response Retainer", 1, 125000),
+    ("Royal Bank of Canada", 0, "Managed SIEM", 1, 168000),
+    ("Royal Bank of Canada", 0, "vCISO Service", 1, 96000),
+    ("Royal Bank of Canada", 0, "Cloud Workload Protection", 2, 88000),
+    ("Siemens AG", 0, "Managed SIEM", 1, 195000),
+    ("Siemens AG", 0, "Red Team Assessment", 1, 85000),
+    ("Siemens AG", 0, "EDR Platform", 4, 52000),
+    ("Siemens AG", 0, "Compliance Audit", 1, 55000),
+    ("Siemens AG", 0, "SOC-as-a-Service", 1, 198000),
+    ("Lockheed Martin", 0, "Red Team Assessment", 2, 102000),
+    ("Lockheed Martin", 0, "Managed SIEM", 1, 210000),
+    ("Lockheed Martin", 0, "Penetration Testing", 1, 28000),
+    ("Equinor ASA", 0, "Managed SIEM", 1, 155000),
+    ("Equinor ASA", 0, "EDR Platform", 2, 46000),
+    ("Equinor ASA", 0, "Threat Intelligence Feed", 1, 48000),
+    ("Tata Consultancy Services", 0, "XDR Extended Detection", 1, 72000),
+    ("Tata Consultancy Services", 0, "Cloud Workload Protection", 3, 88000),
+    ("Samsung Electronics", 0, "EDR Platform", 5, 47000),
+    ("Samsung Electronics", 0, "Managed SIEM", 1, 142000),
+    ("Microsoft Corporation", 0, "XDR Extended Detection", 4, 72000),
+    ("Microsoft Corporation", 0, "Firewall Management", 1, 36000),
+    ("Deutsche Bank", 0, "Managed SIEM", 1, 178000),
+    ("Deutsche Bank", 0, "Compliance Audit", 1, 55000),
+    ("Duke Energy", 0, "EDR Platform", 2, 45000),
+    ("Duke Energy", 0, "Penetration Testing", 2, 28000),
+    ("Petrobras", 0, "Firewall Management", 3, 36000),
+    ("Petrobras", 0, "EDR Platform", 2, 45000),
+    ("Banco Santander", 0, "XDR Extended Detection", 2, 72000),
+    ("Banco Santander", 0, "Managed SIEM", 1, 246000),
+    ("Saudi Aramco", 0, "Managed SIEM", 1, 420000),
+    ("Saudi Aramco", 0, "Firewall Management", 4, 36000),
+    ("Saudi Aramco", 0, "Incident Response Retainer", 1, 125000),
+    ("Commonwealth Bank of Australia", 0, "SOC-as-a-Service", 1, 198000),
+    ("Commonwealth Bank of Australia", 0, "EDR Platform", 6, 52000),
+    ("Commonwealth Bank of Australia", 0, "vCISO Service", 1, 96000),
+    ("Telstra Corporation", 0, "Managed SIEM", 1, 142000),
+    ("Telstra Corporation", 0, "Cloud Workload Protection", 2, 88000),
+    ("Goldman Sachs", 0, "XDR Extended Detection", 1, 72000),
+    ("Goldman Sachs", 0, "Penetration Testing", 1, 28000),
+    ("Goldman Sachs", 0, "Compliance Audit", 1, 55000),
+    ("SAP SE", 0, "EDR Platform", 5, 50000),
+    ("SAP SE", 0, "Managed SIEM", 1, 165000),
+    ("SAP SE", 0, "Red Team Assessment", 1, 85000),
+    ("Abbott Laboratories", 0, "Compliance Audit", 1, 55000),
+    ("Abbott Laboratories", 0, "EDR Platform", 2, 45000),
+    ("Itaú Unibanco", 0, "Managed SIEM", 1, 132000),
+    ("Itaú Unibanco", 0, "SOC-as-a-Service", 1, 198000),
+    ("Palantir Technologies", 0, "Penetration Testing", 1, 28000),
+    ("Palantir Technologies", 0, "Red Team Assessment", 1, 85000),
+    ("Ericsson", 0, "Managed SIEM", 1, 312000),
+    ("Ericsson", 0, "Threat Intelligence Feed", 1, 48000),
+    ("Chevron Corporation", 0, "Firewall Management", 5, 36000),
+    ("Chevron Corporation", 0, "EDR Platform", 4, 45000),
+    ("TotalEnergies SE", 0, "Managed SIEM", 1, 380000),
+    ("TotalEnergies SE", 0, "XDR Extended Detection", 2, 72000),
+    ("TotalEnergies SE", 0, "Compliance Audit", 1, 55000),
+    ("BAE Systems", 0, "Red Team Assessment", 1, 85000),
+    ("BAE Systems", 0, "Managed SIEM", 1, 198000),
+    ("BAE Systems", 0, "Incident Response Retainer", 1, 125000),
+    ("NTT Data Corporation", 0, "Cloud Workload Protection", 4, 88000),
+    ("NTT Data Corporation", 0, "SOC-as-a-Service", 1, 198000),
+    ("NTT Data Corporation", 0, "EDR Platform", 3, 50000),
+    ("Shopify Inc.", 0, "EDR Platform", 2, 45000),
+    ("Shopify Inc.", 0, "Penetration Testing", 1, 28000),
+    ("DBS Group Holdings", 0, "Managed SIEM", 1, 156000),
+    ("DBS Group Holdings", 0, "vCISO Service", 1, 96000),
+    ("Peachtree Wealth Advisors", 0, "EDR Platform", 1, 45000),
+    ("Peachtree Wealth Advisors", 0, "Compliance Audit", 1, 55000),
+    ("Nairobi Cloud Services", 0, "Firewall Management", 1, 36000),
+    ("Nairobi Cloud Services", 0, "Penetration Testing", 1, 28000),
+    ("Bristol Cyber Consulting", 0, "vCISO Service", 1, 96000),
+    ("Bristol Cyber Consulting", 0, "Threat Intelligence Feed", 1, 48000),
+    ("Salesforce Inc.", 0, "XDR Extended Detection", 2, 72000),
+    ("Salesforce Inc.", 0, "Managed SIEM", 1, 76000),
+    ("Datadog Inc.", 0, "Cloud Workload Protection", 2, 88000),
+    ("Datadog Inc.", 0, "EDR Platform", 1, 45000),
+    ("Nubank", 0, "EDR Platform", 2, 45000),
+    ("Nubank", 0, "Compliance Audit", 1, 55000),
+    ("Netflix Inc.", 0, "Managed SIEM", 1, 98000),
+    ("Netflix Inc.", 0, "SOC-as-a-Service", 1, 198000),
 ]
 
 # ── Competitors ──────────────────────────────────────────────────────
@@ -542,6 +647,14 @@ COMPETITOR_INTEL = [
     ("JPMorgan Chase", "Palo Alto Networks", "Cortex XSOAR", 270, "inferred"),
     ("Verizon Communications", "Cisco", "Umbrella DNS Security", 110, "confirmed"),
     ("Siemens AG", "Fortinet", "FortiSIEM", 190, "rumor"),
+    ("Chevron Corporation", "Palo Alto Networks", "Cortex XDR", 72, "confirmed"),
+    ("TotalEnergies SE", "Fortinet", "FortiGate NGFW", 78, "confirmed"),
+    ("Ericsson", "CrowdStrike", "Falcon Complete", 64, "inferred"),
+    ("SAP SE", "SentinelOne", "Singularity XDR", 38, "rumor"),
+    ("Goldman Sachs", "CrowdStrike", "Falcon Insight", 14, "confirmed"),
+    ("Commonwealth Bank of Australia", "Trend Micro", "Vision One", 68, "confirmed"),
+    ("Telstra Corporation", "Cisco", "Umbrella DNS Security", 70, "inferred"),
+    ("Netflix Inc.", "SentinelOne", "Singularity XDR", 200, "rumor"),
 ]
 
 # ── Pipeline Stages ──────────────────────────────────────────────────
@@ -561,21 +674,60 @@ STAGES = [
 # days_ago controls how far back created_at is set.
 
 ENGAGEMENTS = [
-    ("HSBC Holdings", "Intelligence Gathering", "call", "Identified upcoming renewal — CrowdStrike contract ends Q3", 3),
-    ("Deutsche Bank", "Intelligence Gathering", "email", "Sent intro deck to CISO office", 7),
-    ("Mitsubishi UFJ Financial", "Intelligence Gathering", "meeting", "Met at RSA conference, discussed pain points", 2),
-    ("Saudi Aramco", "Vulnerability Identified", "call", "Confirmed Fortinet renewal in 90 days — budget approved", 12),
-    ("Petrobras", "Vulnerability Identified", "email", "Competitor contract ending, decision-maker interested", 5),
-    ("Duke Energy", "Vulnerability Identified", "meeting", "Security assessment revealed gaps in current stack", 9),
-    ("JPMorgan Chase", "Initial Infiltration", "meeting", "First meeting with CISO — positive reception", 18),
-    ("Microsoft Corporation", "Initial Infiltration", "demo", "Showed XDR platform to security team", 10),
-    ("Verizon Communications", "Initial Infiltration", "call", "Technical deep-dive with VP Network Security", 14),
-    ("Samsung Electronics", "Proof of Concept", "demo", "POC deployed in test environment — 2 week eval", 22),
-    ("Tata Consultancy Services", "Proof of Concept", "meeting", "Executive sponsor aligned, legal reviewing terms", 16),
-    ("Salesforce Inc.", "Final Assault", "meeting", "Proposal submitted — awaiting procurement review", 25),
-    ("Lockheed Martin", "Final Assault", "call", "Final pricing negotiation, verbal commitment received", 20),
-    ("Royal Bank of Canada", "Extraction", "meeting", "Contract signed — onboarding kickoff scheduled", 30),
-    ("Itaú Unibanco", "Extraction", "call", "Competitor displaced — migration plan in progress", 8),
+    ("HSBC Holdings", "Intelligence Gathering", "call", "Identified upcoming renewal — CrowdStrike contract ends Q3", 1),
+    ("Deutsche Bank", "Intelligence Gathering", "email", "Sent intro deck to CISO office", 4),
+    ("Mitsubishi UFJ Financial", "Intelligence Gathering", "meeting", "Met at RSA conference, discussed pain points", 0),
+    ("Saudi Aramco", "Vulnerability Identified", "call", "Confirmed Fortinet renewal in 90 days — budget approved", 6),
+    ("Petrobras", "Vulnerability Identified", "email", "Competitor contract ending, decision-maker interested", 3),
+    ("Duke Energy", "Vulnerability Identified", "meeting", "Security assessment revealed gaps in current stack", 8),
+    ("JPMorgan Chase", "Initial Infiltration", "meeting", "First meeting with CISO — positive reception", 11),
+    ("Microsoft Corporation", "Initial Infiltration", "demo", "Showed XDR platform to security team", 5),
+    ("Verizon Communications", "Initial Infiltration", "call", "Technical deep-dive with VP Network Security", 9),
+    ("Samsung Electronics", "Proof of Concept", "demo", "POC deployed in test environment — 2 week eval", 15),
+    ("Tata Consultancy Services", "Proof of Concept", "meeting", "Executive sponsor aligned, legal reviewing terms", 13),
+    ("Salesforce Inc.", "Final Assault", "meeting", "Proposal submitted — awaiting procurement review", 19),
+    ("Lockheed Martin", "Final Assault", "call", "Final pricing negotiation, verbal commitment received", 17),
+    ("Royal Bank of Canada", "Extraction", "meeting", "Contract signed — onboarding kickoff scheduled", 21),
+    ("Itaú Unibanco", "Extraction", "call", "Competitor displaced — migration plan in progress", 7),
+    ("Goldman Sachs", "Intelligence Gathering", "email", "Mapped buying committee — CFO wants ROI model by Friday", 2),
+    ("SAP SE", "Vulnerability Identified", "call", "Legacy AV renewal flagged as budget line item to displace", 10),
+    ("BAE Systems", "Initial Infiltration", "demo", "Live MDR demo with SOC lead — strong technical fit", 12),
+    ("Equinor ASA", "Proof of Concept", "meeting", "Scope narrowed to offshore OT segment — legal engaged", 14),
+    ("Chevron Corporation", "Intelligence Gathering", "meeting", "CISO workshop on supply-chain ransomware scenarios", 18),
+    ("TotalEnergies SE", "Vulnerability Identified", "email", "Shared benchmark vs Fortinet renewal pricing", 16),
+    ("Ericsson", "Initial Infiltration", "call", "Architecture review scheduled with Nordic security guild", 20),
+    ("Commonwealth Bank of Australia", "Proof of Concept", "demo", "Purple-team exercise booked for next sprint", 22),
+    ("Telstra Corporation", "Final Assault", "meeting", "Security steering committee vote expected Thursday", 24),
+    ("NTT Data Corporation", "Intelligence Gathering", "call", "Zero Trust initiative kickoff — we are shortlisted", 6),
+    ("DBS Group Holdings", "Vulnerability Identified", "email", "Champion wants side-by-side EDR bake-off matrix", 9),
+    ("Shopify Inc.", "Initial Infiltration", "meeting", "Developer security champions program — entry wedge", 11),
+    ("Palantir Technologies", "Proof of Concept", "demo", "FedRAMP-adjacent controls pack under review", 13),
+    ("Abbott Laboratories", "Intelligence Gathering", "email", "HIPAA-aligned logging gaps documented in QBR", 15),
+    ("Nubank", "Final Assault", "call", "Procurement asked for 3-year TCO with FX hedging", 17),
+    ("Datadog Inc.", "Vulnerability Identified", "meeting", "Observability team pushing back on agent overlap", 19),
+    ("Netflix Inc.", "Initial Infiltration", "demo", "Streaming edge PoP security review — follow-up actions", 23),
+    ("Banco Santander", "Intelligence Gathering", "call", "Lost internal battle to status quo — revisit Q4", 25),
+    ("Caterpillar Inc.", "Vulnerability Identified", "email", "Plant floor segmentation study — sponsor went silent", 26),
+    ("Peachtree Wealth Advisors", "Proof of Concept", "meeting", "SMB bundle: EDR + vCISO lite — verbal yes", 27),
+    ("Bristol Cyber Consulting", "Extraction", "call", "MSA signed — won 24-month MDR stack", 28),
+    ("Nairobi Cloud Services", "Initial Infiltration", "demo", "East Africa reseller wants co-branded SOC story", 29),
+    ("Siemens AG", "Final Assault", "meeting", "German works council review — paperwork slow", 30),
+    ("Infosys Limited", "Intelligence Gathering", "email", "Global delivery centers — centralized RFP incoming", 31),
+    ("Freshworks", "Vulnerability Identified", "call", "Competitor displaced in APAC mid-market pilot", 32),
+    ("NASA", "Initial Infiltration", "meeting", "Federal segment briefing — compliance checklist shared", 33),
+    ("CISA", "Proof of Concept", "demo", "Tabletop exercise sponsorship — logo approval pending", 34),
+    ("UK National Cyber Security Centre", "Intelligence Gathering", "meeting", "Partnership channel — joint webinar proposed", 35),
+    ("Australian Cyber Security Centre", "Vulnerability Identified", "email", "Threat intel sharing MOU draft circulated", 36),
+    ("Rakuten Group", "Intelligence Gathering", "call", "Lost to incumbent on price — lessons learned captured", 37),
+    ("CrowdStrike Holdings", "Initial Infiltration", "email", "Partner overlap discussion — neutral stance", 38),
+    ("Maersk", "Proof of Concept", "meeting", "Maritime logistics IR retainer scoped", 39),
+    ("Emirates NBD", "Final Assault", "call", "Regional CISO council endorsement — final signatures", 40),
+    ("Toronto Compliance Solutions", "Extraction", "meeting", "Contract signed — kickoff next week", 41),
+    ("Mexico City Cyber Lab", "Vulnerability Identified", "demo", "LATAM MSSP referral — warm intro made", 42),
+    ("Heartland Credit Union", "Intelligence Gathering", "email", "NCUA exam prep — priority uplift opportunity", 43),
+    ("Silicon Hills SaaS", "Initial Infiltration", "call", "Series B startup — fast-track security roadmap", 44),
+    ("Xero Limited", "Proof of Concept", "meeting", "ANZ accounting platform — integration tests green", 45),
+    ("Canva Pty Ltd", "Intelligence Gathering", "demo", "Design-collab DLP requirements workshop", 46),
 ]
 
 
@@ -865,16 +1017,17 @@ async def seed():
 
     # ── Contracts ──────────────────────────────────────────────────────
     print("Seeding contracts…")
-    contract_id_map: dict[str, str] = {}
+    contract_ids_by_company: dict[str, list[str]] = defaultdict(list)
     contract_count = 0
-    for company_name, ctype, cstatus, start_off, duration, value, renewal in CONTRACTS:
+    for company_name, ctype, cstatus, days_until_end, duration, value, renewal in CONTRACTS:
         cid = company_id_map.get(company_name)
         if not cid:
             print(f"  ⚠ Skipping contract: company {company_name} not found")
             continue
 
-        start = datetime.now(timezone.utc) + timedelta(days=start_off)
-        end = start + timedelta(days=duration)
+        now = datetime.now(timezone.utc)
+        start = now + timedelta(days=days_until_end - duration)
+        end = now + timedelta(days=days_until_end)
 
         c = await db.contract.create(
             data={
@@ -887,8 +1040,7 @@ async def seed():
                 "renewalNoticeDays": renewal,
             }
         )
-        if company_name not in contract_id_map:
-            contract_id_map[company_name] = c.id
+        contract_ids_by_company[company_name].append(c.id)
         contract_count += 1
 
     print(f"Seeded {contract_count} contracts.")
@@ -896,16 +1048,22 @@ async def seed():
     # ── Contract Line Items ────────────────────────────────────────────
     print("Seeding contract line items…")
     li_count = 0
-    for company_name, product_name, qty, price in CONTRACT_LINE_ITEMS:
-        ctr_id = contract_id_map.get(company_name)
+    for company_name, contract_idx, product_name, qty, price in CONTRACT_LINE_ITEMS:
+        ids = contract_ids_by_company.get(company_name)
         prod_id = product_id_map.get(product_name)
-        if not ctr_id or not prod_id:
-            print(f"  ⚠ Skipping line item: {company_name} / {product_name}")
+        if not ids or contract_idx < 0 or contract_idx >= len(ids):
+            print(
+                f"  ⚠ Skipping line item: {company_name} / {product_name} "
+                f"(contract index {contract_idx}, have {len(ids) if ids else 0})"
+            )
+            continue
+        if not prod_id:
+            print(f"  ⚠ Skipping line item: unknown product {product_name}")
             continue
 
         await db.contractlineitem.create(
             data={
-                "contractId": ctr_id,
+                "contractId": ids[contract_idx],
                 "productServiceId": prod_id,
                 "quantity": qty,
                 "unitPrice": price,

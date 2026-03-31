@@ -18,7 +18,7 @@ from app.schemas.contract import ContractType
 
 router = APIRouter(tags=["Command Center"])
 
-RENEWAL_RADAR_LIMIT = 20
+RENEWAL_RADAR_LIMIT = 32
 
 ACTION_STREAM_OUTCOME_MAX = 120
 ACTION_STREAM_FETCH_CAP = 80
