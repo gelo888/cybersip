@@ -112,7 +112,9 @@ export default function FrontendPage() {
             <td>
               Kanban pipeline with engagement CRUD; account-level contract
               signals on cards; <code>?company_id=</code> filter and optional{" "}
-              <code>engagement_id=</code> deep link from Vault
+              <code>engagement_id=</code> deep link from Vault. New engagements
+              need at least one company in Portfolio; with{" "}
+              <code>?company_id=</code>, that company is pre-filled for create.
             </td>
           </tr>
           <tr>
@@ -140,7 +142,9 @@ export default function FrontendPage() {
             <td>
               Contracts table with CRUD, optional linked engagement on create/edit,
               Pipeline column to Hunt (<code>?company_id=</code> and{" "}
-              <code>engagement_id=</code> when set), summary cards
+              <code>engagement_id=</code> when set), summary cards. New contracts
+              require a company from Portfolio (loading/empty/error states in the
+              form).
             </td>
           </tr>
           <tr>
@@ -189,9 +193,10 @@ export default function FrontendPage() {
 │
 ├── components/
 │   ├── app-sidebar.tsx        # Main navigation sidebar
+│   ├── company-combobox.tsx   # Searchable company picker (Hunt/Vault/Portfolio/Intel forms)
 │   └── ui/                    # shadcn/ui components
 │       ├── button.tsx, dialog.tsx, input.tsx, label.tsx
-│       ├── select.tsx, separator.tsx, sheet.tsx
+│       ├── popover.tsx, select.tsx, separator.tsx, sheet.tsx
 │       ├── sidebar.tsx, skeleton.tsx, switch.tsx
 │       └── tooltip.tsx
 │
@@ -323,6 +328,14 @@ export function useCreateContract() {
             <td>Hover information on icons/actions</td>
           </tr>
           <tr>
+            <td><code>Popover</code></td>
+            <td>Floating panels (e.g. anchored dropdowns)</td>
+          </tr>
+          <tr>
+            <td><code>CompanyCombobox</code></td>
+            <td>Searchable company field in Hunt, Vault, Sales Recon, contact, and intel flows</td>
+          </tr>
+          <tr>
             <td><code>Separator</code></td>
             <td>Visual dividers between sections</td>
           </tr>
@@ -385,11 +398,14 @@ export function useCreateContract() {
             <li>
               Hunt — Kanban + contract status chips per account; filter via{" "}
               <code>?company_id=</code>; optional <code>engagement_id=</code>{" "}
-              highlight from Vault
+              highlight from Vault; new engagement uses filtered company when{" "}
+              <code>?company_id=</code> is set; otherwise pick from Portfolio
+              companies (or add companies on Portfolio first).
             </li>
             <li>
               Vault — contracts CRUD, optional linked engagement, Pipeline column
-              to Hunt
+              to Hunt; new contract picker loads companies from Portfolio with
+              clear empty/load/error messaging.
             </li>
             <li>Intelligence Hub — competitor tracker and intel feed with CRUD, static market signals preview</li>
             <li>Territories — map/list toggle, CRUD via /api/territories and /api/segment-labels, geo data via /api/geo/*, GeoJSON polygons, team member assignment</li>

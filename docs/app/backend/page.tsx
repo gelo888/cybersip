@@ -180,7 +180,7 @@ class CompanyResponse(BaseModel):
       <EndpointTable
         endpoints={[
           { method: "POST", path: "/api/companies", description: "Create a new company" },
-          { method: "GET", path: "/api/companies", description: "List companies (filter by status, pagination)" },
+          { method: "GET", path: "/api/companies", description: "List companies (optional status; query skip, take ≤ 500)" },
           { method: "GET", path: "/api/companies/{id}", description: "Get a single company" },
           { method: "PATCH", path: "/api/companies/{id}", description: "Update a company" },
           { method: "DELETE", path: "/api/companies/{id}", description: "Delete a company" },
