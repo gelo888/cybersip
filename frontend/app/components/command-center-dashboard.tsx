@@ -14,7 +14,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCommandCenterActionStream } from "@/hooks/use-command-center-action-stream";
 import { useCommandCenterSummary } from "@/hooks/use-command-center-summary";
+import { formatRelativeTime } from "@/lib/format-relative-time";
 import type { ContractType } from "@/lib/types";
 
 const regionHeatmap: {
@@ -28,63 +30,6 @@ const regionHeatmap: {
     { region: "EMEA", wins: 11, losses: 8, active: 9, status: "contested" },
     { region: "APAC", wins: 4, losses: 7, active: 5, status: "under_siege" },
     { region: "LATAM", wins: 3, losses: 4, active: 3, status: "contested" },
-];
-
-const actionStream: {
-    id: string;
-    message: string;
-    type: "breach" | "competitor" | "renewal" | "win" | "loss";
-    timestamp: string;
-}[] = [
-    {
-        id: "A-001",
-        message:
-            "Prospect 'Meridian Health' just announced a data breach — displacement window open",
-        type: "breach",
-        timestamp: "12 min ago",
-    },
-    {
-        id: "A-002",
-        message: "CrowdStrike increased prices by 18% — 48 accounts impacted in your territories",
-        type: "competitor",
-        timestamp: "2 hours ago",
-    },
-    {
-        id: "A-003",
-        message: "Umbrella Ltd contract expires in 16 days — renewal proposal not yet sent",
-        type: "renewal",
-        timestamp: "3 hours ago",
-    },
-    {
-        id: "A-004",
-        message: "Won 'Acme Corp' Pen Testing add-on — $88K closed",
-        type: "win",
-        timestamp: "5 hours ago",
-    },
-    {
-        id: "A-005",
-        message: "Palo Alto CVE-2026-1847 disclosed — 42 accounts running vulnerable PAN-OS",
-        type: "competitor",
-        timestamp: "1 day ago",
-    },
-    {
-        id: "A-006",
-        message: "Lost 'Orion Defense' to Fortinet — post-mortem available",
-        type: "loss",
-        timestamp: "1 day ago",
-    },
-    {
-        id: "A-007",
-        message: "Cisco AMP end-of-life announced — 18 accounts affected, migration window opening",
-        type: "competitor",
-        timestamp: "2 days ago",
-    },
-    {
-        id: "A-008",
-        message: "Globex International CISO requested a follow-up meeting — Stage: Initial Infiltration",
-        type: "renewal",
-        timestamp: "2 days ago",
-    },
 ];
 
 function toNumber(v: number | string | null | undefined): number | null {
@@ -129,6 +74,7 @@ function ActionIcon({ type }: { type: string }) {
         breach: { icon: AlertTriangle, className: "text-sophos-red" },
         competitor: { icon: Shield, className: "text-sophos-orange" },
         renewal: { icon: Clock, className: "text-sophos-sky" },
+        pipeline: { icon: Zap, className: "text-primary" },
         win: { icon: TrendingUp, className: "text-sophos-green" },
         loss: { icon: TrendingDown, className: "text-sophos-red" },
     };
@@ -150,6 +96,22 @@ function RadarTypeBadge({ type }: { type: ContractType }) {
     );
 }
 
+function ActionStreamSkeleton() {
+    return (
+        <div className="rounded-lg border divide-y max-h-[340px] overflow-y-auto">
+            {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="flex items-start gap-3 px-4 py-3">
+                    <Skeleton className="size-4 shrink-0 rounded mt-0.5" />
+                    <div className="flex-1 space-y-2 min-w-0">
+                        <Skeleton className="h-4 w-full max-w-md" />
+                        <Skeleton className="h-3 w-24" />
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
 function KpiSkeletonGrid() {
     return (
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -166,6 +128,13 @@ function KpiSkeletonGrid() {
 
 export function CommandCenterDashboard() {
     const { data, isLoading, isError, error, refetch, isFetching } = useCommandCenterSummary();
+    const {
+        data: streamData,
+        isLoading: streamLoading,
+        isError: streamError,
+        error: streamErr,
+        refetch: refetchStream,
+    } = useCommandCenterActionStream();
 
     return (
         <div className="p-6 space-y-8">
@@ -332,30 +301,69 @@ export function CommandCenterDashboard() {
                 </section>
 
                 <section className="space-y-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                         <Newspaper className="size-5 text-primary" />
                         <h3 className="text-base font-semibold">Action Stream</h3>
-                        <span className="text-xs text-muted-foreground">Sample</span>
+                        <span className="text-xs text-muted-foreground">
+                            Engagements (90d lookback) · New accounts (14d, capped)
+                        </span>
                     </div>
 
-                    <div className="rounded-lg border divide-y max-h-[340px] overflow-y-auto">
-                        {actionStream.map((streamItem) => (
-                            <div
-                                key={streamItem.id}
-                                className="flex items-start gap-3 px-4 py-3 hover:bg-muted/20 transition-colors"
-                            >
-                                <div className="mt-0.5">
-                                    <ActionIcon type={streamItem.type} />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm leading-snug m-0">{streamItem.message}</p>
-                                    <span className="text-xs text-muted-foreground">
-                                        {streamItem.timestamp}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    {streamLoading ? (
+                        <ActionStreamSkeleton />
+                    ) : streamError ? (
+                        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <p className="text-sm text-destructive m-0">
+                                {streamErr instanceof Error
+                                    ? streamErr.message
+                                    : "Could not load action stream."}
+                            </p>
+                            <Button type="button" variant="outline" size="sm" onClick={() => refetchStream()}>
+                                Retry
+                            </Button>
+                        </div>
+                    ) : streamData && streamData.items.length === 0 ? (
+                        <p className="text-sm text-muted-foreground m-0 rounded-lg border p-4">
+                            No recent CRM activity in this window.
+                        </p>
+                    ) : streamData ? (
+                        <div className="rounded-lg border divide-y max-h-[340px] overflow-y-auto">
+                            {streamData.items.map((streamItem) => {
+                                const body = (
+                                    <>
+                                        <div className="mt-0.5">
+                                            <ActionIcon type={streamItem.stream_type} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm leading-snug m-0">{streamItem.message}</p>
+                                            <span className="text-xs text-muted-foreground">
+                                                {formatRelativeTime(streamItem.occurred_at)}
+                                            </span>
+                                        </div>
+                                    </>
+                                );
+                                if (streamItem.company_id) {
+                                    return (
+                                        <Link
+                                            key={streamItem.id}
+                                            href={`/portfolio/${streamItem.company_id}`}
+                                            className="flex items-start gap-3 px-4 py-3 hover:bg-muted/20 transition-colors"
+                                        >
+                                            {body}
+                                        </Link>
+                                    );
+                                }
+                                return (
+                                    <div
+                                        key={streamItem.id}
+                                        className="flex items-start gap-3 px-4 py-3 hover:bg-muted/20 transition-colors"
+                                    >
+                                        {body}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : null}
                 </section>
             </div>
         </div>

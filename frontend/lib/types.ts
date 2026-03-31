@@ -152,6 +152,28 @@ export interface CommandCenterSummary {
     renewal_radar: RenewalRadarItem[];
 }
 
+export type ActionStreamType =
+    | "pipeline"
+    | "win"
+    | "loss"
+    | "competitor"
+    | "renewal"
+    | "breach";
+
+export interface ActionStreamItem {
+    id: string;
+    occurred_at: string;
+    stream_type: ActionStreamType;
+    message: string;
+    source: "crm";
+    company_id: string | null;
+    engagement_id: string | null;
+}
+
+export interface ActionStreamResponse {
+    items: ActionStreamItem[];
+}
+
 // ── Contract Line Item ──
 
 export interface LineItem {
