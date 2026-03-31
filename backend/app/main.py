@@ -41,6 +41,7 @@ app.add_middleware(
 # Import and include them here so FastAPI knows about them.
 from app.routers import (  # noqa: E402
     assignments,
+    command_center,
     companies,
     competitors,
     contacts,
@@ -52,6 +53,7 @@ from app.routers import (  # noqa: E402
     territories,
 )
 
+app.include_router(command_center.router)
 app.include_router(companies.router)
 app.include_router(contacts.router)
 app.include_router(engagements.router)
