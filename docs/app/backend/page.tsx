@@ -190,7 +190,8 @@ class CompanyResponse(BaseModel):
         <code>our_contract</code> records), counts of active contracts and
         contracts expiring in the next 90 days (UTC), and a renewal radar list
         (active contracts with <code>end_date</code> in that window, with
-        company, territory, and best-effort competitor label from intel).
+        company, territory, and best-effort competitor label from intel; capped at
+        32 items, soonest end date first).
       </p>
       <p>
         <strong>Action Stream (Phase 1.75 v1)</strong> —{" "}
