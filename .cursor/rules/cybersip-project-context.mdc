@@ -117,10 +117,10 @@ app/
 |---------|------------------------------|-------------|
 | **1**   | TanStack Query, Portfolio, Company 360 | Done |
 | **1.5** | Wire remaining pages (Hunt, Vault, Intelligence, Territories, Command Center; Sales Recon) | In Progress |
-| **1.75** | ~~DB-backed Action Stream~~ (v1 shipped); Hunt DnD + CMD+K, dark mode / skeletons / inline edit; **manual company industry** (catalog + Portfolio / Company 360); static displacement templates — no OpenAI / N8N | In Progress |
+| **1.75** | ~~DB-backed Action Stream~~ (v1 shipped); Hunt DnD + CMD+K, dark mode / skeletons / inline edit; **manual company industry** (catalog + Portfolio / Company 360) — no OpenAI / N8N | In Progress |
 | **2**   | AI enrichment (`/api/ai/enrich-company`), Smart-Add Company modal | Planned |
 | **3**   | N8N (docker-compose), news scraper, contract expiry alerts; optional Action Stream enrichment | Planned |
-| **4**   | Battle Cards (AI), LLM displacement copy, advanced Hunt ↔ Vault / proposals | Planned |
+| **4**   | Battle Cards (AI), Intelligence Hub displacement emails (templates + optional LLM), advanced Hunt ↔ Vault / proposals | Planned |
 | **5**   | Enterprise integrations (Salesforce, Power BI) | Future |
 
 **Phase 1.5 priorities:**
