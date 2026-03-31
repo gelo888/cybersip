@@ -185,8 +185,8 @@ export default function FrontendPage() {
               Sentinel-style Hunt board (<code>the_hunt_dark</code>): stats strip
               (pipeline $ from pending our_contracts, deal count, avg age),{" "}
               <code>w-80</code> columns with rotating left accents, column $ subtotals,
-              horizontal <code>kanban-scroll-x</code>; dense cards with ref chip, value
-              row, activity bars. DnD by grip; contract signals;{" "}
+              horizontal <code>kanban-scroll-x</code>; dense cards with value row and
+              activity bars. DnD by grip; contract signals;{" "}
               <code>?company_id=</code> / <code>engagement_id=</code> deep links.
             </td>
           </tr>
@@ -195,14 +195,13 @@ export default function FrontendPage() {
             <td>Portfolio</td>
             <td>Live API</td>
             <td>
-              Companies and contacts with full CRUD; debounced server-side search
-              and filters (companies: status, size, <strong>industry</strong>; contacts:
-              company, active, deal role, seniority) via <code>useCompanies</code> /{" "}
-              <code>useContacts</code> and <code>useIndustries</code> for the industry
-              catalog; company form sets primary/secondary via <code>industry_links</code>;
-              companies table shows primary industry column; inline edits on table rows
-              (companies: status, size, employees, country, website; contacts: title,
-              seniority, role, email, phone) with subtle refetch when the list refetches
+              Sentinel-style overview (<code>portfolio-overview.tsx</code>): breadcrumb
+              hero, KPI strip, account-mix bar chart (per-status <code>GET /api/companies</code>{" "}
+              totals), recent intel panel + link to <code>/intelligence</code>.{" "}
+              <code>CompaniesTable</code> / <code>ContactsTable</code>: labeled{" "}
+              <strong>Search &amp; filters</strong> toolbar (unchanged behavior — debounced{" "}
+              <code>q</code>, status/size/industry; contact company/active/role/seniority),
+              dense table shells, pagination, CRUD dialogs, and row inline edits as before.
             </td>
           </tr>
           <tr>
