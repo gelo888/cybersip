@@ -1,17 +1,23 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { get, post, put, del } from "@/lib/api";
-import type { Company, CompanyPayload, PaginatedResponse } from "@/lib/types";
+import type { Company, CompanyPayload, CompanyStatus, PaginatedResponse } from "@/lib/types";
 
 interface CompanyListParams {
     page: number;
     pageSize: number;
+    /** When set, lists only companies with this CRM status (e.g. prospect). */
+    status?: CompanyStatus;
 }
 
-export function useCompanies({ page, pageSize }: CompanyListParams) {
+export function useCompanies({ page, pageSize, status }: CompanyListParams) {
     const skip = page * pageSize;
+    const statusParam = status ? `&status=${encodeURIComponent(status)}` : "";
     return useQuery({
-        queryKey: ["companies", "list", { skip, take: pageSize }],
-        queryFn: () => get<PaginatedResponse<Company>>(`/api/companies/?skip=${skip}&take=${pageSize}`),
+        queryKey: ["companies", "list", { skip, take: pageSize, status: status ?? null }],
+        queryFn: () =>
+            get<PaginatedResponse<Company>>(
+                `/api/companies/?skip=${skip}&take=${pageSize}${statusParam}`,
+            ),
         placeholderData: keepPreviousData,
     });
 }

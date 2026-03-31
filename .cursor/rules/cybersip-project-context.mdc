@@ -31,7 +31,7 @@ Three-tier decoupled architecture: **Browser → Next.js → FastAPI → Prisma 
 ```
 cybersip/
 ├── frontend/          # Next.js 16 App Router
-│   ├── app/           # Pages (Command Center, Hunt, Intelligence, Portfolio, Territories, Vault, Settings)
+│   ├── app/           # Pages (Command Center, Hunt, Intelligence, Sales Recon, Portfolio, Territories, Vault, Settings)
 │   ├── components/    # Shared UI components (shadcn/ui based)
 │   ├── hooks/         # TanStack Query hooks (use-companies, etc.)
 │   └── lib/           # API client (lib/api.ts), types (lib/types.ts), utilities
@@ -65,6 +65,7 @@ cybersip/
 | `/`                | Command Center      | Mock data     |
 | `/hunt`            | Pipeline Kanban     | Mock data     |
 | `/intelligence`    | Intelligence Hub    | Live API      |
+| `/sales-recon` | Sales Recon | Live API (picker) + preview |
 | `/portfolio`       | Companies & Contacts| Live API      |
 | `/portfolio/[id]`  | Company 360         | Live API      |
 | `/territories`     | Geographic Views    | Mock data     |

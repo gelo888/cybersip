@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
     LayoutDashboard,
     Radar,
+    Telescope,
     Crosshair,
     Building2,
     Map,
@@ -40,6 +41,12 @@ const navMain = [
         description: "Competitor tracking & market news",
         url: "/intelligence",
         icon: Radar,
+    },
+    {
+        title: "Sales Recon",
+        description: "GTM & account recon workspace",
+        url: "/sales-recon",
+        icon: Telescope,
     },
     {
         title: "The Hunt",
@@ -91,7 +98,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                                         CyberSIP
                                     </span>
                                     <span className="text-xs text-muted-foreground">
-                                        Sales Intelligence
+                                        Sales Recon
                                     </span>
                                 </div>
                             </Link>

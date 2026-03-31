@@ -15,6 +15,11 @@ const pageConfig: Record<string, { title: string; description: string }> = {
         description:
             "Competitor tracking, market signals, and displacement opportunities.",
     },
+    "/sales-recon": {
+        title: "Sales Recon",
+        description:
+            "GTM recon — public social, hiring, and news signals per account.",
+    },
     "/hunt": {
         title: "The Hunt",
         description: "Competitive displacement pipeline.",

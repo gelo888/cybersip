@@ -78,6 +78,7 @@ export default function ArchitecturePage() {
               {[
                 { route: "/", name: "Command Center" },
                 { route: "/intelligence", name: "Intelligence Hub" },
+                { route: "/sales-recon", name: "Sales Recon" },
                 { route: "/hunt", name: "Pipeline Kanban" },
                 { route: "/portfolio", name: "Companies & Contacts" },
                 { route: "/territories", name: "Geographic Views" },
