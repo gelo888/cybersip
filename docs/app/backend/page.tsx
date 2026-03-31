@@ -83,7 +83,10 @@ export default function BackendPage() {
           <tr>
             <td>Command Center</td>
             <td><code>command_center.py</code></td>
-            <td><code>/api/command-center/summary</code></td>
+            <td>
+              <code>/api/command-center/summary</code>,{" "}
+              <code>/api/command-center/action-stream</code>
+            </td>
           </tr>
           <tr>
             <td>Companies</td>
@@ -189,6 +192,20 @@ class CompanyResponse(BaseModel):
         (active contracts with <code>end_date</code> in that window, with
         company, territory, and best-effort competitor label from intel).
       </p>
+      <p>
+        <strong>Action Stream (Phase 1.75 v1)</strong> —{" "}
+        <code>GET /api/command-center/action-stream</code> merges recent{" "}
+        <strong>engagements</strong> (by <code>created_at</code>, up to the{" "}
+        <code>days</code> lookback) and <strong>new companies</strong> (by{" "}
+        <code>created_at</code>, lookback capped at 14 days and at most 15
+        rows) within a configurable window, sorted newest-first. Query
+        params: <code>limit</code> (1–100, default 25), <code>days</code>{" "}
+        (1–365, default 90). Each item includes <code>stream_type</code> for UI
+        icons (<code>pipeline</code>, <code>win</code>, <code>loss</code>, etc.),
+        <code>message</code>, <code>occurred_at</code>, optional{" "}
+        <code>company_id</code> / <code>engagement_id</code>, and{" "}
+        <code>source: crm</code> for future N8N enrichment.
+      </p>
       <EndpointTable
         endpoints={[
           {
@@ -196,6 +213,12 @@ class CompanyResponse(BaseModel):
             path: "/api/command-center/summary",
             description:
               "Dashboard KPIs + renewal radar (contracts, companies, territories, competitor intel)",
+          },
+          {
+            method: "GET",
+            path: "/api/command-center/action-stream",
+            description:
+              "Merged timeline: recent engagements + newly created companies (DB-only v1)",
           },
         ]}
       />

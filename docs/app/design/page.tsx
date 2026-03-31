@@ -125,8 +125,9 @@ export default function DesignPage() {
           are &quot;Winning&quot; vs. &quot;Under Siege&quot;
         </li>
         <li>
-          <strong>Action Stream</strong> — Real-time feed of news alerts (data
-          breaches, competitor price changes, etc.)
+          <strong>Action Stream</strong> — Timeline of recent CRM activity
+          (engagements, new accounts); future phases can add external news and
+          N8N-sourced alerts
         </li>
       </ul>
 

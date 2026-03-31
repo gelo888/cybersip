@@ -138,7 +138,7 @@ export default function IntroductionPage() {
       <ul>
         <li>
           <strong>Command Center</strong> — Proactive dashboard with Renewal
-          Radar, Win/Loss Heatmap, and Action Stream
+          Radar, live Action Stream (CRM activity), and Win/Loss Heatmap (sample)
         </li>
         <li>
           <strong>Intelligence Hub</strong> — Competitor tracking, market news,

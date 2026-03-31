@@ -54,9 +54,9 @@ export default function RoadmapPage() {
           <ul className="mb-0 text-sm">
             <li>
               Command Center Win/Loss heatmap still sample data; Action Stream
-              still sample (KPIs + renewal radar are live).{" "}
-              <strong>Phase 1.75</strong> targets a DB-backed Action Stream (no
-              N8N required for v1).
+              is live from <code>GET /api/command-center/action-stream</code>{" "}
+              (engagements + new companies; KPIs + renewal radar remain live).{" "}
+              Optional N8N enrichment can extend the stream later.
             </li>
             <li>Company 360 contacts sub-section is read-only (no contact CRUD on the detail page)</li>
             <li>Advanced Hunt ↔ Vault workflow automation not yet implemented (e.g. auto-create contract from stage)</li>
@@ -169,8 +169,9 @@ export default function RoadmapPage() {
             Connect Command Center to real data — build KPI aggregation
             (pipeline value, contract counts, renewal radar) from connected
             entities via <code>GET /api/command-center/summary</code>; Win/Loss
-            Heatmap remains sample; Action Stream →{" "}
-            <strong>Phase 1.75</strong> (DB-backed feed)
+            Heatmap remains sample; Action Stream via{" "}
+            <code>GET /api/command-center/action-stream</code> (Phase 1.75 v1:
+            engagements + new companies)
           </li>
         </ol>
       </div>
@@ -187,11 +188,12 @@ export default function RoadmapPage() {
           OpenAI, Claude, or N8N required.
         </p>
         <ol start={12} className="mb-0 text-sm">
-          <li>
-            <strong>Live Action Stream</strong> — aggregate recent activity from
-            existing data (engagements, contracts, intel, etc.) via FastAPI;
-            replace Command Center sample stream. N8N can enrich this later; v1 is
-            DB-only.
+          <li className="line-through opacity-60">
+            <strong>Live Action Stream (v1 shipped)</strong> —{" "}
+            <code>GET /api/command-center/action-stream</code>: engagements +
+            newly created companies, merged and sorted by{" "}
+            <code>created_at</code>. Contracts / intel timestamps can widen the
+            feed after schema additions. N8N enrichment optional later.
           </li>
           <li>
             <strong>Interactive shell</strong> — Hunt Kanban drag-and-drop stage
@@ -401,8 +403,8 @@ export default function RoadmapPage() {
         <li>Skeleton loading states (Phase 1.75)</li>
         <li>Toast notifications (Sonner)</li>
         <li>
-          Real-time Action Stream — DB-backed feed in Phase 1.75; optional
-          WebSocket or polling later
+          Action Stream — live CRM feed (Phase 1.75 v1); optional WebSocket,
+          polling, or N8N-sourced rows later
         </li>
         <li>Filters and search across all pages</li>
       </ul>

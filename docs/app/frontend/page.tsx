@@ -93,7 +93,9 @@ export default function FrontendPage() {
             <td>Live API + sample widgets</td>
             <td>
               KPI strip and Renewal Radar from <code>/api/command-center/summary</code> (
-              <code>useCommandCenterSummary</code>); Win/Loss Heatmap and Action Stream remain
+              <code>useCommandCenterSummary</code>); Action Stream from{" "}
+              <code>/api/command-center/action-stream</code> (
+              <code>useCommandCenterActionStream</code>); Win/Loss Heatmap remains
               illustrative sample data
             </td>
           </tr>
@@ -167,7 +169,7 @@ export default function FrontendPage() {
 │   ├── layout.tsx             # Root layout with sidebar
 │   ├── page.tsx               # Command Center entry (renders dashboard client)
 │   ├── components/
-│   │   └── command-center-dashboard.tsx  # KPIs + renewal radar (live); heatmap + stream (sample)
+│   │   └── command-center-dashboard.tsx  # KPIs + renewal radar + action stream (live); heatmap (sample)
 │   ├── intelligence/
 │   │   └── page.tsx           # Intelligence Hub
 │   ├── sales-recon/
@@ -213,6 +215,7 @@ export default function FrontendPage() {
 │   ├── use-stages.ts          # Pipeline stage CRUD
 │   ├── use-engagements.ts     # Engagement list + CRUD
 │   ├── use-command-center-summary.ts  # GET /api/command-center/summary
+│   ├── use-command-center-action-stream.ts  # GET /api/command-center/action-stream
 │   ├── use-contracts.ts       # Contract + line-item CRUD
 │   ├── use-territories.ts     # useTerritories, useCreateTerritory, useUpdateTerritory, useDeleteTerritory, useSegmentLabels, useCreateSegmentLabel
 │   ├── use-teams.ts           # useTeamMembers, useCreateTeamMember, useAssignMemberTerritory, useUnassignMemberTerritory
@@ -222,6 +225,7 @@ export default function FrontendPage() {
 ├── lib/
 │   ├── api.ts                 # Centralized fetch (get, post, patch, del)
 │   ├── contract-signals.ts    # Per-company contract cues for Hunt cards
+│   ├── format-relative-time.ts # Command Center action stream timestamps
 │   ├── types.ts               # Shared TypeScript interfaces
 │   └── utils.ts               # cn() utility for class merging
 │
@@ -401,14 +405,15 @@ export function useCreateContract() {
           <ul className="mb-0 text-sm">
             <li>
               <strong>Phase 1.75</strong> (roadmap): DB-backed Command Center
-              Action Stream, CMD+K, Hunt Kanban DnD, dark mode / skeletons /
-              inline table editing, static displacement email templates — no
-              OpenAI or N8N
+              Action Stream (done: engagements + new companies); CMD+K, Hunt Kanban
+              DnD, dark mode / skeletons / inline table editing, static
+              displacement email templates — no OpenAI or N8N
             </li>
             <li>TanStack Query + centralized API client</li>
             <li>
               Command Center — KPI strip and Renewal Radar from{" "}
-              <code>/api/command-center/summary</code>
+              <code>/api/command-center/summary</code>; Action Stream from{" "}
+              <code>/api/command-center/action-stream</code>
             </li>
             <li>Portfolio — companies &amp; contacts with full CRUD</li>
             <li>Company 360 — live data; CRUD for engagements, contracts, and intel (contacts table read-only)</li>
@@ -435,8 +440,8 @@ export function useCreateContract() {
           </h3>
           <ul className="mb-0 text-sm">
             <li>
-              Command Center — Win/Loss Heatmap and Action Stream still use sample
-              data (KPIs and Renewal Radar are live)
+              Command Center — Win/Loss Heatmap still uses sample data (KPIs,
+              Renewal Radar, and Action Stream are live)
             </li>
             <li>Deeper Hunt ↔ Vault workflow (e.g. auto-create contract from stage)</li>
             <li>No authentication / authorization</li>
