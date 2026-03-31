@@ -22,19 +22,13 @@ import {
 } from "@/components/ui/select"
 import { CompanyCombobox } from "@/components/company-combobox"
 import { useCompanies } from "@/hooks/use-companies"
-import { useContacts, useDeleteContact, useUpdateContact } from "@/hooks/use-contacts"
+import { useContacts, useDeleteContact } from "@/hooks/use-contacts"
 import { useDebouncedValue } from "@/hooks/use-debounced-value"
 import { ContactFormDialog } from "./contact-form-dialog"
 import { DeleteConfirmDialog } from "./delete-confirm-dialog"
 import { TablePagination, DEFAULT_PAGE_SIZE } from "./table-pagination"
 import { DataTableSkeleton } from "@/components/data-table-skeleton"
-import type {
-  Contact,
-  ContactSeniority,
-  ContactUpdatePayload,
-  RoleInDeal,
-} from "@/lib/types"
-import { EditableTextCell } from "@/components/inline-edit-cells"
+import type { Contact, ContactSeniority, RoleInDeal } from "@/lib/types"
 
 const ROLE_OPTIONS: { value: RoleInDeal; label: string }[] = [
   { value: "champion", label: "Champion" },
@@ -49,6 +43,16 @@ const SENIORITY_OPTIONS: { value: ContactSeniority; label: string }[] = [
   { value: "Director", label: "Director" },
   { value: "Manager", label: "Manager" },
 ]
+
+function seniorityLabel(v: ContactSeniority | null | undefined): string {
+  if (!v) return "—"
+  return SENIORITY_OPTIONS.find((o) => o.value === v)?.label ?? v
+}
+
+function roleLabel(v: RoleInDeal | null | undefined): string {
+  if (!v) return "—"
+  return ROLE_OPTIONS.find((o) => o.value === v)?.label ?? v
+}
 
 export function ContactsTable() {
   const [page, setPage] = useState(0)
@@ -82,15 +86,6 @@ export function ContactsTable() {
     seniority: seniorityParam,
   })
   const deleteMutation = useDeleteContact()
-  const updateMutation = useUpdateContact()
-
-  function patchContact(id: string, data: ContactUpdatePayload) {
-    updateMutation.mutate({ id, data })
-  }
-
-  function rowPending(id: string) {
-    return updateMutation.isPending && updateMutation.variables?.id === id
-  }
 
   const items = contacts.data?.items ?? []
   const total = contacts.data?.total ?? 0
@@ -281,12 +276,6 @@ export function ContactsTable() {
           </div>
         ) : null}
 
-        {updateMutation.isError ? (
-          <p className="text-sophos-red px-4 py-2 text-sm" role="alert">
-            {updateMutation.error.message}
-          </p>
-        ) : null}
-
         {contacts.data ? (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -331,89 +320,29 @@ export function ContactsTable() {
                     {contact.first_name} {contact.last_name}
                   </td>
                   <td className="text-muted-foreground px-6 py-3">{contact.company_name}</td>
-                  <td className="px-6 py-3">
-                    <EditableTextCell
-                      value={contact.title}
-                      disabled={rowPending(contact.id)}
-                      onSave={(next) => {
-                        if (next === (contact.title ?? null)) return
-                        patchContact(contact.id, { title: next })
-                      }}
-                    />
+                  <td className="text-muted-foreground px-6 py-3">
+                    {contact.title?.trim() ? contact.title : "—"}
+                  </td>
+                  <td className="text-muted-foreground px-6 py-3">
+                    {seniorityLabel(contact.seniority)}
+                  </td>
+                  <td className="text-muted-foreground px-6 py-3">
+                    {roleLabel(contact.role_in_deal)}
                   </td>
                   <td className="px-6 py-3">
-                    <Select
-                      value={contact.seniority ?? "__none__"}
-                      disabled={rowPending(contact.id)}
-                      onValueChange={(v) => {
-                        const next = v === "__none__" ? null : (v as ContactSeniority)
-                        if (next === contact.seniority) return
-                        patchContact(contact.id, { seniority: next })
-                      }}
-                    >
-                      <SelectTrigger
-                        size="sm"
-                        className="h-8 w-[8.5rem] border-transparent bg-transparent shadow-none hover:bg-muted/50"
+                    {contact.email?.trim() ? (
+                      <a
+                        href={`mailto:${contact.email.trim()}`}
+                        className="text-primary hover:underline"
                       >
-                        <SelectValue placeholder="—" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">—</SelectItem>
-                        {SENIORITY_OPTIONS.map((o) => (
-                          <SelectItem key={o.value} value={o.value}>
-                            {o.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        {contact.email.trim()}
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
                   </td>
-                  <td className="px-6 py-3">
-                    <Select
-                      value={contact.role_in_deal ?? "__none__"}
-                      disabled={rowPending(contact.id)}
-                      onValueChange={(v) => {
-                        const next = v === "__none__" ? null : (v as RoleInDeal)
-                        if (next === contact.role_in_deal) return
-                        patchContact(contact.id, { role_in_deal: next })
-                      }}
-                    >
-                      <SelectTrigger
-                        size="sm"
-                        className="h-8 w-[10rem] border-transparent bg-transparent shadow-none hover:bg-muted/50"
-                      >
-                        <SelectValue placeholder="—" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">—</SelectItem>
-                        {ROLE_OPTIONS.map((o) => (
-                          <SelectItem key={o.value} value={o.value}>
-                            {o.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="px-6 py-3">
-                    <EditableTextCell
-                      value={contact.email}
-                      inputType="email"
-                      disabled={rowPending(contact.id)}
-                      onSave={(next) => {
-                        if (next === (contact.email ?? null)) return
-                        patchContact(contact.id, { email: next })
-                      }}
-                    />
-                  </td>
-                  <td className="px-6 py-3">
-                    <EditableTextCell
-                      value={contact.phone}
-                      inputType="tel"
-                      disabled={rowPending(contact.id)}
-                      onSave={(next) => {
-                        if (next === (contact.phone ?? null)) return
-                        patchContact(contact.id, { phone: next })
-                      }}
-                    />
+                  <td className="text-muted-foreground px-6 py-3 tabular-nums">
+                    {contact.phone?.trim() ? contact.phone.trim() : "—"}
                   </td>
                   <td className="px-6 py-3 text-center">
                     <span className={contact.is_active ? "text-sophos-green" : "text-muted-foreground"}>

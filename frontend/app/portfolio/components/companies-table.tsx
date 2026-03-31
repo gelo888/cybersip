@@ -21,20 +21,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useCompanies, useDeleteCompany, useUpdateCompany } from "@/hooks/use-companies";
+import { useCompanies, useDeleteCompany } from "@/hooks/use-companies";
 import { useIndustries } from "@/hooks/use-industries";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { CompanyFormDialog } from "./company-form-dialog";
 import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 import { TablePagination, DEFAULT_PAGE_SIZE } from "./table-pagination";
 import { DataTableSkeleton } from "@/components/data-table-skeleton";
-import type {
-    Company,
-    CompanyStatus,
-    CompanySize,
-    CompanyUpdatePayload,
-} from "@/lib/types";
-import { EditableNumberCell, EditableTextCell } from "@/components/inline-edit-cells";
+import type { Company, CompanyStatus, CompanySize } from "@/lib/types";
 
 const STATUS_OPTIONS: { value: CompanyStatus; label: string }[] = [
     { value: "prospect", label: "Prospect" },
@@ -50,6 +44,22 @@ const SIZE_OPTIONS: { value: CompanySize; label: string }[] = [
     { value: "Enterprise", label: "Enterprise" },
     { value: "Government", label: "Government" },
 ];
+
+function statusLabel(status: CompanyStatus): string {
+    return STATUS_OPTIONS.find((o) => o.value === status)?.label ?? status;
+}
+
+function sizeLabel(size: CompanySize | null | undefined): string {
+    if (!size) return "—";
+    return SIZE_OPTIONS.find((o) => o.value === size)?.label ?? size;
+}
+
+function websiteHref(raw: string | null | undefined): string | null {
+    const w = raw?.trim();
+    if (!w) return null;
+    if (w.startsWith("http://") || w.startsWith("https://")) return w;
+    return `https://${w}`;
+}
 
 export function CompaniesTable() {
     const [page, setPage] = useState(0);
@@ -77,17 +87,6 @@ export function CompaniesTable() {
         q: debouncedQ,
     });
     const deleteMutation = useDeleteCompany();
-    const updateMutation = useUpdateCompany();
-
-    function patchCompany(id: string, data: CompanyUpdatePayload) {
-        updateMutation.mutate({ id, data });
-    }
-
-    function rowPending(id: string) {
-        return (
-            updateMutation.isPending && updateMutation.variables?.id === id
-        );
-    }
 
     const hasActiveFilters =
         debouncedQ.trim().length > 0 ||
@@ -275,12 +274,6 @@ export function CompaniesTable() {
                     </div>
                 ) : null}
 
-                {updateMutation.isError ? (
-                    <p className="text-sophos-red px-4 py-2 text-sm" role="alert">
-                        {updateMutation.error.message}
-                    </p>
-                ) : null}
-
                 {companies.data ? (
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
@@ -332,113 +325,31 @@ export function CompaniesTable() {
                                     >
                                         {primaryIndustryLabel(company)}
                                     </td>
+                                    <td className="text-muted-foreground px-6 py-3">
+                                        {statusLabel(company.status)}
+                                    </td>
+                                    <td className="text-muted-foreground px-6 py-3">
+                                        {sizeLabel(company.company_size)}
+                                    </td>
+                                    <td className="text-muted-foreground px-6 py-3 text-center tabular-nums">
+                                        {company.employee_count ?? "—"}
+                                    </td>
+                                    <td className="text-muted-foreground px-6 py-3">
+                                        {company.country?.trim() ? company.country : "—"}
+                                    </td>
                                     <td className="px-6 py-3">
-                                        <Select
-                                            value={company.status}
-                                            disabled={rowPending(company.id)}
-                                            onValueChange={(v) => {
-                                                if (v === company.status) return;
-                                                patchCompany(company.id, {
-                                                    status: v as CompanyStatus,
-                                                });
-                                            }}
-                                        >
-                                            <SelectTrigger
-                                                size="sm"
-                                                className="h-8 w-[9.5rem] border-transparent bg-transparent shadow-none hover:bg-muted/50"
+                                        {websiteHref(company.website) ? (
+                                            <a
+                                                href={websiteHref(company.website)!}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-primary hover:underline"
                                             >
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {STATUS_OPTIONS.map((o) => (
-                                                    <SelectItem
-                                                        key={o.value}
-                                                        value={o.value}
-                                                    >
-                                                        {o.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </td>
-                                    <td className="px-6 py-3">
-                                        <Select
-                                            value={
-                                                company.company_size ?? "__none__"
-                                            }
-                                            disabled={rowPending(company.id)}
-                                            onValueChange={(v) => {
-                                                const next =
-                                                    v === "__none__"
-                                                        ? null
-                                                        : (v as CompanySize);
-                                                if (next === company.company_size)
-                                                    return;
-                                                patchCompany(company.id, {
-                                                    company_size: next,
-                                                });
-                                            }}
-                                        >
-                                            <SelectTrigger
-                                                size="sm"
-                                                className="h-8 w-[8.5rem] border-transparent bg-transparent shadow-none hover:bg-muted/50"
-                                            >
-                                                <SelectValue placeholder="—" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="__none__">
-                                                    —
-                                                </SelectItem>
-                                                {SIZE_OPTIONS.map((o) => (
-                                                    <SelectItem
-                                                        key={o.value}
-                                                        value={o.value}
-                                                    >
-                                                        {o.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </td>
-                                    <td className="px-6 py-3 text-center">
-                                        <EditableNumberCell
-                                            value={company.employee_count}
-                                            disabled={rowPending(company.id)}
-                                            onSave={(next) => {
-                                                if (next === company.employee_count)
-                                                    return;
-                                                patchCompany(company.id, {
-                                                    employee_count: next,
-                                                });
-                                            }}
-                                        />
-                                    </td>
-                                    <td className="px-6 py-3">
-                                        <EditableTextCell
-                                            value={company.country}
-                                            disabled={rowPending(company.id)}
-                                            onSave={(next) => {
-                                                if (next === (company.country ?? null))
-                                                    return;
-                                                patchCompany(company.id, {
-                                                    country: next,
-                                                });
-                                            }}
-                                        />
-                                    </td>
-                                    <td className="px-6 py-3">
-                                        <EditableTextCell
-                                            value={company.website}
-                                            disabled={rowPending(company.id)}
-                                            showOpenLink
-                                            onSave={(next) => {
-                                                if (next === (company.website ?? null))
-                                                    return;
-                                                patchCompany(company.id, {
-                                                    website: next,
-                                                });
-                                            }}
-                                        />
+                                                {company.website?.trim() || "Link"}
+                                            </a>
+                                        ) : (
+                                            <span className="text-muted-foreground">—</span>
+                                        )}
                                     </td>
                                     <td className="px-6 py-3 text-right">
                                         <div className="flex items-center justify-end gap-1">
