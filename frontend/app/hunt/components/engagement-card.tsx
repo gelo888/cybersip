@@ -120,7 +120,6 @@ export function EngagementCard({
         (contractSignals.showProposalPending ||
             contractSignals.showContractSigned ||
             contractSignals.showCompetitorActive);
-    const refId = `#${engagement.id.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
     const followDays = engagement.next_action_date
         ? daysUntil(engagement.next_action_date)
         : null;
@@ -152,16 +151,13 @@ export function EngagementCard({
                     </Button>
                 ) : null}
                 <div className="min-w-0 flex-1">
-                    <div className="mb-2 flex items-start justify-between gap-2">
+                    <div className="mb-2">
                         <Link
                             href={`/portfolio/${engagement.company_id}?from=hunt`}
-                            className="font-(family-name:--font-lexend) text-foreground text-sm font-bold leading-tight hover:text-primary hover:underline"
+                            className="font-(family-name:--font-lexend) text-foreground inline-block text-sm font-bold leading-tight hover:text-primary hover:underline"
                         >
                             {engagement.company_name}
                         </Link>
-                        <span className="bg-muted text-muted-foreground group-hover:text-primary shrink-0 rounded px-2 py-0.5 text-[10px] font-semibold tracking-tight transition-colors">
-                            {refId}
-                        </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-1.5">
                         <span
