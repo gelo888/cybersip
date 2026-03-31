@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
+  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -62,6 +63,12 @@ const navigation = [
     description: "Design system",
   },
   {
+    title: "New UX/UI design",
+    href: "/design/new-ux-ui",
+    icon: Sparkles,
+    description: "Rollout plan & AI prompt",
+  },
+  {
     title: "Roadmap",
     href: "/roadmap",
     icon: Map,
@@ -99,7 +106,9 @@ export function DocsSidebar() {
           {navigation.map((item) => {
             const isActive =
               pathname === item.href ||
-              (item.href !== "/" && pathname.startsWith(item.href));
+              (item.href !== "/" &&
+                item.href !== "/design" &&
+                pathname.startsWith(item.href));
             return (
               <li key={item.href}>
                 <Link

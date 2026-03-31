@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Palette } from "lucide-react";
 import { DocsPager } from "@/components/docs-pager";
 
@@ -27,6 +28,19 @@ export default function DesignPage() {
         <strong>Core UX Goal:</strong> Don&apos;t just record what happened —{" "}
         <em>predict what should happen next</em>. The UI shifts from a
         &quot;Data Entry Tool&quot; to a &quot;Strategy Engine.&quot;
+      </div>
+
+      <div className="mb-8 rounded-lg border border-violet-500/25 bg-violet-500/5 p-4 text-sm">
+        <strong>New UX/UI design (rollout):</strong> Sentinel-inspired rollout
+        plan, per-page review gates, and a{" "}
+        <strong>copy-paste assistant prompt</strong> live on{" "}
+        <Link
+          href="/design/new-ux-ui"
+          className="font-medium text-blue-600 underline dark:text-blue-400"
+        >
+          New UX/UI design
+        </Link>
+        .
       </div>
 
       <h2>Brand Identity</h2>
@@ -374,7 +388,11 @@ export default function DesignPage() {
 
       <DocsPager
         prev={{ title: "Frontend", href: "/frontend", description: "Next.js app & components" }}
-        next={{ title: "Roadmap", href: "/roadmap", description: "Development phases & plans" }}
+        next={{
+          title: "New UX/UI design",
+          href: "/design/new-ux-ui",
+          description: "Rollout plan & AI prompt",
+        }}
       />
     </div>
   );
