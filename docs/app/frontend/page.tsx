@@ -396,9 +396,15 @@ export function useCreateContract() {
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
           <h3 className="mt-0 mb-2 text-sm font-semibold text-green-600">
-            Live API (Phase 1 + 1.5)
+            Live API (Phases 1 + 1.5)
           </h3>
           <ul className="mb-0 text-sm">
+            <li>
+              <strong>Phase 1.75</strong> (roadmap): DB-backed Command Center
+              Action Stream, CMD+K, Hunt Kanban DnD, dark mode / skeletons /
+              inline table editing, static displacement email templates — no
+              OpenAI or N8N
+            </li>
             <li>TanStack Query + centralized API client</li>
             <li>
               Command Center — KPI strip and Renewal Radar from{" "}

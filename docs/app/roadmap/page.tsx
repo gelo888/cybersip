@@ -15,9 +15,11 @@ export default function RoadmapPage() {
       </div>
       <h1>Development Roadmap</h1>
       <p>
-        CyberSIP&apos;s development is structured in five phases across{" "}
-        <strong>5+ weeks</strong>, progressing from core data connectivity
-        through full API wiring, AI integration, automation, and UX polish.
+        CyberSIP&apos;s development is structured in milestones from{" "}
+        <strong>Phase 1</strong> through <strong>Phase 5</strong>, including{" "}
+        <strong>Phase 1.5</strong> and <strong>Phase 1.75</strong>, across{" "}
+        <strong>6+ weeks</strong> — from core connectivity and API wiring through
+        a no-AI/N8N polish slice, then AI, automation, and enterprise expansion.
         Development is accelerated with AI-assisted coding (Cursor).
       </p>
 
@@ -51,15 +53,21 @@ export default function RoadmapPage() {
           </h3>
           <ul className="mb-0 text-sm">
             <li>
-              Command Center heatmap / action stream still sample data (KPIs +
-              renewal radar are live)
+              Command Center Win/Loss heatmap still sample data; Action Stream
+              still sample (KPIs + renewal radar are live).{" "}
+              <strong>Phase 1.75</strong> targets a DB-backed Action Stream (no
+              N8N required for v1).
             </li>
             <li>Company 360 contacts sub-section is read-only (no contact CRUD on the detail page)</li>
             <li>Advanced Hunt ↔ Vault workflow automation not yet implemented (e.g. auto-create contract from stage)</li>
             <li>No authentication / authorization</li>
             <li>No AI integration</li>
             <li>No N8N automation workflows</li>
-            <li>Missing key interactive components (CMD+K, drag-and-drop, inline editing)</li>
+            <li>
+              Missing key interactive components (CMD+K, Hunt Kanban
+              drag-and-drop, inline table editing) — planned in{" "}
+              <strong>Phase 1.75</strong>
+            </li>
           </ul>
         </div>
       </div>
@@ -161,7 +169,45 @@ export default function RoadmapPage() {
             Connect Command Center to real data — build KPI aggregation
             (pipeline value, contract counts, renewal radar) from connected
             entities via <code>GET /api/command-center/summary</code>; Win/Loss
-            Heatmap and Action Stream remain sample for now
+            Heatmap remains sample; Action Stream →{" "}
+            <strong>Phase 1.75</strong> (DB-backed feed)
+          </li>
+        </ol>
+      </div>
+
+      <h2>Phase 1.75 — UX, Command Stream &amp; templates (no OpenAI / N8N)</h2>
+
+      <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-teal-500 bg-teal-500/5 p-4">
+        <p className="mb-1 text-xs font-bold uppercase tracking-wider text-teal-600">
+          After 1.5 — no new infra
+        </p>
+        <p className="mb-3 text-sm text-muted-foreground">
+          Ship product value using <strong>FastAPI + Prisma + Next.js</strong> only.
+          Small UI libraries (e.g. drag-and-drop, command palette) are fine; no
+          OpenAI, Claude, or N8N required.
+        </p>
+        <ol start={12} className="mb-0 text-sm">
+          <li>
+            <strong>Live Action Stream</strong> — aggregate recent activity from
+            existing data (engagements, contracts, intel, etc.) via FastAPI;
+            replace Command Center sample stream. N8N can enrich this later; v1 is
+            DB-only.
+          </li>
+          <li>
+            <strong>Interactive shell</strong> — Hunt Kanban drag-and-drop stage
+            transitions; app-wide CMD+K command palette (navigation and quick
+            actions).
+          </li>
+          <li>
+            <strong>Global UX</strong> — dark mode toggle; skeleton loading on
+            primary views and tables; inline editing on tables where the pattern
+            is straightforward.
+          </li>
+          <li>
+            <strong>Static displacement emails</strong> — Intelligence Hub:
+            template-based displacement copy from structured fields (competitor
+            weakness, account context); copy/export. Not LLM-generated in this
+            phase.
           </li>
         </ol>
       </div>
@@ -172,14 +218,12 @@ export default function RoadmapPage() {
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-amber-500">
           Week 3
         </p>
-        <ol start={12} className="mb-0 text-sm">
+        <ol start={16} className="mb-0 text-sm">
           <li>
             Add a <code>/api/ai/enrich-company</code> endpoint (OpenAI or
             similar)
           </li>
           <li>Build the Smart-Add Company modal with domain enrichment</li>
-          <li>Add drag-and-drop stage transitions on Hunt kanban</li>
-          <li>Add CMD+K command palette</li>
         </ol>
       </div>
 
@@ -189,13 +233,17 @@ export default function RoadmapPage() {
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-green-500">
           Week 4
         </p>
-        <ol start={16} className="mb-0 text-sm">
+        <ol start={18} className="mb-0 text-sm">
           <li>
             Set up N8N (add to <code>docker-compose.yml</code>)
           </li>
           <li>Build competitor news scraper workflow</li>
           <li>Build contract expiry notification workflow</li>
-          <li>Connect Action Stream to real data</li>
+          <li>
+            Optional: feed or enrich the Action Stream from N8N (webhooks /
+            scheduled jobs) — v1 stream ships in Phase 1.75 from the database
+            alone
+          </li>
         </ol>
       </div>
 
@@ -205,12 +253,12 @@ export default function RoadmapPage() {
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-purple-500">
           Week 5
         </p>
-        <ol start={20} className="mb-0 text-sm">
-          <li>Dark mode toggle</li>
-          <li>Skeleton loading states everywhere</li>
-          <li>Inline editing on tables</li>
+        <ol start={22} className="mb-0 text-sm">
           <li>Battle Card generation with AI</li>
-          <li>Displacement email template generation</li>
+          <li>
+            LLM-personalized displacement email copy (beyond static templates in
+            Phase 1.75)
+          </li>
           <li>
             Advanced Hunt ↔ Vault integration — &quot;Create Proposal&quot;
             action from engagement cards, auto-stage transitions on contract
@@ -261,7 +309,8 @@ export default function RoadmapPage() {
           <tr>
             <td>Displacement Email Templates</td>
             <td>
-              Personalized outreach using competitor weakness + prospect context
+              Static templates in Phase 1.75; LLM-personalized outreach (competitor
+              weakness + prospect context) in Phase 4
             </td>
             <td>Intelligence Hub</td>
           </tr>
@@ -338,20 +387,23 @@ export default function RoadmapPage() {
 
       <h3>Missing Interactive Components</h3>
       <ul>
-        <li>CMD+K Command Palette</li>
+        <li>CMD+K Command Palette (Phase 1.75)</li>
         <li>Smart-Add Company Modal (domain-first approach)</li>
         <li>Intelligence Drawer (right slide-over)</li>
-        <li>Inline &quot;Ghost&quot; Editing on tables</li>
-        <li>Drag-and-Drop on Kanban</li>
+        <li>Inline &quot;Ghost&quot; Editing on tables (Phase 1.75)</li>
+        <li>Drag-and-Drop on Kanban (Phase 1.75)</li>
         <li>Multi-Step Engagement Wizard</li>
       </ul>
 
       <h3>Missing UX Patterns</h3>
       <ul>
-        <li>Dark mode toggle</li>
-        <li>Skeleton loading states</li>
+        <li>Dark mode toggle (Phase 1.75)</li>
+        <li>Skeleton loading states (Phase 1.75)</li>
         <li>Toast notifications (Sonner)</li>
-        <li>Real-time Action Stream (WebSocket or polling)</li>
+        <li>
+          Real-time Action Stream — DB-backed feed in Phase 1.75; optional
+          WebSocket or polling later
+        </li>
         <li>Filters and search across all pages</li>
       </ul>
 
@@ -480,7 +532,7 @@ export default function RoadmapPage() {
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-cyan-500">
           Future Expansion
         </p>
-        <ol start={24} className="mb-0 text-sm">
+        <ol start={25} className="mb-0 text-sm">
           <li>Salesforce bidirectional sync (accounts, contacts, opportunities)</li>
           <li>Power BI dashboards via direct PostgreSQL or REST API connector</li>
           <li>Data enrichment pipeline (ZoomInfo / Apollo / Clearbit)</li>
