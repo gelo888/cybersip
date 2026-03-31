@@ -44,7 +44,7 @@ cybersip/
 └── docker-compose.yml
 ```
 
-## Backend API (66 endpoints across 9 routers)
+## Backend API (74+ endpoints across 11 router groups)
 
 | Router         | Prefix              | Purpose                    |
 |----------------|----------------------|----------------------------|
@@ -62,7 +62,7 @@ cybersip/
 
 | Route              | Page                | Status        |
 |--------------------|---------------------|---------------|
-| `/`                | Command Center      | Mock data     |
+| `/`                | Command Center      | Live API (KPIs + renewal radar; sample heatmap/stream) |
 | `/hunt`            | Pipeline Kanban     | Mock data     |
 | `/intelligence`    | Intelligence Hub    | Live API      |
 | `/sales-recon` | Sales Recon | Live API (picker) + preview |
@@ -128,7 +128,7 @@ app/
 4. Add contract status indicators on Hunt engagement cards (cross-reference Hunt ↔ Vault)
 5. Connect Territories → `/api/regions` + `/api/territory-groups` + `/api/teams`
 6. Add CRUD to Company 360 sub-sections
-7. Connect Command Center to real aggregated data
+7. ~~Connect Command Center to real aggregated data~~ (KPIs + renewal radar live)
 
 **Future enhancements (Phase 4+):**
 - Direct link from Hunt cards to specific contracts in Vault
