@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 import Link from "next/link"
 import {
+    ChevronRight,
     Telescope,
     Building2,
     Linkedin,
@@ -310,7 +311,9 @@ const ReconSection = ({
                     )}
                 >
                     <Icon className="size-5 text-primary shrink-0" aria-hidden />
-                    <h3 className="text-base font-semibold leading-tight mb-0">{title}</h3>
+                    <h3 className="font-(family-name:--font-lexend) text-base font-semibold leading-tight mb-0">
+                        {title}
+                    </h3>
                 </div>
                 <p
                     className={cn(
@@ -406,21 +409,28 @@ export const SalesReconHub = () => {
     }
 
     return (
-        <div className="w-full max-w-none p-6 space-y-10">
+        <div className="w-full max-w-none space-y-10 p-6">
             <CompanyFormDialog
                 open={companyFormOpen}
                 onOpenChange={setCompanyFormOpen}
                 onCreated={handleCreatedCompany}
             />
 
-            <div className="space-y-2">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                    <Telescope className="size-5 text-primary" aria-hidden />
-                    <span className="text-xs font-medium uppercase tracking-wide">
+            <div>
+                <nav className="text-primary/70 mb-2 flex flex-wrap items-center gap-2 text-xs font-bold tracking-widest uppercase">
+                    <Link href="/" className="hover:text-primary">
+                        Command center
+                    </Link>
+                    <ChevronRight className="size-3 opacity-60" aria-hidden />
+                    <span className="text-primary">Sales recon</span>
+                </nav>
+                <div className="flex flex-wrap items-center gap-2">
+                    <Telescope className="text-primary size-5 shrink-0" aria-hidden />
+                    <h1 className="font-(family-name:--font-lexend) text-foreground m-0 text-2xl font-bold tracking-tight sm:text-3xl">
                         Account recon workspace
-                    </span>
+                    </h1>
                 </div>
-                <p className="text-sm text-muted-foreground max-w-none">
+                <p className="text-muted-foreground mt-2 max-w-3xl text-sm">
                     Structure sales and GTM research around a portfolio account: public professional
                     social signals, hiring language, and news — with evidence links you can open in
                     the source platforms.
@@ -484,7 +494,7 @@ export const SalesReconHub = () => {
                                                     {fields.priority}
                                                 </p>
                                             </div>
-                                            <span className="shrink-0 rounded-md bg-sophos-sky/15 text-sophos-sky px-2 py-0.5 text-[10px] font-semibold">
+                                            <span className="bg-chart-4/15 text-chart-4 shrink-0 rounded-md px-2 py-0.5 text-[10px] font-semibold">
                                                 Prospect
                                             </span>
                                         </div>

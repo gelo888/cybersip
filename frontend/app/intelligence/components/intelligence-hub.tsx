@@ -3,6 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
+    ChevronRight,
     Clock,
     ExternalLink,
     Info,
@@ -229,10 +230,17 @@ export function IntelligenceHub() {
             {/* Hero */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
+                    <nav className="text-primary/70 mb-2 flex flex-wrap items-center gap-2 text-xs font-bold tracking-widest uppercase">
+                        <Link href="/" className="hover:text-primary">
+                            Command center
+                        </Link>
+                        <ChevronRight className="size-3 opacity-60" aria-hidden />
+                        <span className="text-primary">Intelligence</span>
+                    </nav>
                     <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                         Global market surveillance
                     </p>
-                    <h2 className="font-(family-name:--font-lexend) text-foreground text-2xl font-bold tracking-tight">
+                    <h2 className="font-(family-name:--font-lexend) text-foreground mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
                         Active signal grid
                     </h2>
                 </div>

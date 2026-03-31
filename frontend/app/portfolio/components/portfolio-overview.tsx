@@ -126,10 +126,12 @@ export function PortfolioOverview() {
         <div className="space-y-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                 <div>
-                    <nav className="text-primary/70 mb-2 flex items-center gap-2 text-xs font-bold tracking-widest uppercase">
-                        <span>Intelligence</span>
+                    <nav className="text-primary/70 mb-2 flex flex-wrap items-center gap-2 text-xs font-bold tracking-widest uppercase">
+                        <Link href="/" className="hover:text-primary">
+                            Command center
+                        </Link>
                         <ChevronRight className="size-3 opacity-60" aria-hidden />
-                        <span className="text-primary">Portfolio recon</span>
+                        <span className="text-primary">Portfolio</span>
                     </nav>
                     <h2 className="font-(family-name:--font-lexend) text-foreground text-2xl font-bold tracking-tight md:text-3xl">
                         Portfolio directory

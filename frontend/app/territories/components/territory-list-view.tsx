@@ -24,21 +24,37 @@ export function TerritoryListView({
     onManageTeams,
 }: TerritoryListViewProps) {
     return (
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="overflow-x-auto rounded-lg ring-1 ring-border/40">
             <table className="w-full text-sm">
                 <thead>
-                    <tr className="border-b bg-muted/40">
-                        <th className="px-4 py-3 text-left font-medium">Color</th>
-                        <th className="px-4 py-3 text-left font-medium">Name</th>
-                        <th className="px-4 py-3 text-left font-medium">Level</th>
-                        <th className="px-4 py-3 text-left font-medium">Region</th>
-                        <th className="px-4 py-3 text-left font-medium">Subregion</th>
-                        <th className="px-4 py-3 text-left font-medium">Segments</th>
-                        <th className="px-4 py-3 text-left font-medium">Members</th>
-                        <th className="px-4 py-3 text-center font-medium">
+                    <tr className="border-b border-border/50 bg-muted/45 dark:bg-muted/25">
+                        <th className="text-muted-foreground px-4 py-3 text-left text-[10px] font-bold tracking-widest uppercase">
+                            Color
+                        </th>
+                        <th className="text-muted-foreground px-4 py-3 text-left text-[10px] font-bold tracking-widest uppercase">
+                            Name
+                        </th>
+                        <th className="text-muted-foreground px-4 py-3 text-left text-[10px] font-bold tracking-widest uppercase">
+                            Level
+                        </th>
+                        <th className="text-muted-foreground px-4 py-3 text-left text-[10px] font-bold tracking-widest uppercase">
+                            Region
+                        </th>
+                        <th className="text-muted-foreground px-4 py-3 text-left text-[10px] font-bold tracking-widest uppercase">
+                            Subregion
+                        </th>
+                        <th className="text-muted-foreground px-4 py-3 text-left text-[10px] font-bold tracking-widest uppercase">
+                            Segments
+                        </th>
+                        <th className="text-muted-foreground px-4 py-3 text-left text-[10px] font-bold tracking-widest uppercase">
+                            Members
+                        </th>
+                        <th className="text-muted-foreground px-4 py-3 text-center text-[10px] font-bold tracking-widest uppercase">
                             Children
                         </th>
-                        <th className="px-4 py-3 text-right font-medium">Actions</th>
+                        <th className="text-muted-foreground px-4 py-3 text-right text-[10px] font-bold tracking-widest uppercase">
+                            Actions
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,7 +72,7 @@ export function TerritoryListView({
                     {territories.map((t) => (
                         <tr
                             key={t.id}
-                            className="border-b last:border-b-0 hover:bg-muted/20 transition-colors"
+                            className="border-border/50 hover:bg-muted/20 border-b transition-colors last:border-b-0"
                         >
                             <td className="px-4 py-3">
                                 <div

@@ -24,7 +24,7 @@ export function TerritoryMapView({ territories }: TerritoryMapViewProps) {
     }, []);
 
     return (
-        <div className="relative h-[calc(100vh-220px)] min-h-[500px] rounded-lg border overflow-hidden">
+        <div className="border-border/40 relative h-[calc(100vh-260px)] min-h-[500px] overflow-hidden rounded-lg ring-1 ring-border/40">
             <MapLoadingProgress loaded={loadedCount} total={territories.length} />
             <TerritoryMapLegend territories={territories} />
 
