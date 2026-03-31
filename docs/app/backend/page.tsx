@@ -229,7 +229,7 @@ class CompanyResponse(BaseModel):
       <EndpointTable
         endpoints={[
           { method: "POST", path: "/api/companies", description: "Create a new company" },
-          { method: "GET", path: "/api/companies", description: "List companies (optional status; query skip, take ≤ 500)" },
+          { method: "GET", path: "/api/companies", description: "List companies (optional status, company_size, q name search; skip, take ≤ 500)" },
           { method: "GET", path: "/api/companies/{id}", description: "Get a single company" },
           { method: "PATCH", path: "/api/companies/{id}", description: "Update a company" },
           { method: "DELETE", path: "/api/companies/{id}", description: "Delete a company" },
@@ -244,7 +244,7 @@ class CompanyResponse(BaseModel):
       <EndpointTable
         endpoints={[
           { method: "POST", path: "/api/contacts", description: "Create a contact (requires company_id)" },
-          { method: "GET", path: "/api/contacts", description: "List contacts (filter by company_id)" },
+          { method: "GET", path: "/api/contacts", description: "List contacts (optional company_id, q text search, is_active, seniority, role_in_deal; skip, take ≤ 500)" },
           { method: "GET", path: "/api/contacts/{id}", description: "Get a single contact" },
           { method: "PATCH", path: "/api/contacts/{id}", description: "Update a contact" },
           { method: "DELETE", path: "/api/contacts/{id}", description: "Delete a contact" },

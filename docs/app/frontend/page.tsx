@@ -153,7 +153,12 @@ export default function FrontendPage() {
             <td><code>/portfolio</code></td>
             <td>Portfolio</td>
             <td>Live API</td>
-            <td>Companies and contacts management with full CRUD</td>
+            <td>
+              Companies and contacts with full CRUD; debounced server-side search
+              and filters (companies: status, size; contacts: company, active,
+              deal role, seniority) via <code>useCompanies</code> /{" "}
+              <code>useContacts</code>
+            </td>
           </tr>
           <tr>
             <td><code>/portfolio/[id]</code></td>
@@ -237,9 +242,10 @@ export default function FrontendPage() {
 │       └── tooltip.tsx
 │
 ├── hooks/                     # TanStack Query data hooks
-│   ├── use-companies.ts       # Company list + CRUD (optional status query for /api/companies)
+│   ├── use-companies.ts       # Company list + CRUD (optional status, company_size, q)
+│   ├── use-contacts.ts        # Contact list + CRUD (optional company_id, q, filters)
+│   ├── use-debounced-value.ts # Debounced input for Portfolio search fields
 │   ├── use-company-detail.ts  # Single company fetch
-│   ├── use-contacts.ts        # Contact list + CRUD
 │   ├── use-stages.ts          # Pipeline stage CRUD
 │   ├── use-engagements.ts     # Engagement list + CRUD
 │   ├── use-command-center-summary.ts  # GET /api/command-center/summary
