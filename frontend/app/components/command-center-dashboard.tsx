@@ -59,30 +59,18 @@ function formatCurrency(value: number | string | null) {
 
 function ActionIcon({ type }: { type: string }) {
     const config: Record<string, { icon: typeof Zap; className: string }> = {
-        breach: { icon: AlertTriangle, className: "text-destructive" },
-        competitor: { icon: Shield, className: "text-orange-500 dark:text-orange-400" },
-        renewal: { icon: Clock, className: "text-sky-600 dark:text-sky-400" },
+        breach: { icon: AlertTriangle, className: "text-sophos-red" },
+        competitor: { icon: Shield, className: "text-sophos-orange" },
+        renewal: { icon: Clock, className: "text-sophos-sky" },
         pipeline: { icon: Zap, className: "text-primary" },
-        win: { icon: TrendingUp, className: "text-emerald-600 dark:text-emerald-400" },
-        loss: { icon: TrendingDown, className: "text-destructive" },
+        win: { icon: TrendingUp, className: "text-sophos-green" },
+        loss: { icon: TrendingDown, className: "text-sophos-red" },
     };
     const { icon: Icon, className } = config[type] ?? {
         icon: Zap,
         className: "text-muted-foreground",
     };
     return <Icon className={cn("size-4 shrink-0", className)} />;
-}
-
-function streamDotClass(type: ActionStreamItem["stream_type"]) {
-    const map: Record<ActionStreamItem["stream_type"], string> = {
-        win: "bg-emerald-500 ring-emerald-500/25",
-        loss: "bg-destructive ring-destructive/25",
-        pipeline: "bg-primary ring-primary/25",
-        renewal: "bg-sky-500 ring-sky-500/25",
-        competitor: "bg-orange-500 ring-orange-500/25",
-        breach: "bg-destructive ring-destructive/20",
-    };
-    return map[type];
 }
 
 function RadarTypeBadge({ type }: { type: ContractType }) {
@@ -118,7 +106,7 @@ function ActionStreamSkeleton() {
         <div className="divide-border max-h-[min(700px,70vh)] divide-y overflow-y-auto rounded-lg border ring-1 ring-border/40">
             {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="flex items-start gap-3 px-4 py-4">
-                    <Skeleton className="mt-0.5 size-2.5 shrink-0 rounded-full" />
+                    <Skeleton className="size-8 shrink-0 rounded-md" />
                     <div className="min-w-0 flex-1 space-y-2">
                         <Skeleton className="h-3 w-28" />
                         <Skeleton className="h-4 w-full max-w-md" />
@@ -202,17 +190,16 @@ function ActionStreamColumn({
                             );
                             const inner = (
                                 <div className="flex gap-3">
-                                    <div className="relative flex w-4 shrink-0 flex-col items-center">
+                                    <div className="relative flex w-9 shrink-0 flex-col items-center">
                                         <div
-                                            className={cn(
-                                                "z-10 size-2.5 shrink-0 rounded-full ring-4",
-                                                streamDotClass(streamItem.stream_type),
-                                            )}
-                                            aria-hidden
-                                        />
+                                            className="bg-muted/50 z-10 flex size-8 shrink-0 items-center justify-center rounded-md ring-1 ring-border/40"
+                                            aria-label={`${streamItem.stream_type} event`}
+                                        >
+                                            <ActionIcon type={streamItem.stream_type} />
+                                        </div>
                                         {index < streamData.items.length - 1 ? (
                                             <div
-                                                className="bg-border/60 mt-1 min-h-6 w-px flex-1"
+                                                className="bg-border/60 mt-1 min-h-8 w-px flex-1"
                                                 aria-hidden
                                             />
                                         ) : null}
