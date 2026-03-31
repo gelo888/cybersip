@@ -77,6 +77,14 @@ export default function FrontendPage() {
             <td>Latest</td>
             <td>App-wide command palette (composed with Dialog in <code>components/ui/command.tsx</code>)</td>
           </tr>
+          <tr>
+            <td><code>next-themes</code></td>
+            <td>Latest</td>
+            <td>
+              Light / dark / system appearance; <code>ThemeProvider</code> wraps the
+              app in <code>components/providers.tsx</code> (<code>components/theme-provider.tsx</code>)
+            </td>
+          </tr>
         </tbody>
       </table>
 
@@ -92,7 +100,13 @@ export default function FrontendPage() {
         press <kbd>Cmd</kbd> or <kbd>Ctrl</kbd> + <kbd>K</kbd> to open. Primary and
         secondary nav URLs and labels are defined once in{" "}
         <code>lib/app-nav.ts</code> and imported by both <code>app-sidebar.tsx</code>{" "}
-        and the palette.
+        and the palette. <strong>Global UX</strong> — Header sun/moon control sets
+        explicit light or dark (overrides system until changed in Settings); Settings
+        → Appearance offers Light, Dark, and System. Primary data views use skeleton
+        layouts while queries load; Portfolio companies/contacts support inline field
+        updates via <code>useUpdateCompany</code> / <code>useUpdateContact</code>{" "}
+        (<code>PATCH</code>, partial payloads; see <code>CompanyUpdatePayload</code> /{" "}
+        <code>ContactUpdatePayload</code> in <code>lib/types.ts</code>).
       </p>
 
       <h2>Application Routes</h2>
@@ -157,38 +171,40 @@ export default function FrontendPage() {
               Companies and contacts with full CRUD; debounced server-side search
               and filters (companies: status, size; contacts: company, active,
               deal role, seniority) via <code>useCompanies</code> /{" "}
-              <code>useContacts</code>
+              <code>useContacts</code>; inline edits on table rows (companies: status,
+              size, employees, country, website; contacts: title, seniority, role,
+              email, phone) with subtle refetch indicator when list query refetches
             </td>
           </tr>
           <tr>
             <td><code>/portfolio/[id]</code></td>
             <td>Company 360</td>
             <td>Live API</td>
-            <td>Contacts (read-only table); engagements, contracts, and competitor intel with full CRUD (reuses Hunt / Vault / Intelligence form dialogs with scoped company)</td>
+            <td>Skeleton shell while company loads; contacts (read-only table); engagements, contracts, and competitor intel with full CRUD (reuses Hunt / Vault / Intelligence form dialogs with scoped company)</td>
           </tr>
           <tr>
             <td><code>/territories</code></td>
             <td>Territories</td>
             <td>Live API</td>
-            <td>Map/list toggle (mapcn/MapLibre GL), CRUD via /api/territories and /api/segment-labels, geo data via /api/geo/*, multi-step creation form with cascading selects, GeoJSON polygons with color coding, team member assignment via /api/team-members and /api/territory-members</td>
+            <td>Map/list toggle (mapcn/MapLibre GL); skeleton map panel or list rows while territories load; CRUD via /api/territories and /api/segment-labels, geo data via /api/geo/*, multi-step creation form with cascading selects, GeoJSON polygons with color coding, team member assignment via /api/team-members and /api/territory-members</td>
           </tr>
           <tr>
             <td><code>/vault</code></td>
             <td>Vault</td>
             <td>Live API</td>
             <td>
-              Contracts table with CRUD, optional linked engagement on create/edit,
-              Pipeline column to Hunt (<code>?company_id=</code> and{" "}
-              <code>engagement_id=</code> when set), summary cards. New contracts
-              require a company from Portfolio (loading/empty/error states in the
-              form).
+              Skeleton summary + table while contracts load; contracts table with
+              CRUD, optional linked engagement on create/edit, Pipeline column to
+              Hunt (<code>?company_id=</code> and <code>engagement_id=</code> when
+              set), summary cards. New contracts require a company from Portfolio
+              (loading/empty/error states in the form).
             </td>
           </tr>
           <tr>
             <td><code>/settings</code></td>
             <td>Settings</td>
-            <td>Static</td>
-            <td>Application configuration</td>
+            <td>Mostly static</td>
+            <td>Profile / notifications / integrations mock; Appearance theme (Light, Dark, System) wired to <code>next-themes</code></td>
           </tr>
         </tbody>
       </table>

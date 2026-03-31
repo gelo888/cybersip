@@ -311,6 +311,32 @@ export default function DesignPage() {
         </tbody>
       </table>
 
+      <h2>Theme, loading, and inline data (Phase 1.75)</h2>
+
+      <ul>
+        <li>
+          <strong>Color theme</strong> — <code>next-themes</code> with{" "}
+          <code>attribute=&quot;class&quot;</code> and{" "}
+          <code>storageKey=&quot;cybersip-theme&quot;</code>; semantic tokens in{" "}
+          <code>app/globals.css</code> for <code>:root</code> (light) and{" "}
+          <code>.dark</code>. Quick toggle in the page header; Light / Dark / System
+          in Settings → Appearance.
+        </li>
+        <li>
+          <strong>Skeletons</strong> — Use <code>components/ui/skeleton.tsx</code>{" "}
+          for layout-shaped placeholders. Shared{" "}
+          <code>components/data-table-skeleton.tsx</code> for tables; route-specific
+          shells include Vault contracts (summary + grid), Company 360, Territories
+          (map vs list), and Hunt Kanban columns.
+        </li>
+        <li>
+          <strong>Inline table editing</strong> — Portfolio companies and contacts:
+          enum fields use compact borderless <code>Select</code> triggers; text and
+          numbers use click-to-edit inputs (blur or Enter to save, Escape to cancel).
+          Updates call <code>PATCH</code> with partial bodies only for changed fields.
+        </li>
+      </ul>
+
       <h2>Responsiveness</h2>
 
       <ul>
@@ -324,8 +350,8 @@ export default function DesignPage() {
           scrolling
         </li>
         <li>
-          <strong>Dark Mode</strong> — Essential for cybersecurity professionals
-          working in SOC environments
+          <strong>Dark Mode</strong> — Supported for SOC-style workflows; user choice
+          persists in local storage
         </li>
       </ul>
 

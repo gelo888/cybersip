@@ -53,6 +53,14 @@ export default function RoadmapPage() {
             <li>Territories — map/list toggle, CRUD via /api/territories and /api/segment-labels, geo data via /api/geo/*, GeoJSON polygons, team member assignment</li>
             <li>Context-aware breadcrumbs (Hunt / Vault → Company 360 → back)</li>
             <li>Seed script with stages, engagements, products, contracts, and line items</li>
+            <li>
+              Phase 1.75 Global UX — <code>next-themes</code> (light / dark / system) with
+              header toggle and Settings Appearance; skeleton loading on Portfolio tables,
+              Vault, Company 360, Territories, and Hunt Kanban; Portfolio companies &amp;
+              contacts tables support inline edits via <code>PATCH</code> (companies:
+              status, size, employees, country, website; contacts: title, seniority,
+              role, email, phone)
+            </li>
           </ul>
         </div>
         <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4">
@@ -71,11 +79,6 @@ export default function RoadmapPage() {
             <li>No authentication / authorization</li>
             <li>No AI integration</li>
             <li>No N8N automation workflows</li>
-            <li>
-              Inline table editing on primary views is not yet implemented — other
-              Phase 1.75 interactive shell items (CMD+K, Hunt Kanban drag-and-drop)
-              are shipped.
-            </li>
           </ul>
         </div>
       </div>
@@ -209,10 +212,10 @@ export default function RoadmapPage() {
             palette (<code>cmdk</code>) for navigation; mounted from{" "}
             <code>Providers</code>
           </li>
-          <li>
+          <li className="line-through opacity-60">
             <strong>Global UX</strong> — dark mode toggle; skeleton loading on
-            primary views and tables; inline editing on tables where the pattern
-            is straightforward.
+            primary views and tables; inline editing on Portfolio companies &amp;
+            contacts tables (<code>PATCH</code> partial updates aligned with API).
           </li>
           <li>
             <strong>Static displacement emails</strong> — Intelligence Hub:
@@ -398,18 +401,21 @@ export default function RoadmapPage() {
 
       <h3>Missing Interactive Components</h3>
       <ul>
-        <li>CMD+K Command Palette (Phase 1.75)</li>
+        <li className="line-through opacity-60">CMD+K Command Palette (shipped, Phase 1.75)</li>
         <li>Smart-Add Company Modal (domain-first approach)</li>
         <li>Intelligence Drawer (right slide-over)</li>
-        <li>Inline &quot;Ghost&quot; Editing on tables (Phase 1.75)</li>
-        <li>Drag-and-Drop on Kanban (Phase 1.75)</li>
+        <li>
+          Inline editing on additional tables (Vault, Intelligence, etc.) — Portfolio
+          companies &amp; contacts shipped (Phase 1.75)
+        </li>
+        <li className="line-through opacity-60">Drag-and-Drop on Kanban (shipped, Phase 1.75)</li>
         <li>Multi-Step Engagement Wizard</li>
       </ul>
 
       <h3>Missing UX Patterns</h3>
       <ul>
-        <li>Dark mode toggle (Phase 1.75)</li>
-        <li>Skeleton loading states (Phase 1.75)</li>
+        <li className="line-through opacity-60">Dark mode toggle (shipped: light / dark / system)</li>
+        <li className="line-through opacity-60">Skeleton loading on primary views (shipped)</li>
         <li>Toast notifications (Sonner)</li>
         <li>
           Action Stream — live CRM feed (Phase 1.75 v1); optional WebSocket,
