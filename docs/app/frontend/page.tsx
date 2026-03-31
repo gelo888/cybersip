@@ -148,13 +148,15 @@ export default function FrontendPage() {
           <tr>
             <td><code>/</code></td>
             <td>Command Center</td>
-            <td>Live API + sample widgets</td>
+            <td>Live API</td>
             <td>
-              KPI strip and Renewal Radar from <code>/api/command-center/summary</code> (
-              <code>useCommandCenterSummary</code>); Action Stream from{" "}
-              <code>/api/command-center/action-stream</code> (
-              <code>useCommandCenterActionStream</code>); Win/Loss Heatmap remains
-              illustrative sample data
+              Sentinel-style layout in <code>command-center-dashboard.tsx</code>: KPI bento
+              (pipeline, 90d renewal exposure, stream-derived win rate, at-risk count),
+              horizontal renewal radar, CRM signal grid + renewal value chart (
+              <code>/api/command-center/summary</code>), win-rate line chart from stream
+              outcomes, timeline action stream (
+              <code>/api/command-center/action-stream</code>). No fabricated regional
+              heatmap.
             </td>
           </tr>
           <tr>
@@ -237,7 +239,7 @@ export default function FrontendPage() {
 │   ├── layout.tsx             # Root layout with sidebar
 │   ├── page.tsx               # Command Center entry (renders dashboard client)
 │   ├── components/
-│   │   └── command-center-dashboard.tsx  # KPIs + renewal radar + action stream (live); heatmap (sample)
+│   │   └── command-center-dashboard.tsx  # Command Center (live summary + stream, charts)
 │   ├── intelligence/
 │   │   └── page.tsx           # Intelligence Hub
 │   ├── sales-recon/
@@ -514,8 +516,8 @@ export function useCreateContract() {
           </h3>
           <ul className="mb-0 text-sm">
             <li>
-              Command Center — Win/Loss Heatmap still uses sample data (KPIs,
-              Renewal Radar, and Action Stream are live)
+              Command Center — territory / geo win-loss map not wired (CRM signal counts
+              and charts use live stream + summary only)
             </li>
             <li>Deeper Hunt ↔ Vault workflow (e.g. auto-create contract from stage)</li>
             <li>No authentication / authorization</li>
