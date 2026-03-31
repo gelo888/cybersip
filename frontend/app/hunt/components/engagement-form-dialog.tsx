@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { CompanyCombobox } from "@/components/company-combobox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2 } from "lucide-react"
 import { useCreateEngagement, useUpdateEngagement } from "@/hooks/use-engagements"
@@ -52,6 +54,10 @@ interface Props {
     stages: Stage[]
     /** Required when `scopedCompanyId` is not set (e.g. Hunt). Optional on Company 360. */
     companies?: Company[]
+    /** While Portfolio companies are loading for the picker. */
+    companiesLoading?: boolean
+    /** Failed to load companies for the picker. */
+    companiesError?: Error | null
     /** When set, create flow uses this company and hides the company picker. */
     scopedCompanyId?: string
     defaultStageId?: string
@@ -63,6 +69,8 @@ export function EngagementFormDialog({
     engagement,
     stages,
     companies = [],
+    companiesLoading = false,
+    companiesError = null,
     scopedCompanyId,
     defaultStageId,
 }: Props) {
@@ -124,6 +132,11 @@ export function EngagementFormDialog({
         }
     }
 
+    const companyPickerBlocked =
+        !isEdit &&
+        !scopedCompanyId &&
+        (companiesLoading || !!companiesError || companies.length === 0)
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-lg">
@@ -138,16 +151,29 @@ export function EngagementFormDialog({
                     {!isEdit && !scopedCompanyId && (
                         <div className="grid gap-2">
                             <Label>Company *</Label>
-                            <Select value={form.company_id} onValueChange={(v) => set("company_id", v)}>
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select company…" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {companies.map((c) => (
-                                        <SelectItem key={c.id} value={c.id}>{c.current_name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            {companiesError ? (
+                                <p className="text-sm text-sophos-red mb-0">{companiesError.message}</p>
+                            ) : companiesLoading ? (
+                                <p className="text-xs text-muted-foreground flex items-center gap-2 mb-0">
+                                    <Loader2 className="size-3 animate-spin" />
+                                    Loading companies…
+                                </p>
+                            ) : companies.length === 0 ? (
+                                <p className="text-sm text-muted-foreground mb-0">
+                                    No companies in Portfolio.{" "}
+                                    <Link href="/portfolio" className="text-primary font-medium underline">
+                                        Add a company
+                                    </Link>{" "}
+                                    first.
+                                </p>
+                            ) : (
+                                <CompanyCombobox
+                                    companies={companies}
+                                    value={form.company_id}
+                                    onValueChange={(v) => set("company_id", v)}
+                                    placeholder="Search or select company…"
+                                />
+                            )}
                         </div>
                     )}
 
@@ -207,7 +233,15 @@ export function EngagementFormDialog({
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={mutation.isPending || !form.company_id || !form.stage_id}>
+                        <Button
+                            type="submit"
+                            disabled={
+                                mutation.isPending ||
+                                !form.company_id ||
+                                !form.stage_id ||
+                                companyPickerBlocked
+                            }
+                        >
                             {mutation.isPending && <Loader2 className="size-4 animate-spin mr-2" />}
                             {isEdit ? "Save Changes" : "Log Engagement"}
                         </Button>

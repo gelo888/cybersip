@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { CompanyCombobox } from "@/components/company-combobox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Loader2 } from "lucide-react"
@@ -117,17 +118,15 @@ export function ContactFormDialog({ open, onOpenChange, contact }: Props) {
             {isEdit ? (
               <Input value={contact!.company_name} disabled />
             ) : (
-              <Select value={form.company_id || "__none__"} onValueChange={(v) => set("company_id", v === "__none__" ? "" : v)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select company" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__" disabled>Select company</SelectItem>
-                  {companies.data?.items?.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.current_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <CompanyCombobox
+                companies={companies.data?.items ?? []}
+                value={form.company_id}
+                onValueChange={(v) => set("company_id", v)}
+                disabled={companies.isLoading}
+                placeholder={
+                  companies.isLoading ? "Loading companies…" : "Search or select company…"
+                }
+              />
             )}
           </div>
 

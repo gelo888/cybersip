@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { CompanyCombobox } from "@/components/company-combobox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2 } from "lucide-react"
 import { useCreateContract, useUpdateContract } from "@/hooks/use-contracts"
@@ -66,6 +68,8 @@ interface Props {
     contract?: Contract | null
     /** Required when `scopedCompanyId` is not set (e.g. Vault). Optional on Company 360. */
     companies?: Company[]
+    companiesLoading?: boolean
+    companiesError?: Error | null
     /** When set, create flow uses this company and hides the company picker. */
     scopedCompanyId?: string
 }
@@ -75,6 +79,8 @@ export function ContractFormDialog({
     onOpenChange,
     contract,
     companies = [],
+    companiesLoading = false,
+    companiesError = null,
     scopedCompanyId,
 }: Props) {
     const isEdit = !!contract
@@ -147,6 +153,11 @@ export function ContractFormDialog({
         }
     }
 
+    const companyPickerBlocked =
+        !isEdit &&
+        !scopedCompanyId &&
+        (companiesLoading || !!companiesError || companies.length === 0)
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-lg">
@@ -161,21 +172,31 @@ export function ContractFormDialog({
                     {!isEdit && !scopedCompanyId && (
                         <div className="grid gap-2">
                             <Label>Company *</Label>
-                            <Select
-                                value={form.company_id}
-                                onValueChange={(v) =>
-                                    setForm((prev) => ({ ...prev, company_id: v, engagement_id: "" }))
-                                }
-                            >
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select company…" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {companies.map((c) => (
-                                        <SelectItem key={c.id} value={c.id}>{c.current_name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            {companiesError ? (
+                                <p className="text-sm text-sophos-red mb-0">{companiesError.message}</p>
+                            ) : companiesLoading ? (
+                                <p className="text-xs text-muted-foreground flex items-center gap-2 mb-0">
+                                    <Loader2 className="size-3 animate-spin" />
+                                    Loading companies…
+                                </p>
+                            ) : companies.length === 0 ? (
+                                <p className="text-sm text-muted-foreground mb-0">
+                                    No companies in Portfolio.{" "}
+                                    <Link href="/portfolio" className="text-primary font-medium underline">
+                                        Add a company
+                                    </Link>{" "}
+                                    first.
+                                </p>
+                            ) : (
+                                <CompanyCombobox
+                                    companies={companies}
+                                    value={form.company_id}
+                                    onValueChange={(v) =>
+                                        setForm((prev) => ({ ...prev, company_id: v, engagement_id: "" }))
+                                    }
+                                    placeholder="Search or select company…"
+                                />
+                            )}
                         </div>
                     )}
 
@@ -301,7 +322,14 @@ export function ContractFormDialog({
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={mutation.isPending || (!isEdit && !form.company_id)}>
+                        <Button
+                            type="submit"
+                            disabled={
+                                mutation.isPending ||
+                                (!isEdit && !form.company_id) ||
+                                companyPickerBlocked
+                            }
+                        >
                             {mutation.isPending && <Loader2 className="size-4 animate-spin mr-2" />}
                             {isEdit ? "Save Changes" : "Create Contract"}
                         </Button>

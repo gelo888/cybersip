@@ -21,16 +21,10 @@ import {
     CalendarDays,
     Focus,
 } from "lucide-react"
+import { CompanyCombobox } from "@/components/company-combobox"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import { useCompanies } from "@/hooks/use-companies"
 import type { Company } from "@/lib/types"
 import { CompanyFormDialog } from "@/app/portfolio/components/company-form-dialog"
@@ -561,32 +555,19 @@ export const SalesReconHub = () => {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:flex-wrap">
                 <div className="space-y-2 flex-1 min-w-[min(100%,280px)] max-w-md">
                     <Label htmlFor="recon-account">Target account</Label>
-                    <Select
+                    <CompanyCombobox
+                        id="recon-account"
+                        companies={sortedCompanies}
                         value={selectedId}
                         onValueChange={setSelectedId}
                         disabled={sortedCompanies.length === 0}
-                    >
-                        <SelectTrigger
-                            id="recon-account"
-                            className="w-full"
-                            aria-label="Choose portfolio company for recon"
-                        >
-                            <SelectValue
-                                placeholder={
-                                    sortedCompanies.length === 0
-                                        ? "No companies yet — add one below"
-                                        : "Select a company from Portfolio…"
-                                }
-                            />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-72">
-                            {sortedCompanies.map((c) => (
-                                <SelectItem key={c.id} value={c.id}>
-                                    {c.current_name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                        className="w-full"
+                        placeholder={
+                            sortedCompanies.length === 0
+                                ? "No companies yet — add one below"
+                                : "Search or select a company from Portfolio…"
+                        }
+                    />
                 </div>
                 <div className="flex flex-wrap gap-2">
                     <Button

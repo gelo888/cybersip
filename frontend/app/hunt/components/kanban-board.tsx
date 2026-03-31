@@ -23,8 +23,8 @@ export function KanbanBoard() {
     const { data: stages = [], isLoading: stagesLoading } = useStages()
     const { data: engagements = [], isLoading: engagementsLoading } = useEngagements({ take: 500 })
     const { data: contracts = [], isLoading: contractsLoading } = useContracts({ take: 500 })
-    const { data: companiesData } = useCompanies({ page: 0, pageSize: 200 })
-    const companies = companiesData?.items ?? []
+    const companiesQuery = useCompanies({ page: 0, pageSize: 200 })
+    const companies = companiesQuery.data?.items ?? []
     const deleteMutation = useDeleteEngagement()
 
     const [formOpen, setFormOpen] = useState(false)
@@ -223,6 +223,9 @@ export function KanbanBoard() {
                 engagement={editTarget}
                 stages={stages}
                 companies={companies}
+                companiesLoading={companiesQuery.isLoading}
+                companiesError={companiesQuery.isError ? companiesQuery.error : null}
+                scopedCompanyId={companyFilter ?? undefined}
                 defaultStageId={defaultStageId}
             />
 

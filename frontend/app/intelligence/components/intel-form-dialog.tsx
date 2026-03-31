@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { CompanyCombobox } from "@/components/company-combobox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2 } from "lucide-react"
 import { useCreateIntel, useUpdateIntel } from "@/hooks/use-intel"
@@ -110,22 +111,13 @@ export function IntelFormDialog({
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Company *</Label>
-                                <Select
+                                <CompanyCombobox
+                                    companies={companies}
                                     value={companyId}
                                     onValueChange={setCompanyId}
                                     disabled={isEdit}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select company" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {companies.map((c) => (
-                                            <SelectItem key={c.id} value={c.id}>
-                                                {c.current_name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                    placeholder="Search or select company…"
+                                />
                             </div>
 
                             <div className="space-y-2">

@@ -71,8 +71,8 @@ function huntPipelineHref(companyId: string, engagementId: string | null | undef
 
 export function ContractsTable() {
     const { data: contracts = [], isLoading } = useContracts({ take: 500 })
-    const { data: companiesData } = useCompanies({ page: 0, pageSize: 200 })
-    const companies = companiesData?.items ?? []
+    const companiesQuery = useCompanies({ page: 0, pageSize: 200 })
+    const companies = companiesQuery.data?.items ?? []
     const deleteMutation = useDeleteContract()
 
     const [formOpen, setFormOpen] = useState(false)
@@ -254,6 +254,8 @@ export function ContractsTable() {
                 onOpenChange={setFormOpen}
                 contract={editTarget}
                 companies={companies}
+                companiesLoading={companiesQuery.isLoading}
+                companiesError={companiesQuery.isError ? companiesQuery.error : null}
             />
 
             <DeleteConfirmDialog
