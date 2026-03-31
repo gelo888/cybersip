@@ -15,7 +15,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
-  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -61,12 +60,6 @@ const navigation = [
     href: "/design",
     icon: Palette,
     description: "Design system",
-  },
-  {
-    title: "New UX/UI design",
-    href: "/design/new-ux-ui",
-    icon: Sparkles,
-    description: "Rollout plan & AI prompt",
   },
   {
     title: "Roadmap",

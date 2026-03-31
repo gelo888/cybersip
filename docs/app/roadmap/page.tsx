@@ -878,9 +878,9 @@ export default function RoadmapPage() {
 
       <DocsPager
         prev={{
-          title: "New UX/UI design",
-          href: "/design/new-ux-ui",
-          description: "Rollout plan & AI prompt",
+          title: "UX / UI Design",
+          href: "/design",
+          description: "Design system & application shell",
         }}
       />
     </div>

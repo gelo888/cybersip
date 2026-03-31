@@ -12,7 +12,6 @@ import {
   Shield,
   Crosshair,
   Zap,
-  Sparkles,
 } from "lucide-react";
 import { DocsPager } from "@/components/docs-pager";
 
@@ -55,13 +54,7 @@ const quickLinks = [
     title: "UX / UI Design",
     href: "/design",
     icon: Palette,
-    description: "Design system and interaction patterns",
-  },
-  {
-    title: "New UX/UI design",
-    href: "/design/new-ux-ui",
-    icon: Sparkles,
-    description: "Sentinel rollout plan and copy-paste AI prompt",
+    description: "Design system, shell, themes, and route patterns",
   },
   {
     title: "Roadmap",

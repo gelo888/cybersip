@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Palette } from "lucide-react";
 import { DocsPager } from "@/components/docs-pager";
 
@@ -30,25 +29,12 @@ export default function DesignPage() {
         &quot;Data Entry Tool&quot; to a &quot;Strategy Engine.&quot;
       </div>
 
-      <div className="mb-8 rounded-lg border border-violet-500/25 bg-violet-500/5 p-4 text-sm">
-        <strong>New UX/UI design (rollout):</strong> Sentinel-inspired rollout
-        plan, per-page review gates, and a{" "}
-        <strong>copy-paste assistant prompt</strong> live on{" "}
-        <Link
-          href="/design/new-ux-ui"
-          className="font-medium text-blue-600 underline dark:text-blue-400"
-        >
-          New UX/UI design
-        </Link>
-        .
-      </div>
-
-      <h2>Shipped shell, theme, and charts (Sentinel rollout)</h2>
+      <h2>Application shell, theme, and charts</h2>
       <p>
         The Next.js app uses a <strong>Sentinel-inspired</strong> visual language
         (see <code>design/aegis_command/DESIGN.md</code> and per-page{" "}
         <code>design/*/code.html</code> mocks). Below is what is{" "}
-        <strong>actually wired in the repo</strong> today — prefer these paths when
+        <strong>implemented in the repo</strong> today — prefer these paths when
         extending UI.
       </p>
 
@@ -90,6 +76,15 @@ export default function DesignPage() {
           <code>frontend/components/command-palette.tsx</code> — Cmd/Ctrl+K; exports{" "}
           <code>COMMAND_PALETTE_OPEN_EVENT</code> for programmatic open. Mounted
           from <code>frontend/components/providers.tsx</code>.
+        </li>
+        <li>
+          <strong>Page heroes</strong> — Many routes add an in-content block below
+          the header: uppercase breadcrumb (
+          <strong>Command center</strong> → current area), Lexend page title, and a
+          short description. Examples: Vault, Portfolio overview, Intelligence hub,
+          Territories, Sales recon, and Settings. Command Center (
+          <code>/</code>) and Hunt use full-bleed layouts without that breadcrumb
+          strip.
         </li>
       </ul>
 
@@ -575,9 +570,9 @@ export default function DesignPage() {
       <DocsPager
         prev={{ title: "Frontend", href: "/frontend", description: "Next.js app & components" }}
         next={{
-          title: "New UX/UI design",
-          href: "/design/new-ux-ui",
-          description: "Rollout plan & AI prompt",
+          title: "Roadmap",
+          href: "/roadmap",
+          description: "Development phases & plans",
         }}
       />
     </div>
