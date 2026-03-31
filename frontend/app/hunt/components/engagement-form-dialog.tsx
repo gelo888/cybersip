@@ -50,11 +50,22 @@ interface Props {
     onOpenChange: (open: boolean) => void
     engagement?: Engagement | null
     stages: Stage[]
-    companies: Company[]
+    /** Required when `scopedCompanyId` is not set (e.g. Hunt). Optional on Company 360. */
+    companies?: Company[]
+    /** When set, create flow uses this company and hides the company picker. */
+    scopedCompanyId?: string
     defaultStageId?: string
 }
 
-export function EngagementFormDialog({ open, onOpenChange, engagement, stages, companies, defaultStageId }: Props) {
+export function EngagementFormDialog({
+    open,
+    onOpenChange,
+    engagement,
+    stages,
+    companies = [],
+    scopedCompanyId,
+    defaultStageId,
+}: Props) {
     const isEdit = !!engagement
     const createMutation = useCreateEngagement()
     const updateMutation = useUpdateEngagement()
@@ -66,7 +77,11 @@ export function EngagementFormDialog({ open, onOpenChange, engagement, stages, c
         setForm(
             engagement
                 ? engagementToForm(engagement)
-                : { ...EMPTY_FORM, stage_id: defaultStageId ?? stages[0]?.id ?? "" }
+                : {
+                      ...EMPTY_FORM,
+                      company_id: scopedCompanyId ?? "",
+                      stage_id: defaultStageId ?? stages[0]?.id ?? "",
+                  },
         )
     }
     if (open !== prevOpen) {
@@ -120,7 +135,7 @@ export function EngagementFormDialog({ open, onOpenChange, engagement, stages, c
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="grid gap-4 py-2">
-                    {!isEdit && (
+                    {!isEdit && !scopedCompanyId && (
                         <div className="grid gap-2">
                             <Label>Company *</Label>
                             <Select value={form.company_id} onValueChange={(v) => set("company_id", v)}>

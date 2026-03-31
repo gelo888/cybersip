@@ -51,7 +51,7 @@ export default function RoadmapPage() {
           </h3>
           <ul className="mb-0 text-sm">
             <li>1 page still uses hardcoded mock data (Command Center)</li>
-            <li>Company 360 sub-sections are read-only (no create/edit for engagements, contracts, intel)</li>
+            <li>Company 360 contacts sub-section is read-only (no contact CRUD on the detail page)</li>
             <li>Hunt ↔ Vault cross-reference not yet implemented (contract indicators on pipeline cards)</li>
             <li>No authentication / authorization</li>
             <li>No AI integration</li>
@@ -136,9 +136,10 @@ export default function RoadmapPage() {
             <code>/api/team-members</code> and{" "}
             <code>/api/territory-members</code>
           </li>
-          <li>
-            Add CRUD to Company 360 sub-sections — create/edit modals for
-            engagements, contracts, and competitor intel (currently read-only)
+          <li className="line-through opacity-60">
+            Add CRUD to Company 360 sub-sections — create/edit/delete for
+            engagements, contracts, and competitor intel (reuses Hunt / Vault /
+            Intelligence dialogs with <code>scopedCompanyId</code>)
           </li>
           <li>
             Hunt ↔ Vault cross-reference — show contract status indicators on

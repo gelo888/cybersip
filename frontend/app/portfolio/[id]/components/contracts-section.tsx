@@ -1,8 +1,20 @@
 "use client";
 
-import { FileText, Loader2, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import {
+    FileText,
+    Loader2,
+    AlertCircle,
+    Plus,
+    Pencil,
+    Trash2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useCompanyContracts } from "@/hooks/use-company-detail";
-import type { ContractStatus, ContractType } from "@/lib/types";
+import { useDeleteContract } from "@/hooks/use-contracts";
+import { ContractFormDialog } from "@/app/vault/components/contract-form-dialog";
+import { DeleteConfirmDialog } from "@/app/portfolio/components/delete-confirm-dialog";
+import type { Contract, ContractStatus, ContractType } from "@/lib/types";
 
 function ContractStatusBadge({ status }: { status: ContractStatus }) {
     const config: Record<ContractStatus, { label: string; className: string }> =
@@ -72,7 +84,29 @@ export function CompanyContractsSection({
     companyId: string;
 }) {
     const contracts = useCompanyContracts(companyId);
+    const deleteMutation = useDeleteContract();
     const items = contracts.data ?? [];
+
+    const [formOpen, setFormOpen] = useState(false);
+    const [editTarget, setEditTarget] = useState<Contract | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<Contract | null>(null);
+
+    function openCreate() {
+        setEditTarget(null);
+        setFormOpen(true);
+    }
+
+    function openEdit(c: Contract) {
+        setEditTarget(c);
+        setFormOpen(true);
+    }
+
+    function confirmDelete() {
+        if (!deleteTarget) return;
+        deleteMutation.mutate(deleteTarget.id, {
+            onSuccess: () => setDeleteTarget(null),
+        });
+    }
 
     return (
         <section className="space-y-3">
@@ -84,6 +118,16 @@ export function CompanyContractsSection({
                         ({items.length})
                     </span>
                 )}
+                <div className="ml-auto">
+                    <Button
+                        size="sm"
+                        onClick={openCreate}
+                        disabled={contracts.isLoading}
+                    >
+                        <Plus className="size-4 mr-1" />
+                        Add Contract
+                    </Button>
+                </div>
             </div>
 
             {contracts.isLoading && (
@@ -101,8 +145,12 @@ export function CompanyContractsSection({
             )}
 
             {contracts.data && items.length === 0 && (
-                <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-                    No contracts on file.
+                <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground space-y-3">
+                    <p>No contracts on file.</p>
+                    <Button size="sm" variant="outline" onClick={openCreate}>
+                        <Plus className="size-4 mr-1" />
+                        Add Contract
+                    </Button>
                 </div>
             )}
 
@@ -128,6 +176,9 @@ export function CompanyContractsSection({
                                 </th>
                                 <th className="px-4 py-3 text-center font-medium">
                                     Renewal Notice
+                                </th>
+                                <th className="px-4 py-3 text-right font-medium">
+                                    Actions
                                 </th>
                             </tr>
                         </thead>
@@ -169,12 +220,60 @@ export function CompanyContractsSection({
                                             ? `${contract.renewal_notice_days}d`
                                             : "—"}
                                     </td>
+                                    <td className="px-4 py-3 text-right">
+                                        <div className="flex items-center justify-end gap-1">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon-xs"
+                                                onClick={() =>
+                                                    openEdit(contract)
+                                                }
+                                            >
+                                                <Pencil className="size-3.5" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon-xs"
+                                                onClick={() =>
+                                                    setDeleteTarget(contract)
+                                                }
+                                            >
+                                                <Trash2 className="size-3.5 text-sophos-red" />
+                                            </Button>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
             )}
+
+            <ContractFormDialog
+                open={formOpen}
+                onOpenChange={setFormOpen}
+                contract={editTarget}
+                scopedCompanyId={companyId}
+            />
+
+            <DeleteConfirmDialog
+                open={!!deleteTarget}
+                onOpenChange={(open) => {
+                    if (!open) setDeleteTarget(null);
+                }}
+                entityName={
+                    deleteTarget
+                        ? `${deleteTarget.type === "our_contract" ? "Our" : "Competitor"} contract`
+                        : ""
+                }
+                onConfirm={confirmDelete}
+                isPending={deleteMutation.isPending}
+                error={
+                    deleteMutation.isError
+                        ? deleteMutation.error.message
+                        : null
+                }
+            />
         </section>
     );
 }

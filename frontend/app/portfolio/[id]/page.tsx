@@ -212,7 +212,10 @@ export default function CompanyDetailPage({
             <CompanyContactsSection companyId={id} />
             <CompanyEngagementsSection companyId={id} />
             <CompanyContractsSection companyId={id} />
-            <CompanyIntelSection companyId={id} />
+            <CompanyIntelSection
+                companyId={id}
+                companyName={c.current_name}
+            />
         </div>
     );
 }

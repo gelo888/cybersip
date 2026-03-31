@@ -1,8 +1,21 @@
 "use client";
 
-import { Shield, Loader2, AlertCircle } from "lucide-react";
-import { useCompanyIntel } from "@/hooks/use-company-detail";
-import type { IntelConfidence } from "@/lib/types";
+import { useState } from "react";
+import {
+    Shield,
+    Loader2,
+    AlertCircle,
+    Plus,
+    Pencil,
+    Trash2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useCompany, useCompanyIntel } from "@/hooks/use-company-detail";
+import { useCompetitors } from "@/hooks/use-competitors";
+import { useDeleteIntel } from "@/hooks/use-intel";
+import { IntelFormDialog } from "@/app/intelligence/components/intel-form-dialog";
+import { DeleteConfirmDialog } from "@/app/portfolio/components/delete-confirm-dialog";
+import type { CompetitorIntel, IntelConfidence } from "@/lib/types";
 
 function ConfidenceBadge({ confidence }: { confidence: IntelConfidence }) {
     const config: Record<
@@ -40,9 +53,45 @@ function formatDate(iso: string) {
     });
 }
 
-export function CompanyIntelSection({ companyId }: { companyId: string }) {
+export function CompanyIntelSection({
+    companyId,
+    companyName,
+}: {
+    companyId: string;
+    companyName: string;
+}) {
     const intel = useCompanyIntel(companyId);
+    const companyDetail = useCompany(companyId);
+    const competitorsQuery = useCompetitors();
+    const deleteMutation = useDeleteIntel();
     const items = intel.data ?? [];
+    const competitors = competitorsQuery.data ?? [];
+
+    const [formOpen, setFormOpen] = useState(false);
+    const [editTarget, setEditTarget] = useState<CompetitorIntel | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<CompetitorIntel | null>(
+        null,
+    );
+
+    const companiesForDialog =
+        companyDetail.data != null ? [companyDetail.data] : [];
+
+    function openCreate() {
+        setEditTarget(null);
+        setFormOpen(true);
+    }
+
+    function openEdit(record: CompetitorIntel) {
+        setEditTarget(record);
+        setFormOpen(true);
+    }
+
+    function confirmDelete() {
+        if (!deleteTarget) return;
+        deleteMutation.mutate(deleteTarget.id, {
+            onSuccess: () => setDeleteTarget(null),
+        });
+    }
 
     return (
         <section className="space-y-3">
@@ -54,7 +103,28 @@ export function CompanyIntelSection({ companyId }: { companyId: string }) {
                         ({items.length})
                     </span>
                 )}
+                <div className="ml-auto">
+                    <Button
+                        size="sm"
+                        onClick={openCreate}
+                        disabled={
+                            intel.isLoading ||
+                            competitors.length === 0 ||
+                            !companyDetail.data
+                        }
+                    >
+                        <Plus className="size-4 mr-1" />
+                        Log Intel
+                    </Button>
+                </div>
             </div>
+
+            {competitorsQuery.isSuccess && competitors.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                    Add competitors on the Intelligence page before logging intel
+                    here.
+                </p>
+            )}
 
             {intel.isLoading && (
                 <div className="flex items-center justify-center py-8 text-muted-foreground gap-2">
@@ -71,8 +141,19 @@ export function CompanyIntelSection({ companyId }: { companyId: string }) {
             )}
 
             {intel.data && items.length === 0 && (
-                <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-                    No competitor intelligence gathered yet.
+                <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground space-y-3">
+                    <p>No competitor intelligence gathered yet.</p>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={openCreate}
+                        disabled={
+                            competitors.length === 0 || !companyDetail.data
+                        }
+                    >
+                        <Plus className="size-4 mr-1" />
+                        Log Intel
+                    </Button>
                 </div>
             )}
 
@@ -82,6 +163,9 @@ export function CompanyIntelSection({ companyId }: { companyId: string }) {
                         <thead>
                             <tr className="border-b bg-muted/40">
                                 <th className="px-4 py-3 text-left font-medium">
+                                    Competitor
+                                </th>
+                                <th className="px-4 py-3 text-left font-medium">
                                     Product
                                 </th>
                                 <th className="px-4 py-3 text-left font-medium">
@@ -89,6 +173,9 @@ export function CompanyIntelSection({ companyId }: { companyId: string }) {
                                 </th>
                                 <th className="px-4 py-3 text-left font-medium">
                                     Contract End
+                                </th>
+                                <th className="px-4 py-3 text-right font-medium">
+                                    Actions
                                 </th>
                             </tr>
                         </thead>
@@ -98,6 +185,9 @@ export function CompanyIntelSection({ companyId }: { companyId: string }) {
                                     key={record.id}
                                     className="border-b last:border-b-0 hover:bg-muted/20 transition-colors"
                                 >
+                                    <td className="px-4 py-3 font-medium">
+                                        {record.competitor_name}
+                                    </td>
                                     <td className="px-4 py-3 font-medium">
                                         {record.product_name ?? "—"}
                                     </td>
@@ -111,12 +201,63 @@ export function CompanyIntelSection({ companyId }: { companyId: string }) {
                                             ? formatDate(record.contract_end)
                                             : "—"}
                                     </td>
+                                    <td className="px-4 py-3 text-right">
+                                        <div className="flex items-center justify-end gap-1">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon-xs"
+                                                onClick={() =>
+                                                    openEdit(record)
+                                                }
+                                            >
+                                                <Pencil className="size-3.5" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon-xs"
+                                                onClick={() =>
+                                                    setDeleteTarget(record)
+                                                }
+                                            >
+                                                <Trash2 className="size-3.5 text-sophos-red" />
+                                            </Button>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
             )}
+
+            <IntelFormDialog
+                open={formOpen}
+                onOpenChange={setFormOpen}
+                intel={editTarget}
+                companies={companiesForDialog}
+                competitors={competitors}
+                scopedCompanyId={editTarget ? undefined : companyId}
+                scopedCompanyName={companyName}
+            />
+
+            <DeleteConfirmDialog
+                open={!!deleteTarget}
+                onOpenChange={(open) => {
+                    if (!open) setDeleteTarget(null);
+                }}
+                entityName={
+                    deleteTarget
+                        ? `${deleteTarget.competitor_name} intel`
+                        : ""
+                }
+                onConfirm={confirmDelete}
+                isPending={deleteMutation.isPending}
+                error={
+                    deleteMutation.isError
+                        ? deleteMutation.error.message
+                        : null
+                }
+            />
         </section>
     );
 }

@@ -121,7 +121,7 @@ export default function FrontendPage() {
             <td><code>/portfolio/[id]</code></td>
             <td>Company 360</td>
             <td>Live API</td>
-            <td>Contacts, engagements, contracts, intel with context-aware breadcrumbs</td>
+            <td>Contacts (read-only table); engagements, contracts, and competitor intel with full CRUD (reuses Hunt / Vault / Intelligence form dialogs with scoped company)</td>
           </tr>
           <tr>
             <td><code>/territories</code></td>
@@ -372,7 +372,7 @@ export function useCreateContract() {
           <ul className="mb-0 text-sm">
             <li>TanStack Query + centralized API client</li>
             <li>Portfolio — companies &amp; contacts with full CRUD</li>
-            <li>Company 360 — live data (contacts, engagements, contracts, intel)</li>
+            <li>Company 360 — live data; CRUD for engagements, contracts, and intel (contacts table read-only)</li>
             <li>Hunt — Kanban pipeline with engagement CRUD, linked to Company 360</li>
             <li>Vault — contracts table with CRUD, summary cards, company links</li>
             <li>Intelligence Hub — competitor tracker and intel feed with CRUD, static market signals preview</li>

@@ -58,10 +58,19 @@ interface Props {
     open: boolean
     onOpenChange: (open: boolean) => void
     contract?: Contract | null
-    companies: Company[]
+    /** Required when `scopedCompanyId` is not set (e.g. Vault). Optional on Company 360. */
+    companies?: Company[]
+    /** When set, create flow uses this company and hides the company picker. */
+    scopedCompanyId?: string
 }
 
-export function ContractFormDialog({ open, onOpenChange, contract, companies }: Props) {
+export function ContractFormDialog({
+    open,
+    onOpenChange,
+    contract,
+    companies = [],
+    scopedCompanyId,
+}: Props) {
     const isEdit = !!contract
     const createMutation = useCreateContract()
     const updateMutation = useUpdateContract()
@@ -70,7 +79,13 @@ export function ContractFormDialog({ open, onOpenChange, contract, companies }: 
     const [form, setForm] = useState<FormState>(EMPTY_FORM)
     const [prevOpen, setPrevOpen] = useState(false)
     if (open && !prevOpen) {
-        setForm(contract ? contractToForm(contract) : EMPTY_FORM)
+        setForm(
+            contract
+                ? contractToForm(contract)
+                : scopedCompanyId
+                  ? { ...EMPTY_FORM, company_id: scopedCompanyId }
+                  : EMPTY_FORM,
+        )
     }
     if (open !== prevOpen) {
         setPrevOpen(open)
@@ -117,7 +132,7 @@ export function ContractFormDialog({ open, onOpenChange, contract, companies }: 
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="grid gap-4 py-2">
-                    {!isEdit && (
+                    {!isEdit && !scopedCompanyId && (
                         <div className="grid gap-2">
                             <Label>Company *</Label>
                             <Select value={form.company_id} onValueChange={(v) => set("company_id", v)}>

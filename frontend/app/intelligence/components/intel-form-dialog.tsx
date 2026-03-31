@@ -20,11 +20,24 @@ interface Props {
     open: boolean
     onOpenChange: (open: boolean) => void
     intel?: CompetitorIntel | null
-    companies: Company[]
+    /** Required when not using scoped create (e.g. Intelligence Hub). Optional if `scopedCompanyId` is set for create-only. */
+    companies?: Company[]
     competitors: Competitor[]
+    /** When set for a new record, hides company picker and uses this id. */
+    scopedCompanyId?: string
+    /** Shown in description when creating with a scoped company. */
+    scopedCompanyName?: string
 }
 
-export function IntelFormDialog({ open, onOpenChange, intel, companies, competitors }: Props) {
+export function IntelFormDialog({
+    open,
+    onOpenChange,
+    intel,
+    companies = [],
+    competitors,
+    scopedCompanyId,
+    scopedCompanyName,
+}: Props) {
     const isEdit = !!intel
     const createMutation = useCreateIntel()
     const updateMutation = useUpdateIntel()
@@ -38,7 +51,7 @@ export function IntelFormDialog({ open, onOpenChange, intel, companies, competit
 
     const [prevOpen, setPrevOpen] = useState(false)
     if (open && !prevOpen) {
-        setCompanyId(intel?.company_id ?? "")
+        setCompanyId(intel?.company_id ?? scopedCompanyId ?? "")
         setCompetitorId(intel?.competitor_id ?? "")
         setProductName(intel?.product_name ?? "")
         setContractEnd(intel?.contract_end ? intel.contract_end.slice(0, 10) : "")
@@ -84,38 +97,63 @@ export function IntelFormDialog({ open, onOpenChange, intel, companies, competit
                     <DialogDescription>
                         {isEdit
                             ? "Update competitor intelligence."
-                            : "Record competitor presence at a company."}
+                            : scopedCompanyId && scopedCompanyName
+                              ? `Record competitor presence at ${scopedCompanyName}.`
+                              : scopedCompanyId
+                                ? "Record competitor presence at this company."
+                                : "Record competitor presence at a company."}
                     </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label>Company *</Label>
-                            <Select
-                                value={companyId}
-                                onValueChange={setCompanyId}
-                                disabled={isEdit}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select company" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {companies.map((c) => (
-                                        <SelectItem key={c.id} value={c.id}>
-                                            {c.current_name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                    {isEdit || !scopedCompanyId ? (
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Company *</Label>
+                                <Select
+                                    value={companyId}
+                                    onValueChange={setCompanyId}
+                                    disabled={isEdit}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select company" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {companies.map((c) => (
+                                            <SelectItem key={c.id} value={c.id}>
+                                                {c.current_name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
+                            <div className="space-y-2">
+                                <Label>Competitor *</Label>
+                                <Select
+                                    value={competitorId}
+                                    onValueChange={setCompetitorId}
+                                    disabled={isEdit}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select competitor" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {competitors.map((c) => (
+                                            <SelectItem key={c.id} value={c.id}>
+                                                {c.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    ) : (
                         <div className="space-y-2">
                             <Label>Competitor *</Label>
                             <Select
                                 value={competitorId}
                                 onValueChange={setCompetitorId}
-                                disabled={isEdit}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select competitor" />
@@ -129,7 +167,7 @@ export function IntelFormDialog({ open, onOpenChange, intel, companies, competit
                                 </SelectContent>
                             </Select>
                         </div>
-                    </div>
+                    )}
 
                     <div className="space-y-2">
                         <Label htmlFor="intel-product">Product Name</Label>
