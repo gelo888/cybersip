@@ -340,19 +340,19 @@ export const SalesReconHub = () => {
         status: "prospect",
     })
 
-    const companies = companiesData?.items ?? []
     const prospectTotal = prospectsData?.total ?? prospectsData?.items.length ?? 0
-    const prospects = prospectsData?.items ?? []
 
-    const sortedCompanies = useMemo(
-        () => [...companies].sort((a, b) => a.current_name.localeCompare(b.current_name)),
-        [companies],
-    )
+    const sortedCompanies = useMemo(() => {
+        const items = companiesData?.items;
+        const list = items ?? [];
+        return [...list].sort((a, b) => a.current_name.localeCompare(b.current_name));
+    }, [companiesData?.items]);
 
-    const sortedProspects = useMemo(
-        () => [...prospects].sort((a, b) => a.current_name.localeCompare(b.current_name)),
-        [prospects],
-    )
+    const sortedProspects = useMemo(() => {
+        const items = prospectsData?.items;
+        const list = items ?? [];
+        return [...list].sort((a, b) => a.current_name.localeCompare(b.current_name));
+    }, [prospectsData?.items]);
 
     const prospectPreviewList = useMemo(
         () => sortedProspects.slice(0, PROSPECT_CARD_PREVIEW_LIMIT),

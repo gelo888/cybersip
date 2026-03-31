@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, User2 } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 import {
     Sidebar,

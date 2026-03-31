@@ -14,7 +14,6 @@ import {
     Pencil,
     Trash2,
     FileSignature,
-    Building2,
     GripVertical,
     AlertTriangle,
     Shield,
@@ -64,29 +63,6 @@ function formatDealValue(n: number) {
         currency: "USD",
         maximumFractionDigits: 0,
     }).format(n);
-}
-
-function heatBarHeights(seed: string): number[] {
-    const bases = [10, 16, 8, 14, 20];
-    return bases.map((b, i) => {
-        const c = seed.charCodeAt(i % Math.max(seed.length, 1)) ?? 0;
-        return Math.min(24, b + (c % 5));
-    });
-}
-
-function EngagementHeat({ seed }: { seed: string }) {
-    const heights = heatBarHeights(seed);
-    return (
-        <div className="flex items-end gap-1" aria-hidden>
-            {heights.map((h, i) => (
-                <div
-                    key={i}
-                    className="bg-accent w-1 rounded-full opacity-80"
-                    style={{ height: `${h}px` }}
-                />
-            ))}
-        </div>
-    );
 }
 
 interface Props {

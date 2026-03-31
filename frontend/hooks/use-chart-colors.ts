@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useLayoutEffect, useState } from "react";
+import { useMemo } from "react";
 
 const KEYS = [
     "--chart-1",
@@ -33,11 +33,13 @@ const FALLBACK_DARK = [
  */
 export function useChartColors(): string[] {
     const { resolvedTheme } = useTheme();
-    const [colors, setColors] = useState<string[]>(() => [
-        ...FALLBACK_LIGHT,
-    ]);
 
-    useLayoutEffect(() => {
+    return useMemo(() => {
+        if (typeof document === "undefined") {
+            return resolvedTheme === "dark"
+                ? [...FALLBACK_DARK]
+                : [...FALLBACK_LIGHT];
+        }
         const root = document.documentElement;
         const read = KEYS.map((key) =>
             getComputedStyle(root).getPropertyValue(key).trim(),
@@ -45,8 +47,6 @@ export function useChartColors(): string[] {
         const allOk = read.every(Boolean);
         const fallback =
             resolvedTheme === "dark" ? FALLBACK_DARK : FALLBACK_LIGHT;
-        setColors(allOk ? read : [...fallback]);
+        return allOk ? read : [...fallback];
     }, [resolvedTheme]);
-
-    return colors;
 }
