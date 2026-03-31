@@ -39,7 +39,7 @@ Full project documentation is available as a standalone site:
 cd docs && npm install && npm run dev
 ```
 
-Covers: Architecture, Installation Guide, Database Schema, Backend API (66 endpoints), Frontend, UX/UI Design, and Roadmap.
+Covers: Architecture, Installation Guide, Database Schema, Backend API (74+ endpoints), Frontend, UX/UI Design, and Roadmap.
 
 ## Questions & Collaboration
 

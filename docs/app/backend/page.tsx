@@ -58,8 +58,8 @@ export default function BackendPage() {
       </div>
       <h1>Backend API Reference</h1>
       <p>
-        The FastAPI backend provides <strong>73+ REST endpoints</strong> across{" "}
-        <strong>10 entity groups</strong>. All endpoints follow a consistent
+        The FastAPI backend provides <strong>74+ REST endpoints</strong> across{" "}
+        <strong>11 router groups</strong>. All endpoints follow a consistent
         pattern with Pydantic validation for request/response schemas.
       </p>
 
@@ -80,6 +80,11 @@ export default function BackendPage() {
           </tr>
         </thead>
         <tbody>
+          <tr>
+            <td>Command Center</td>
+            <td><code>command_center.py</code></td>
+            <td><code>/api/command-center/summary</code></td>
+          </tr>
           <tr>
             <td>Companies</td>
             <td><code>companies.py</code></td>
@@ -174,6 +179,26 @@ class CompanyResponse(BaseModel):
 
     class Config:
         from_attributes = True`}</pre>
+
+      <h2>Command Center</h2>
+      <p>
+        Read-only aggregation for the home dashboard: pipeline value (sum of{" "}
+        <code>total_value</code> on <strong>pending</strong>{" "}
+        <code>our_contract</code> records), counts of active contracts and
+        contracts expiring in the next 90 days (UTC), and a renewal radar list
+        (active contracts with <code>end_date</code> in that window, with
+        company, territory, and best-effort competitor label from intel).
+      </p>
+      <EndpointTable
+        endpoints={[
+          {
+            method: "GET",
+            path: "/api/command-center/summary",
+            description:
+              "Dashboard KPIs + renewal radar (contracts, companies, territories, competitor intel)",
+          },
+        ]}
+      />
 
       <h2>Companies</h2>
       <p>The central entity. All other entities connect to companies.</p>

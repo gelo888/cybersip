@@ -90,8 +90,12 @@ export default function FrontendPage() {
           <tr>
             <td><code>/</code></td>
             <td>Command Center</td>
-            <td>Mock data</td>
-            <td>Proactive dashboard with Renewal Radar, Win/Loss Heatmap, Action Stream</td>
+            <td>Live API + sample widgets</td>
+            <td>
+              KPI strip and Renewal Radar from <code>/api/command-center/summary</code> (
+              <code>useCommandCenterSummary</code>); Win/Loss Heatmap and Action Stream remain
+              illustrative sample data
+            </td>
           </tr>
           <tr>
             <td><code>/intelligence</code></td>
@@ -161,7 +165,9 @@ export default function FrontendPage() {
       <pre>{`frontend/
 ├── app/
 │   ├── layout.tsx             # Root layout with sidebar
-│   ├── page.tsx               # Command Center (Dashboard)
+│   ├── page.tsx               # Command Center entry (renders dashboard client)
+│   ├── components/
+│   │   └── command-center-dashboard.tsx  # KPIs + renewal radar (live); heatmap + stream (sample)
 │   ├── intelligence/
 │   │   └── page.tsx           # Intelligence Hub
 │   ├── sales-recon/
@@ -206,6 +212,7 @@ export default function FrontendPage() {
 │   ├── use-contacts.ts        # Contact list + CRUD
 │   ├── use-stages.ts          # Pipeline stage CRUD
 │   ├── use-engagements.ts     # Engagement list + CRUD
+│   ├── use-command-center-summary.ts  # GET /api/command-center/summary
 │   ├── use-contracts.ts       # Contract + line-item CRUD
 │   ├── use-territories.ts     # useTerritories, useCreateTerritory, useUpdateTerritory, useDeleteTerritory, useSegmentLabels, useCreateSegmentLabel
 │   ├── use-teams.ts           # useTeamMembers, useCreateTeamMember, useAssignMemberTerritory, useUnassignMemberTerritory
@@ -393,6 +400,10 @@ export function useCreateContract() {
           </h3>
           <ul className="mb-0 text-sm">
             <li>TanStack Query + centralized API client</li>
+            <li>
+              Command Center — KPI strip and Renewal Radar from{" "}
+              <code>/api/command-center/summary</code>
+            </li>
             <li>Portfolio — companies &amp; contacts with full CRUD</li>
             <li>Company 360 — live data; CRUD for engagements, contracts, and intel (contacts table read-only)</li>
             <li>
@@ -417,7 +428,10 @@ export function useCreateContract() {
             Pending
           </h3>
           <ul className="mb-0 text-sm">
-            <li>1 page still uses mock data (Command Center)</li>
+            <li>
+              Command Center — Win/Loss Heatmap and Action Stream still use sample
+              data (KPIs and Renewal Radar are live)
+            </li>
             <li>Deeper Hunt ↔ Vault workflow (e.g. auto-create contract from stage)</li>
             <li>No authentication / authorization</li>
             <li>Dark mode toggle not implemented</li>

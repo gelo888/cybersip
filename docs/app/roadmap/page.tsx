@@ -30,7 +30,7 @@ export default function RoadmapPage() {
           </h3>
           <ul className="mb-0 text-sm">
             <li>7 frontend pages (Next.js 16 + shadcn/ui)</li>
-            <li>FastAPI backend with 9 CRUD routers (66 endpoints)</li>
+            <li>FastAPI backend with CRUD + aggregation routers (74+ endpoints)</li>
             <li>Prisma schema with rich relationships</li>
             <li>Docker Compose (PostgreSQL + backend)</li>
             <li>Sidebar navigation grouped by strategic intent</li>
@@ -50,7 +50,10 @@ export default function RoadmapPage() {
             The Gap
           </h3>
           <ul className="mb-0 text-sm">
-            <li>1 page still uses hardcoded mock data (Command Center)</li>
+            <li>
+              Command Center heatmap / action stream still sample data (KPIs +
+              renewal radar are live)
+            </li>
             <li>Company 360 contacts sub-section is read-only (no contact CRUD on the detail page)</li>
             <li>Advanced Hunt ↔ Vault workflow automation not yet implemented (e.g. auto-create contract from stage)</li>
             <li>No authentication / authorization</li>
@@ -87,8 +90,8 @@ export default function RoadmapPage() {
           Week 1–2
         </p>
         <p className="mb-3 text-sm text-muted-foreground">
-          The backend already has full CRUD for all entities (66 endpoints across
-          9 routers). These tasks wire the remaining static pages to real API
+          The backend already has full CRUD for all entities (74+ endpoints across
+          multiple routers). These tasks wire the remaining static pages to real API
           data using the same pattern established in Phase 1: TanStack Query
           hook → replace mock data → add CRUD modals.
         </p>
@@ -154,10 +157,11 @@ export default function RoadmapPage() {
           Priority 3 — Dashboard & aggregation
         </p>
         <ol start={11} className="mb-0 text-sm">
-          <li>
+          <li className="line-through opacity-60">
             Connect Command Center to real data — build KPI aggregation
             (pipeline value, contract counts, renewal radar) from connected
-            entities
+            entities via <code>GET /api/command-center/summary</code>; Win/Loss
+            Heatmap and Action Stream remain sample for now
           </li>
         </ol>
       </div>

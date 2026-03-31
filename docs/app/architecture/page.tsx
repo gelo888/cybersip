@@ -150,7 +150,7 @@ export default function ArchitecturePage() {
             </div>
             <p className="mt-2 mb-0 text-[11px] text-muted-foreground">
               CORS: <code className="text-[11px]">CORS_ALLOWED_ORIGINS</code> |{" "}
-              9 router groups | 66 endpoints
+              11 router groups | 74+ endpoints
             </p>
           </div>
         </div>
