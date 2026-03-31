@@ -48,12 +48,14 @@ from app.routers import (  # noqa: E402
     contracts,
     engagements,
     geo,
+    industries,
     products,
     teams,
     territories,
 )
 
 app.include_router(command_center.router)
+app.include_router(industries.router)
 app.include_router(companies.router)
 app.include_router(contacts.router)
 app.include_router(engagements.router)

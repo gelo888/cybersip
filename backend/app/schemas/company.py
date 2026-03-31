@@ -4,6 +4,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from app.schemas.industry import CompanyIndustryResponse, IndustryLinkInput
+
 
 class CompanyStatus(str, Enum):
     """Mirrors the CompanyStatus enum in the Prisma schema."""
@@ -33,6 +35,10 @@ class CompanyCreate(BaseModel):
     website: Optional[str] = None
     stock_ticker: Optional[str] = None
     country: Optional[str] = None
+    industry_links: Optional[list[IndustryLinkInput]] = Field(
+        None,
+        description="If set (including []), replaces all company–industry links after create.",
+    )
 
 
 class CompanyUpdate(BaseModel):
@@ -46,6 +52,10 @@ class CompanyUpdate(BaseModel):
     website: Optional[str] = None
     stock_ticker: Optional[str] = None
     country: Optional[str] = None
+    industry_links: Optional[list[IndustryLinkInput]] = Field(
+        None,
+        description="If not None (including []), replaces all company–industry links.",
+    )
 
 
 class CompanyResponse(BaseModel):
@@ -60,6 +70,7 @@ class CompanyResponse(BaseModel):
     website: Optional[str] = None
     stock_ticker: Optional[str] = None
     country: Optional[str] = None
+    industries: list[CompanyIndustryResponse] = Field(default_factory=list)
     created_at: datetime
     updated_at: datetime
 
