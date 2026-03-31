@@ -220,6 +220,7 @@ model ProductService {
 model Contract {
   id                String         @id @default(uuid()) @db.Uuid
   companyId         String         @map("company_id") @db.Uuid
+  engagementId      String?        @map("engagement_id") @db.Uuid
   type              ContractType
   status            ContractStatus @default(pending)
   startDate         DateTime?      @map("start_date")
@@ -228,6 +229,7 @@ model Contract {
   renewalNoticeDays Int?           @map("renewal_notice_days")
 
   company           Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  engagement        Engagement?    @relation(fields: [engagementId], references: [id], onDelete: SetNull)
   lineItems         ContractLineItem[]
 
   @@map("contracts")
@@ -293,6 +295,7 @@ model Engagement {
 
   company        Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
   stage          EngagementStage @relation(fields: [stageId], references: [id])
+  contracts      Contract[]
 
   @@map("engagements")
 }

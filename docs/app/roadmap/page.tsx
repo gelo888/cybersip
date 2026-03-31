@@ -52,7 +52,7 @@ export default function RoadmapPage() {
           <ul className="mb-0 text-sm">
             <li>1 page still uses hardcoded mock data (Command Center)</li>
             <li>Company 360 contacts sub-section is read-only (no contact CRUD on the detail page)</li>
-            <li>Hunt ↔ Vault cross-reference not yet implemented (contract indicators on pipeline cards)</li>
+            <li>Advanced Hunt ↔ Vault workflow automation not yet implemented (e.g. auto-create contract from stage)</li>
             <li>No authentication / authorization</li>
             <li>No AI integration</li>
             <li>No N8N automation workflows</li>
@@ -141,10 +141,12 @@ export default function RoadmapPage() {
             engagements, contracts, and competitor intel (reuses Hunt / Vault /
             Intelligence dialogs with <code>scopedCompanyId</code>)
           </li>
-          <li>
-            Hunt ↔ Vault cross-reference — show contract status indicators on
-            Hunt engagement cards (proposal submitted, contract signed) and
-            link Vault rows to their related engagements
+          <li className="line-through opacity-60">
+            Hunt ↔ Vault cross-reference — contract status chips on Hunt cards
+            (proposal / signed / competitor); Vault Pipeline links to Hunt (
+            <code>?company_id=</code>, optional <code>engagement_id=</code>);
+            optional <code>contracts.engagement_id</code> FK and contract form
+            field
           </li>
         </ol>
 

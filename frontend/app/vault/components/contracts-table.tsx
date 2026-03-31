@@ -13,6 +13,7 @@ import {
     Pencil,
     Trash2,
     Loader2,
+    LayoutGrid,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useContracts, useDeleteContract } from "@/hooks/use-contracts"
@@ -59,6 +60,13 @@ function formatCurrency(value: number | null) {
 function formatDate(dateStr: string | null) {
     if (!dateStr) return "—"
     return new Date(dateStr).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+}
+
+function huntPipelineHref(companyId: string, engagementId: string | null | undefined) {
+    const sp = new URLSearchParams()
+    sp.set("company_id", companyId)
+    if (engagementId) sp.set("engagement_id", engagementId)
+    return `/hunt?${sp.toString()}`
 }
 
 export function ContractsTable() {
@@ -156,6 +164,7 @@ export function ContractsTable() {
                                     <th className="px-4 py-3 text-left font-medium">End</th>
                                     <th className="px-4 py-3 text-left font-medium">Status</th>
                                     <th className="px-4 py-3 text-center font-medium">Renewal</th>
+                                    <th className="px-4 py-3 text-left font-medium">Pipeline</th>
                                     <th className="px-4 py-3 text-right font-medium">Actions</th>
                                 </tr>
                             </thead>
@@ -196,6 +205,20 @@ export function ContractsTable() {
                                                 {c.renewal_notice_days != null
                                                     ? `${c.renewal_notice_days}d`
                                                     : "—"}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <Link
+                                                    href={huntPipelineHref(c.company_id, c.engagement_id)}
+                                                    className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                                                    title={
+                                                        c.engagement_id
+                                                            ? "Open linked deal on Hunt"
+                                                            : "Open company pipeline on Hunt"
+                                                    }
+                                                >
+                                                    <LayoutGrid className="size-3.5" />
+                                                    {c.engagement_id ? "Open deal" : "Pipeline"}
+                                                </Link>
                                             </td>
                                             <td className="px-4 py-3 text-right">
                                                 <div className="flex justify-end gap-1">

@@ -332,6 +332,15 @@ products_services
             <td>INT</td>
             <td>Days before expiry to trigger alert</td>
           </tr>
+          <tr>
+            <td><code>engagement_id</code></td>
+            <td>UUID FK (nullable)</td>
+            <td>
+              Optional link to a pipeline <code>engagements</code> row (same
+              company). Cleared if the engagement is deleted (
+              <code>ON DELETE SET NULL</code>).
+            </td>
+          </tr>
         </tbody>
       </table>
 

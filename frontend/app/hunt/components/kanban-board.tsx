@@ -1,19 +1,28 @@
 "use client"
 
-import { useState } from "react"
-import { Plus } from "lucide-react"
+import { useState, useMemo, useEffect } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
+import { Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useStages } from "@/hooks/use-stages"
 import { useEngagements, useDeleteEngagement } from "@/hooks/use-engagements"
 import { useCompanies } from "@/hooks/use-companies"
+import { useContracts } from "@/hooks/use-contracts"
 import { EngagementCard } from "./engagement-card"
 import { EngagementFormDialog } from "./engagement-form-dialog"
 import { DeleteConfirmDialog } from "@/app/portfolio/components/delete-confirm-dialog"
+import { getContractSignalsForCompany } from "@/lib/contract-signals"
 import type { Engagement } from "@/lib/types"
 
 export function KanbanBoard() {
+    const searchParams = useSearchParams()
+    const router = useRouter()
+    const companyFilter = searchParams.get("company_id")
+    const engagementHighlight = searchParams.get("engagement_id")
+
     const { data: stages = [], isLoading: stagesLoading } = useStages()
     const { data: engagements = [], isLoading: engagementsLoading } = useEngagements({ take: 500 })
+    const { data: contracts = [], isLoading: contractsLoading } = useContracts({ take: 500 })
     const { data: companiesData } = useCompanies({ page: 0, pageSize: 200 })
     const companies = companiesData?.items ?? []
     const deleteMutation = useDeleteEngagement()
@@ -23,7 +32,41 @@ export function KanbanBoard() {
     const [defaultStageId, setDefaultStageId] = useState<string>()
     const [deleteTarget, setDeleteTarget] = useState<Engagement | null>(null)
 
-    const isLoading = stagesLoading || engagementsLoading
+    const filteredEngagements = useMemo(() => {
+        if (!companyFilter) return engagements
+        return engagements.filter((e) => e.company_id === companyFilter)
+    }, [engagements, companyFilter])
+
+    const engagementIdsFiltered = useMemo(
+        () => new Set(filteredEngagements.map((e) => e.id)),
+        [filteredEngagements],
+    )
+
+    const staleEngagementLink =
+        !!engagementHighlight &&
+        !!companyFilter &&
+        !engagementIdsFiltered.has(engagementHighlight)
+
+    const filterCompanyName =
+        companies.find((c) => c.id === companyFilter)?.current_name ??
+        filteredEngagements[0]?.company_name ??
+        null
+
+    const isLoading = stagesLoading || engagementsLoading || contractsLoading
+
+    useEffect(() => {
+        if (!engagementHighlight || !companyFilter) return
+        const t = window.setTimeout(() => {
+            document
+                .getElementById(`hunt-engagement-${engagementHighlight}`)
+                ?.scrollIntoView({ behavior: "smooth", block: "center" })
+        }, 100)
+        return () => window.clearTimeout(t)
+    }, [engagementHighlight, companyFilter, filteredEngagements.length])
+
+    function clearFilters() {
+        router.replace("/hunt")
+    }
 
     function openCreate(stageId?: string) {
         setEditTarget(null)
@@ -79,13 +122,42 @@ export function KanbanBoard() {
     for (const stage of stages) {
         engagementsByStage.set(stage.id, [])
     }
-    for (const eng of engagements) {
+    for (const eng of filteredEngagements) {
         const list = engagementsByStage.get(eng.stage_id)
         if (list) list.push(eng)
     }
 
     return (
         <>
+            {companyFilter && (
+                <div className="mb-4 flex flex-col gap-2 rounded-lg border bg-muted/30 px-4 py-3 text-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-muted-foreground mb-0">
+                            Showing pipeline for{" "}
+                            <span className="font-medium text-foreground">
+                                {filterCompanyName ?? "selected company"}
+                            </span>
+                        </p>
+                        <Button type="button" variant="outline" size="sm" onClick={clearFilters}>
+                            <X className="size-3.5 mr-1" />
+                            Clear filter
+                        </Button>
+                    </div>
+                    {staleEngagementLink && (
+                        <p className="text-xs text-sophos-orange mb-0">
+                            Linked engagement is no longer on the board; showing all deals for this
+                            company.
+                        </p>
+                    )}
+                </div>
+            )}
+
+            {companyFilter && filteredEngagements.length === 0 && (
+                <p className="text-sm text-muted-foreground mb-4">
+                    No engagements for this company in the pipeline.
+                </p>
+            )}
+
             <div className="overflow-x-auto pb-4">
                 <div className="inline-flex gap-4 min-w-max">
                     {stages.map((stage) => {
@@ -123,6 +195,14 @@ export function KanbanBoard() {
                                                 engagement={eng}
                                                 onEdit={openEdit}
                                                 onDelete={setDeleteTarget}
+                                                contractSignals={getContractSignalsForCompany(
+                                                    contracts,
+                                                    eng.company_id,
+                                                )}
+                                                highlight={
+                                                    !!engagementHighlight &&
+                                                    engagementHighlight === eng.id
+                                                }
                                             />
                                         ))
                                     ) : (

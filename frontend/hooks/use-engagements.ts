@@ -6,10 +6,12 @@ interface EngagementListParams {
     companyId?: string;
     stageId?: string;
     take?: number;
+    /** When false, the query does not run (e.g. wait until a company is selected). */
+    enabled?: boolean;
 }
 
 export function useEngagements(params: EngagementListParams = {}) {
-    const { companyId, stageId, take = 200 } = params;
+    const { companyId, stageId, take = 200, enabled = true } = params;
     const searchParams = new URLSearchParams();
     if (companyId) searchParams.set("company_id", companyId);
     if (stageId) searchParams.set("stage_id", stageId);
@@ -19,6 +21,7 @@ export function useEngagements(params: EngagementListParams = {}) {
     return useQuery({
         queryKey: ["engagements", { companyId, stageId, take }],
         queryFn: () => get<Engagement[]>(`/api/engagements?${qs}`),
+        enabled,
     });
 }
 

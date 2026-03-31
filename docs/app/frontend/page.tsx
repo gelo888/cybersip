@@ -109,7 +109,11 @@ export default function FrontendPage() {
             <td><code>/hunt</code></td>
             <td>The Hunt</td>
             <td>Live API</td>
-            <td>Kanban pipeline with engagement CRUD, company links</td>
+            <td>
+              Kanban pipeline with engagement CRUD; account-level contract
+              signals on cards; <code>?company_id=</code> filter and optional{" "}
+              <code>engagement_id=</code> deep link from Vault
+            </td>
           </tr>
           <tr>
             <td><code>/portfolio</code></td>
@@ -133,7 +137,11 @@ export default function FrontendPage() {
             <td><code>/vault</code></td>
             <td>Vault</td>
             <td>Live API</td>
-            <td>Contracts table with CRUD and summary cards</td>
+            <td>
+              Contracts table with CRUD, optional linked engagement on create/edit,
+              Pipeline column to Hunt (<code>?company_id=</code> and{" "}
+              <code>engagement_id=</code> when set), summary cards
+            </td>
           </tr>
           <tr>
             <td><code>/settings</code></td>
@@ -159,7 +167,7 @@ export default function FrontendPage() {
 │   ├── hunt/
 │   │   ├── page.tsx           # Pipeline Kanban (Live API)
 │   │   └── components/
-│   │       ├── kanban-board.tsx
+│   │       ├── kanban-board.tsx   # + contract signals, URL filters
 │   │       ├── engagement-card.tsx
 │   │       └── engagement-form-dialog.tsx
 │   ├── portfolio/
@@ -201,6 +209,7 @@ export default function FrontendPage() {
 │
 ├── lib/
 │   ├── api.ts                 # Centralized fetch (get, post, patch, del)
+│   ├── contract-signals.ts    # Per-company contract cues for Hunt cards
 │   ├── types.ts               # Shared TypeScript interfaces
 │   └── utils.ts               # cn() utility for class merging
 │
@@ -373,8 +382,15 @@ export function useCreateContract() {
             <li>TanStack Query + centralized API client</li>
             <li>Portfolio — companies &amp; contacts with full CRUD</li>
             <li>Company 360 — live data; CRUD for engagements, contracts, and intel (contacts table read-only)</li>
-            <li>Hunt — Kanban pipeline with engagement CRUD, linked to Company 360</li>
-            <li>Vault — contracts table with CRUD, summary cards, company links</li>
+            <li>
+              Hunt — Kanban + contract status chips per account; filter via{" "}
+              <code>?company_id=</code>; optional <code>engagement_id=</code>{" "}
+              highlight from Vault
+            </li>
+            <li>
+              Vault — contracts CRUD, optional linked engagement, Pipeline column
+              to Hunt
+            </li>
             <li>Intelligence Hub — competitor tracker and intel feed with CRUD, static market signals preview</li>
             <li>Territories — map/list toggle, CRUD via /api/territories and /api/segment-labels, geo data via /api/geo/*, GeoJSON polygons, team member assignment</li>
             <li>Context-aware breadcrumbs (Hunt → Company 360 → back to Hunt)</li>
@@ -386,7 +402,7 @@ export function useCreateContract() {
           </h3>
           <ul className="mb-0 text-sm">
             <li>1 page still uses mock data (Command Center)</li>
-            <li>Hunt ↔ Vault cross-reference (contract indicators on pipeline cards)</li>
+            <li>Deeper Hunt ↔ Vault workflow (e.g. auto-create contract from stage)</li>
             <li>No authentication / authorization</li>
             <li>Dark mode toggle not implemented</li>
           </ul>

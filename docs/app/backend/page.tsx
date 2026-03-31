@@ -272,9 +272,11 @@ class CompanyResponse(BaseModel):
       <h2>Contracts</h2>
       <p>
         Tracks both internal and competitor contracts. Each contract can have
-        multiple line items linking to products/services. Contract responses
-        are enriched with <code>company_name</code> via Prisma relation
-        includes.
+        multiple line items linking to products/services. Create and PATCH accept
+        optional <code>engagement_id</code> when the engagement belongs to the
+        same company; responses include <code>engagement_id</code> (nullable).
+        Contract responses are enriched with <code>company_name</code> via
+        Prisma relation includes.
       </p>
 
       <h3>Contracts</h3>

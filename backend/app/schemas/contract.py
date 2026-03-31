@@ -31,6 +31,7 @@ class ContractCreate(BaseModel):
     end_date: Optional[datetime] = None
     total_value: Optional[Decimal] = None
     renewal_notice_days: Optional[int] = Field(None, ge=0)
+    engagement_id: Optional[str] = None
 
 
 class ContractUpdate(BaseModel):
@@ -41,6 +42,7 @@ class ContractUpdate(BaseModel):
     end_date: Optional[datetime] = None
     total_value: Optional[Decimal] = None
     renewal_notice_days: Optional[int] = Field(None, ge=0)
+    engagement_id: Optional[str] = None
 
 
 class ContractResponse(BaseModel):
@@ -54,6 +56,7 @@ class ContractResponse(BaseModel):
     end_date: Optional[datetime] = None
     total_value: Optional[Decimal] = None
     renewal_notice_days: Optional[int] = None
+    engagement_id: Optional[str] = None
 
     class Config:
         from_attributes = True

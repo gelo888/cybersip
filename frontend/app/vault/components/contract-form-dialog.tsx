@@ -8,7 +8,10 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2 } from "lucide-react"
 import { useCreateContract, useUpdateContract } from "@/hooks/use-contracts"
+import { useEngagements } from "@/hooks/use-engagements"
 import type { Contract, ContractType, ContractStatus, Company } from "@/lib/types"
+
+const ENGAGEMENT_NONE = "__none__"
 
 const TYPES: { value: ContractType; label: string }[] = [
     { value: "our_contract", label: "Our Contract" },
@@ -30,6 +33,7 @@ interface FormState {
     end_date: string
     total_value: string
     renewal_notice_days: string
+    engagement_id: string
 }
 
 const EMPTY_FORM: FormState = {
@@ -40,6 +44,7 @@ const EMPTY_FORM: FormState = {
     end_date: "",
     total_value: "",
     renewal_notice_days: "",
+    engagement_id: "",
 }
 
 function contractToForm(c: Contract): FormState {
@@ -51,6 +56,7 @@ function contractToForm(c: Contract): FormState {
         end_date: c.end_date ? new Date(c.end_date).toISOString().slice(0, 10) : "",
         total_value: c.total_value != null ? String(c.total_value) : "",
         renewal_notice_days: c.renewal_notice_days != null ? String(c.renewal_notice_days) : "",
+        engagement_id: c.engagement_id ?? "",
     }
 }
 
@@ -77,14 +83,19 @@ export function ContractFormDialog({
     const mutation = isEdit ? updateMutation : createMutation
 
     const [form, setForm] = useState<FormState>(EMPTY_FORM)
+    const companyEngagements = useEngagements({
+        companyId: form.company_id || undefined,
+        take: 150,
+        enabled: open && !!form.company_id,
+    })
     const [prevOpen, setPrevOpen] = useState(false)
     if (open && !prevOpen) {
         setForm(
             contract
                 ? contractToForm(contract)
                 : scopedCompanyId
-                  ? { ...EMPTY_FORM, company_id: scopedCompanyId }
-                  : EMPTY_FORM,
+                  ? { ...EMPTY_FORM, company_id: scopedCompanyId, engagement_id: "" }
+                  : { ...EMPTY_FORM },
         )
     }
     if (open !== prevOpen) {
@@ -108,14 +119,29 @@ export function ContractFormDialog({
             renewal_notice_days: form.renewal_notice_days ? Number(form.renewal_notice_days) : null,
         }
 
+        const engagementPayload =
+            form.engagement_id === ""
+                ? null
+                : form.engagement_id
+
         if (isEdit) {
             updateMutation.mutate(
-                { id: contract!.id, data: payload },
+                {
+                    id: contract!.id,
+                    data: {
+                        ...payload,
+                        engagement_id: engagementPayload,
+                    },
+                },
                 { onSuccess: () => onOpenChange(false) },
             )
         } else {
             createMutation.mutate(
-                { company_id: form.company_id, ...payload },
+                {
+                    company_id: form.company_id,
+                    ...payload,
+                    ...(engagementPayload ? { engagement_id: engagementPayload } : {}),
+                },
                 { onSuccess: () => onOpenChange(false) },
             )
         }
@@ -135,7 +161,12 @@ export function ContractFormDialog({
                     {!isEdit && !scopedCompanyId && (
                         <div className="grid gap-2">
                             <Label>Company *</Label>
-                            <Select value={form.company_id} onValueChange={(v) => set("company_id", v)}>
+                            <Select
+                                value={form.company_id}
+                                onValueChange={(v) =>
+                                    setForm((prev) => ({ ...prev, company_id: v, engagement_id: "" }))
+                                }
+                            >
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select company…" />
                                 </SelectTrigger>
@@ -145,6 +176,47 @@ export function ContractFormDialog({
                                     ))}
                                 </SelectContent>
                             </Select>
+                        </div>
+                    )}
+
+                    {form.company_id && (
+                        <div className="grid gap-2">
+                            <Label>Linked engagement</Label>
+                            {companyEngagements.isLoading ? (
+                                <p className="text-xs text-muted-foreground flex items-center gap-2">
+                                    <Loader2 className="size-3 animate-spin" />
+                                    Loading engagements…
+                                </p>
+                            ) : companyEngagements.data && companyEngagements.data.length === 0 ? (
+                                <p className="text-xs text-muted-foreground">
+                                    No engagements for this company in the pipeline.
+                                </p>
+                            ) : (
+                                <Select
+                                    value={form.engagement_id || ENGAGEMENT_NONE}
+                                    onValueChange={(v) =>
+                                        set(
+                                            "engagement_id",
+                                            v === ENGAGEMENT_NONE ? "" : v,
+                                        )
+                                    }
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="None" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={ENGAGEMENT_NONE}>None</SelectItem>
+                                        {(companyEngagements.data ?? []).map((e) => (
+                                            <SelectItem key={e.id} value={e.id}>
+                                                {e.stage_name} · {e.type}
+                                                {e.outcome
+                                                    ? ` — ${e.outcome.slice(0, 40)}${e.outcome.length > 40 ? "…" : ""}`
+                                                    : ""}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
                         </div>
                     )}
 

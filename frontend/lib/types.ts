@@ -109,6 +109,8 @@ export interface Contract {
     end_date: string | null;
     total_value: number | null;
     renewal_notice_days: number | null;
+    /** Present when backend schema includes optional link to an engagement. */
+    engagement_id?: string | null;
 }
 
 export interface ContractPayload {
@@ -119,6 +121,7 @@ export interface ContractPayload {
     end_date?: string | null;
     total_value?: number | null;
     renewal_notice_days?: number | null;
+    engagement_id?: string | null;
 }
 
 export type ContractUpdatePayload = Omit<Partial<ContractPayload>, "company_id">;

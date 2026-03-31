@@ -17,6 +17,17 @@ from app.schemas.contract import (
 router = APIRouter(tags=["Contracts"])
 
 
+async def _assert_engagement_belongs_to_company(engagement_id: str, company_id: str) -> None:
+    engagement = await db.engagement.find_unique(where={"id": engagement_id})
+    if not engagement:
+        raise HTTPException(status_code=404, detail="Engagement not found")
+    if engagement.companyId != company_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Engagement belongs to a different company than this contract",
+        )
+
+
 # ── Contracts ───────────────────────────────────────────────────────
 
 @router.post("/api/contracts", response_model=ContractResponse, status_code=201)
@@ -26,9 +37,15 @@ async def create_contract(body: ContractCreate):
     if not company:
         raise HTTPException(status_code=404, detail="Company not found")
 
+    engagement_id = None
+    if body.engagement_id:
+        await _assert_engagement_belongs_to_company(body.engagement_id, body.company_id)
+        engagement_id = body.engagement_id
+
     contract = await db.contract.create(
         data={
             "companyId": body.company_id,
+            "engagementId": engagement_id,
             "type": body.type.value,
             "status": body.status.value,
             "startDate": body.start_date,
@@ -100,6 +117,15 @@ async def update_contract(contract_id: str, body: ContractUpdate):
         update_data["totalValue"] = body.total_value
     if body.renewal_notice_days is not None:
         update_data["renewalNoticeDays"] = body.renewal_notice_days
+
+    patch = body.model_dump(exclude_unset=True)
+    if "engagement_id" in patch:
+        val = patch["engagement_id"]
+        if val is None:
+            update_data["engagementId"] = None
+        else:
+            await _assert_engagement_belongs_to_company(val, existing.companyId)
+            update_data["engagementId"] = val
 
     if not update_data:
         existing = await db.contract.find_unique(
@@ -209,6 +235,7 @@ def _contract_to_response(contract) -> dict:
         "end_date": contract.endDate,
         "total_value": contract.totalValue,
         "renewal_notice_days": contract.renewalNoticeDays,
+        "engagement_id": getattr(contract, "engagementId", None),
     }
 
 
