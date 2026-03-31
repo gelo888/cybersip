@@ -207,7 +207,15 @@ export default function FrontendPage() {
             <td><code>/portfolio/[id]</code></td>
             <td>Company 360</td>
             <td>Live API</td>
-            <td>Skeleton shell while company loads; header shows <strong>industry</strong> badges (primary vs secondary); contacts (read-only table); engagements, contracts, and competitor intel with full CRUD (reuses Hunt / Vault / Intelligence form dialogs with scoped company)</td>
+            <td>
+              Sentinel Company 360 (<code>company_360</code>): breadcrumb,{" "}
+              <code>Company360Hero</code> + <code>MetricStatCard</code> strip,{" "}
+              <code>CompanyEngagementVelocityChart</code> (6-month bars from{" "}
+              <code>created_at</code>), main column sections + sticky{" "}
+              <code>Company360Sidebar</code> (counts + jump links including{" "}
+              <code>/hunt?company_id=</code>). Industry badges; contacts / engagements /
+              contracts / intel tables with CRUD dialogs (scoped company).
+            </td>
           </tr>
           <tr>
             <td><code>/territories</code></td>
@@ -261,7 +269,7 @@ export default function FrontendPage() {
 │   │   ├── components/        # Table, form dialogs, pagination
 │   │   └── [id]/
 │   │       ├── page.tsx       # Company 360 (Live API)
-│   │       └── components/    # Section components
+│   │       └── components/    # Hero, velocity chart, sidebar, section tables
 │   ├── territories/
 │   │   ├── page.tsx           # Geographic / Team views (Live API)
 │   │   └── components/        # Map, list, territory form
