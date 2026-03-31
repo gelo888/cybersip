@@ -176,12 +176,12 @@ export default function FrontendPage() {
             <td>The Hunt</td>
             <td>Live API</td>
             <td>
-              Kanban pipeline with engagement CRUD and drag-and-drop stage moves
-              (grip handle); account-level contract signals on cards;{" "}
-              <code>?company_id=</code> filter and optional{" "}
-              <code>engagement_id=</code> deep link from Vault. New engagements
-              need at least one company in Portfolio; with{" "}
-              <code>?company_id=</code>, that company is pre-filled for create.
+              Sentinel-style Hunt board (<code>the_hunt_dark</code>): stats strip
+              (pipeline $ from pending our_contracts, deal count, avg age),{" "}
+              <code>w-80</code> columns with rotating left accents, column $ subtotals,
+              horizontal <code>kanban-scroll-x</code>; dense cards with ref chip, value
+              row, activity bars. DnD by grip; contract signals;{" "}
+              <code>?company_id=</code> / <code>engagement_id=</code> deep links.
             </td>
           </tr>
           <tr>
