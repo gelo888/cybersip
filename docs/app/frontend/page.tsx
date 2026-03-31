@@ -122,10 +122,9 @@ export default function FrontendPage() {
         and the palette. <strong>Global UX</strong> — Header sun/moon control sets
         explicit light or dark (overrides system until changed in Settings); Settings
         → Appearance offers Light, Dark, and System. Primary data views use skeleton
-        layouts while queries load; Portfolio companies/contacts support inline field
-        updates via <code>useUpdateCompany</code> / <code>useUpdateContact</code>{" "}
-        (<code>PATCH</code>, partial payloads; see <code>CompanyUpdatePayload</code> /{" "}
-        <code>ContactUpdatePayload</code> in <code>lib/types.ts</code>).
+        layouts while queries load; Portfolio company/contact rows are read-only in the
+        table — use Add / Edit dialogs, which call <code>useUpdateCompany</code> /{" "}
+        <code>useUpdateContact</code> (<code>PATCH</code>; see <code>lib/types.ts</code>).
       </p>
 
       <h2>Application Routes</h2>
@@ -199,9 +198,9 @@ export default function FrontendPage() {
               hero, KPI strip, account-mix bar chart (per-status <code>GET /api/companies</code>{" "}
               totals), recent intel panel + link to <code>/intelligence</code>.{" "}
               <code>CompaniesTable</code> / <code>ContactsTable</code>: labeled{" "}
-              <strong>Search &amp; filters</strong> toolbar (unchanged behavior — debounced{" "}
-              <code>q</code>, status/size/industry; contact company/active/role/seniority),
-              dense table shells, pagination, CRUD dialogs, and row inline edits as before.
+              <strong>Search &amp; filters</strong> toolbar (debounced <code>q</code>, status/size/industry;
+              contact company/active/role/seniority), dense read-only rows (labels + links for website/email),
+              pagination, add/edit/delete via dialogs only.
             </td>
           </tr>
           <tr>

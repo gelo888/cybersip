@@ -57,9 +57,8 @@ export default function RoadmapPage() {
               Phase 1.75 Global UX — <code>next-themes</code> (light / dark / system) with
               header toggle and Settings Appearance; skeleton loading on Portfolio tables,
               Vault, Company 360, Territories, and Hunt Kanban; Portfolio companies &amp;
-              contacts tables support inline edits via <code>PATCH</code> (companies:
-              status, size, employees, country, website; contacts: title, seniority,
-              role, email, phone)
+              contacts tables are read-only lists (filters + pagination); edits via dialogs
+              and <code>PATCH</code>
             </li>
             <li>
               Company <strong>industry</strong> (manual) — <code>GET /api/industries</code>,
@@ -225,8 +224,8 @@ export default function RoadmapPage() {
           </li>
           <li className="line-through opacity-60">
             <strong>Global UX</strong> — dark mode toggle; skeleton loading on
-            primary views and tables; inline editing on Portfolio companies &amp;
-            contacts tables (<code>PATCH</code> partial updates aligned with API).
+            primary views and tables; Portfolio companies &amp; contacts read-only
+            tables with dialog-based edits (<code>PATCH</code>).
           </li>
           <li className="line-through opacity-60">
             <strong>Company industry (manual)</strong> — <code>GET /api/industries</code>{" "}
