@@ -22,17 +22,17 @@ const ASSISTANT_PROMPT_TEMPLATE = `CyberSIP — "New UX/UI design" rollout (Sent
 
 ## Checklist — edit [ ] to [x] before pasting
 Block A (finish ALL before any page):
-- [ ] foundation-tokens — Phase 1: \`frontend/app/globals.css\` Sentinel \`.dark\`, Sophos \`:root\`, tame h1–h3 for app UI
-- [ ] shell-sidebar-header — Phase 2: \`AppSidebar\`, \`PageHeader\`; light+dark OK
-- [ ] viz-primitives — Phase 3: recharts + \`ChartPanel\` / \`MetricStatCard\`; theme-aware series
+- [x] foundation-tokens — Phase 1: \`frontend/app/globals.css\` Sentinel \`.dark\`, Sophos \`:root\`, tame h1–h3 for app UI
+- [x] shell-sidebar-header — Phase 2: \`AppSidebar\`, \`PageHeader\`; light+dark OK
+- [x] viz-primitives — Phase 3: recharts + \`ChartPanel\` / \`MetricStatCard\`; theme-aware series
 
 Pages (in order; do not start next until previous gate reviewed):
-- [ ] §4.1 Command Center \`/\` — \`command_center_dark\`, \`command-center-dashboard.tsx\`
-- [ ] §4.2 Hunt \`/hunt\` — \`the_hunt_dark\`, kanban + cards
-- [ ] §4.3 Intelligence \`/intelligence\` — \`intelligence_hub\`, signal chart + table
-- [ ] §4.4 Portfolio \`/portfolio\` — \`portfolio\`, forecast + table
-- [ ] §4.5 Company 360 \`/portfolio/[id]\` — \`company_360\`, KPI + engagement velocity
-- [ ] §4.6 Vault \`/vault\` — \`vault\`, KPI row + dense table
+- [x] §4.1 Command Center \`/\` — \`command_center_dark\`, \`command-center-dashboard.tsx\`
+- [x] §4.2 Hunt \`/hunt\` — \`the_hunt_dark\`, kanban + cards
+- [x] §4.3 Intelligence \`/intelligence\` — \`intelligence_hub\`, signal chart + table
+- [x] §4.4 Portfolio \`/portfolio\` — \`portfolio\`, forecast + table
+- [x] §4.5 Company 360 \`/portfolio/[id]\` — \`company_360\`, KPI + engagement velocity
+- [x] §4.6 Vault \`/vault\` — \`vault\`, KPI row + dense table
 
 Closeout:
 - [x] docs-design — full update \`docs/app/design/page.tsx\` (themes, charts, primitives, route map, seed note)

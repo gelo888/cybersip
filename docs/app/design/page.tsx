@@ -187,6 +187,34 @@ export default function DesignPage() {
               <code>vault/components/contracts-table.tsx</code>
             </td>
           </tr>
+          <tr>
+            <td>
+              <code>/territories</code>
+            </td>
+            <td>
+              <code>frontend/app/territories/page.tsx</code>,{" "}
+              <code>territory-map-view.tsx</code>,{" "}
+              <code>territory-list-view.tsx</code> — Sentinel panel + map/list
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>/sales-recon</code>
+            </td>
+            <td>
+              <code>frontend/app/sales-recon/components/sales-recon-hub.tsx</code>{" "}
+              — same hero/breadcrumb pattern as Vault/Portfolio
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>/settings</code>
+            </td>
+            <td>
+              <code>frontend/app/settings/page.tsx</code> — accent-strip section
+              cards, semantic success badges
+            </td>
+          </tr>
         </tbody>
       </table>
 
