@@ -62,7 +62,7 @@ cybersip/
 
 | Route              | Page                | Status        |
 |--------------------|---------------------|---------------|
-| `/`                | Command Center      | Live API (KPIs + renewal radar; sample heatmap/stream) |
+| `/`                | Command Center      | Live API (KPIs + renewal radar + action stream; sample heatmap) |
 | `/hunt`            | Pipeline Kanban     | Mock data     |
 | `/intelligence`    | Intelligence Hub    | Live API      |
 | `/sales-recon` | Sales Recon | Live API (picker) + preview |
@@ -116,7 +116,7 @@ app/
 |---------|------------------------------|-------------|
 | **1**   | TanStack Query, Portfolio, Company 360 | Done |
 | **1.5** | Wire remaining pages (Hunt, Vault, Intelligence, Territories, Command Center; Sales Recon) | In Progress |
-| **1.75** | DB-backed Action Stream, Hunt DnD + CMD+K, dark mode / skeletons / inline edit, static displacement templates — no OpenAI / N8N | Planned |
+| **1.75** | ~~DB-backed Action Stream~~ (v1 shipped); Hunt DnD + CMD+K, dark mode / skeletons / inline edit, static displacement templates — no OpenAI / N8N | In Progress |
 | **2**   | AI enrichment (`/api/ai/enrich-company`), Smart-Add Company modal | Planned |
 | **3**   | N8N (docker-compose), news scraper, contract expiry alerts; optional Action Stream enrichment | Planned |
 | **4**   | Battle Cards (AI), LLM displacement copy, advanced Hunt ↔ Vault / proposals | Planned |
@@ -129,7 +129,7 @@ app/
 4. Add contract status indicators on Hunt engagement cards (cross-reference Hunt ↔ Vault)
 5. Connect Territories → `/api/regions` + `/api/territory-groups` + `/api/teams`
 6. Add CRUD to Company 360 sub-sections
-7. ~~Connect Command Center to real aggregated data~~ (KPIs + renewal radar live)
+7. ~~Connect Command Center to real aggregated data~~ (KPIs + renewal radar + action stream live)
 
 **Future enhancements (Phase 4+):**
 - Direct link from Hunt cards to specific contracts in Vault
