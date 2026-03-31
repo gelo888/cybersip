@@ -462,8 +462,7 @@ export function useCreateContract() {
             <li>
               <strong>Phase 1.75</strong> (roadmap): DB-backed Command Center
               Action Stream (done: engagements + new companies); CMD+K, Hunt Kanban
-              DnD, dark mode / skeletons / inline table editing, static
-              displacement email templates — no OpenAI or N8N
+              DnD, dark mode / skeletons / inline table editing — no OpenAI or N8N
             </li>
             <li>TanStack Query + centralized API client</li>
             <li>
