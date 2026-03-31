@@ -37,18 +37,19 @@ cybersip/
 │   └── lib/           # API client (lib/api.ts), types (lib/types.ts), utilities
 ├── backend/           # FastAPI Python API
 │   ├── app/main.py    # FastAPI app entry
-│   ├── app/routers/   # 9 CRUD routers (companies, contacts, engagements, assignments, products, contracts, competitors, territories, teams)
+│   ├── app/routers/   # CRUD + support routers (companies, industries, contacts, engagements, assignments, products, contracts, competitors, territories, teams, geo, command_center)
 │   ├── app/schemas/   # Pydantic schemas
 │   └── prisma/        # Prisma schema + migrations
 ├── docs/              # Standalone Next.js documentation site
 └── docker-compose.yml
 ```
 
-## Backend API (74+ endpoints across 11 router groups)
+## Backend API (75+ endpoints across 12 router groups)
 
 | Router         | Prefix              | Purpose                    |
 |----------------|----------------------|----------------------------|
-| companies      | `/api/companies`     | Company CRUD               |
+| companies      | `/api/companies`     | Company CRUD + embedded industries |
+| industries     | `/api/industries`    | Industry catalog (read list) |
 | contacts       | `/api/contacts`      | Contact CRUD               |
 | engagements    | `/api/engagements`   | Pipeline / deal management |
 | assignments    | `/api/assignments`   | User-Company links         |
@@ -116,7 +117,7 @@ app/
 |---------|------------------------------|-------------|
 | **1**   | TanStack Query, Portfolio, Company 360 | Done |
 | **1.5** | Wire remaining pages (Hunt, Vault, Intelligence, Territories, Command Center; Sales Recon) | In Progress |
-| **1.75** | ~~DB-backed Action Stream~~ (v1 shipped); Hunt DnD + CMD+K, dark mode / skeletons / inline edit, static displacement templates — no OpenAI / N8N | In Progress |
+| **1.75** | ~~DB-backed Action Stream~~ (v1 shipped); Hunt DnD + CMD+K, dark mode / skeletons / inline edit; **manual company industry** (catalog + Portfolio / Company 360); static displacement templates — no OpenAI / N8N | In Progress |
 | **2**   | AI enrichment (`/api/ai/enrich-company`), Smart-Add Company modal | Planned |
 | **3**   | N8N (docker-compose), news scraper, contract expiry alerts; optional Action Stream enrichment | Planned |
 | **4**   | Battle Cards (AI), LLM displacement copy, advanced Hunt ↔ Vault / proposals | Planned |
