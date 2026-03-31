@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCompany } from "@/hooks/use-company-detail";
 import type { CompanyStatus, CompanySize } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { CompanyContactsSection } from "./components/contacts-section";
 import { CompanyEngagementsSection } from "./components/engagements-section";
 import { CompanyContractsSection } from "./components/contracts-section";
@@ -153,12 +154,39 @@ export default function CompanyDetailPage({
                             <h3 className="text-base font-semibold leading-tight">
                                 {c.current_name}
                             </h3>
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
                                 <StatusBadge status={c.status} />
                                 {c.company_size && (
                                     <SizeBadge size={c.company_size} />
                                 )}
                             </div>
+                            {(c.industries ?? []).length > 0 ? (
+                                <div className="flex flex-wrap gap-1.5 mt-2">
+                                    {(c.industries ?? []).map((ind) => (
+                                        <span
+                                            key={ind.industry_id}
+                                            className={cn(
+                                                "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium",
+                                                ind.is_primary
+                                                    ? "border-primary/40 bg-primary/10 text-foreground"
+                                                    : "border-border text-muted-foreground",
+                                            )}
+                                            title={
+                                                ind.sector
+                                                    ? `${ind.sector} — ${ind.name}`
+                                                    : ind.name
+                                            }
+                                        >
+                                            {ind.name}
+                                            {ind.is_primary ? (
+                                                <span className="ml-1 text-[10px] uppercase opacity-80">
+                                                    primary
+                                                </span>
+                                            ) : null}
+                                        </span>
+                                    ))}
+                                </div>
+                            ) : null}
                         </div>
                     </div>
                     {c.website && (

@@ -16,6 +16,20 @@ export type CompanyStatus =
 
 export type CompanySize = "SMB" | "Mid_Market" | "Enterprise" | "Government";
 
+export interface Industry {
+    id: string;
+    name: string;
+    sector: string | null;
+}
+
+/** Industry assignment on a company (from API). */
+export interface CompanyIndustryLink {
+    industry_id: string;
+    name: string;
+    sector: string | null;
+    is_primary: boolean;
+}
+
 export interface Company {
     id: string;
     current_name: string;
@@ -26,14 +40,30 @@ export interface Company {
     website: string | null;
     stock_ticker: string | null;
     country: string | null;
+    industries: CompanyIndustryLink[];
     created_at: string;
     updated_at: string;
 }
 
-export type CompanyPayload = Omit<Company, "id" | "created_at" | "updated_at">;
+export type CompanyPayload = Omit<
+    Company,
+    "id" | "created_at" | "updated_at" | "industries"
+>;
+
+/** Body for POST /api/companies/ — flat company fields plus optional industry_links. */
+export interface IndustryLinkPayload {
+    industry_id: string;
+    is_primary: boolean;
+}
+
+export type CompanyCreateBody = CompanyPayload & {
+    industry_links?: IndustryLinkPayload[];
+};
 
 /** PATCH body for `/api/companies/{id}` — all fields optional server-side. */
-export type CompanyUpdatePayload = Partial<CompanyPayload>;
+export type CompanyUpdatePayload = Partial<CompanyPayload> & {
+    industry_links?: IndustryLinkPayload[];
+};
 
 // ── Contact ──
 

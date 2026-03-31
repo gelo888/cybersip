@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tansta
 import { get, post, patch, del } from "@/lib/api";
 import type {
     Company,
-    CompanyPayload,
+    CompanyCreateBody,
     CompanySize,
     CompanyStatus,
     CompanyUpdatePayload,
@@ -15,6 +15,8 @@ interface CompanyListParams {
     /** When set, lists only companies with this CRM status (e.g. prospect). */
     status?: CompanyStatus;
     companySize?: CompanySize;
+    /** Filter companies linked to this industry (primary or secondary). */
+    industryId?: string;
     /** Server-side search on company name (contains, case-insensitive). */
     q?: string;
 }
@@ -24,6 +26,7 @@ export function useCompanies({
     pageSize,
     status,
     companySize,
+    industryId,
     q,
 }: CompanyListParams) {
     const skip = page * pageSize;
@@ -32,6 +35,7 @@ export function useCompanies({
     params.set("take", String(pageSize));
     if (status) params.set("status", status);
     if (companySize) params.set("company_size", companySize);
+    if (industryId) params.set("industry_id", industryId);
     if (q && q.trim()) params.set("q", q.trim());
     const qs = params.toString();
 
@@ -44,6 +48,7 @@ export function useCompanies({
                 take: pageSize,
                 status: status ?? null,
                 companySize: companySize ?? null,
+                industryId: industryId ?? null,
                 q: q?.trim() || null,
             },
         ],
@@ -56,7 +61,8 @@ export function useCompanies({
 export function useCreateCompany() {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: (data: CompanyPayload) => post<Company>("/api/companies/", data),
+        mutationFn: (data: CompanyCreateBody) =>
+            post<Company>("/api/companies/", data),
         onSuccess: () => qc.invalidateQueries({ queryKey: ["companies"] }),
     });
 }

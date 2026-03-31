@@ -8,7 +8,14 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2 } from "lucide-react"
 import { useCreateCompany, useUpdateCompany } from "@/hooks/use-companies"
-import type { Company, CompanyPayload, CompanyStatus, CompanySize } from "@/lib/types"
+import { useIndustries } from "@/hooks/use-industries"
+import type {
+  Company,
+  CompanyPayload,
+  CompanyStatus,
+  CompanySize,
+  IndustryLinkPayload,
+} from "@/lib/types"
 
 const STATUSES: { value: CompanyStatus; label: string }[] = [
   { value: "prospect", label: "Prospect" },
@@ -49,6 +56,24 @@ function companyToPayload(c: Company): CompanyPayload {
   }
 }
 
+function buildIndustryLinks(
+  primaryId: string,
+  secondaryId: string,
+): IndustryLinkPayload[] {
+  const links: IndustryLinkPayload[] = []
+  if (primaryId && primaryId !== "__none__") {
+    links.push({ industry_id: primaryId, is_primary: true })
+  }
+  if (
+    secondaryId &&
+    secondaryId !== "__none__" &&
+    secondaryId !== primaryId
+  ) {
+    links.push({ industry_id: secondaryId, is_primary: false })
+  }
+  return links
+}
+
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -62,11 +87,23 @@ export function CompanyFormDialog({ open, onOpenChange, company, onCreated }: Pr
   const createMutation = useCreateCompany()
   const updateMutation = useUpdateCompany()
   const mutation = isEdit ? updateMutation : createMutation
+  const industriesQuery = useIndustries()
 
   const [form, setForm] = useState<CompanyPayload>(EMPTY_FORM)
+  const [primaryIndustryId, setPrimaryIndustryId] = useState("")
+  const [secondaryIndustryId, setSecondaryIndustryId] = useState("")
   const [prevOpen, setPrevOpen] = useState(false)
   if (open && !prevOpen) {
     setForm(company ? companyToPayload(company) : EMPTY_FORM)
+    if (company?.industries?.length) {
+      const pri = company.industries.find((i) => i.is_primary)
+      const sec = company.industries.find((i) => !i.is_primary)
+      setPrimaryIndustryId(pri?.industry_id ?? "")
+      setSecondaryIndustryId(sec?.industry_id ?? "")
+    } else {
+      setPrimaryIndustryId("")
+      setSecondaryIndustryId("")
+    }
   }
   if (open !== prevOpen) {
     setPrevOpen(open)
@@ -89,15 +126,32 @@ export function CompanyFormDialog({ open, onOpenChange, company, onCreated }: Pr
       revenue_range: form.revenue_range?.trim() || null,
     }
 
+    const industryLinks = buildIndustryLinks(primaryIndustryId, secondaryIndustryId)
+
     if (isEdit) {
-      updateMutation.mutate({ id: company!.id, data: payload }, { onSuccess: () => onOpenChange(false) })
-    } else {
-      createMutation.mutate(payload, {
-        onSuccess: (created) => {
-          onCreated?.(created)
-          onOpenChange(false)
+      updateMutation.mutate(
+        {
+          id: company!.id,
+          data: {
+            ...payload,
+            industry_links: industryLinks,
+          },
         },
-      })
+        { onSuccess: () => onOpenChange(false) },
+      )
+    } else {
+      createMutation.mutate(
+        {
+          ...payload,
+          ...(industryLinks.length ? { industry_links: industryLinks } : {}),
+        },
+        {
+          onSuccess: (created) => {
+            onCreated?.(created)
+            onOpenChange(false)
+          },
+        },
+      )
     }
   }
 
@@ -121,6 +175,53 @@ export function CompanyFormDialog({ open, onOpenChange, company, onCreated }: Pr
               placeholder="Acme Corp"
               required
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label>Primary industry</Label>
+              <Select
+                value={primaryIndustryId || "__none__"}
+                onValueChange={(v) =>
+                  setPrimaryIndustryId(v === "__none__" ? "" : v)
+                }
+                disabled={industriesQuery.isLoading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select industry" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  <SelectItem value="__none__">None</SelectItem>
+                  {(industriesQuery.data ?? []).map((ind) => (
+                    <SelectItem key={ind.id} value={ind.id}>
+                      {ind.sector ? `${ind.sector} — ${ind.name}` : ind.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label>Secondary industry (optional)</Label>
+              <Select
+                value={secondaryIndustryId || "__none__"}
+                onValueChange={(v) =>
+                  setSecondaryIndustryId(v === "__none__" ? "" : v)
+                }
+                disabled={industriesQuery.isLoading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="None" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  <SelectItem value="__none__">None</SelectItem>
+                  {(industriesQuery.data ?? []).map((ind) => (
+                    <SelectItem key={ind.id} value={ind.id}>
+                      {ind.sector ? `${ind.sector} — ${ind.name}` : ind.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

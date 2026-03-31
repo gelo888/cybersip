@@ -22,6 +22,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useCompanies, useDeleteCompany, useUpdateCompany } from "@/hooks/use-companies";
+import { useIndustries } from "@/hooks/use-industries";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { CompanyFormDialog } from "./company-form-dialog";
 import { DeleteConfirmDialog } from "./delete-confirm-dialog";
@@ -57,17 +58,22 @@ export function CompaniesTable() {
     const debouncedQ = useDebouncedValue(searchInput, 300);
     const [statusFilter, setStatusFilter] = useState<string>("all");
     const [sizeFilter, setSizeFilter] = useState<string>("all");
+    const [industryFilter, setIndustryFilter] = useState<string>("all");
 
     const statusParam =
         statusFilter === "all" ? undefined : (statusFilter as CompanyStatus);
     const sizeParam =
         sizeFilter === "all" ? undefined : (sizeFilter as CompanySize);
+    const industryIdParam =
+        industryFilter === "all" ? undefined : industryFilter;
 
+    const industriesQuery = useIndustries();
     const companies = useCompanies({
         page,
         pageSize,
         status: statusParam,
         companySize: sizeParam,
+        industryId: industryIdParam,
         q: debouncedQ,
     });
     const deleteMutation = useDeleteCompany();
@@ -86,17 +92,25 @@ export function CompaniesTable() {
     const hasActiveFilters =
         debouncedQ.trim().length > 0 ||
         statusFilter !== "all" ||
-        sizeFilter !== "all";
+        sizeFilter !== "all" ||
+        industryFilter !== "all";
 
     useEffect(() => {
         queueMicrotask(() => setPage(0));
-    }, [debouncedQ, statusFilter, sizeFilter]);
+    }, [debouncedQ, statusFilter, sizeFilter, industryFilter]);
 
     function clearFilters() {
         setSearchInput("");
         setStatusFilter("all");
         setSizeFilter("all");
+        setIndustryFilter("all");
         setPage(0);
+    }
+
+    function primaryIndustryLabel(company: Company): string {
+        const list = company.industries ?? [];
+        const p = list.find((i) => i.is_primary) ?? list[0];
+        return p?.name ?? "—";
     }
 
     const items = companies.data?.items ?? [];
@@ -208,6 +222,30 @@ export function CompaniesTable() {
                         ))}
                     </SelectContent>
                 </Select>
+                <Select
+                    value={industryFilter}
+                    onValueChange={setIndustryFilter}
+                >
+                    <SelectTrigger
+                        size="sm"
+                        className="w-full min-w-[10rem] sm:min-w-[12rem] sm:max-w-[14rem]"
+                        aria-label="Filter by industry"
+                    >
+                        <SelectValue placeholder="Industry" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60">
+                        <SelectItem value="all">All industries</SelectItem>
+                        {(industriesQuery.data ?? []).map((ind) => (
+                            <SelectItem key={ind.id} value={ind.id}>
+                                <span className="truncate">
+                                    {ind.sector
+                                        ? `${ind.sector} — ${ind.name}`
+                                        : ind.name}
+                                </span>
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
                 {hasActiveFilters ? (
                     <Button
                         type="button"
@@ -221,7 +259,7 @@ export function CompaniesTable() {
                 ) : null}
             </div>
 
-            {companies.isLoading && <DataTableSkeleton rows={8} columns={7} />}
+            {companies.isLoading && <DataTableSkeleton rows={8} columns={8} />}
             {companies.isError && (
                 <div className="flex items-center justify-center py-12 text-sophos-red gap-2">
                     <AlertCircle className="size-4" />
@@ -242,6 +280,9 @@ export function CompaniesTable() {
                             <tr className="border-b bg-muted/40">
                                 <th className="px-4 py-3 text-left font-medium">
                                     Company
+                                </th>
+                                <th className="px-4 py-3 text-left font-medium">
+                                    Industry
                                 </th>
                                 <th className="px-4 py-3 text-left font-medium">
                                     Status
@@ -276,6 +317,9 @@ export function CompaniesTable() {
                                         >
                                             {company.current_name}
                                         </Link>
+                                    </td>
+                                    <td className="px-4 py-3 text-muted-foreground max-w-[10rem] truncate" title={primaryIndustryLabel(company)}>
+                                        {primaryIndustryLabel(company)}
                                     </td>
                                     <td className="px-4 py-3">
                                         <Select
