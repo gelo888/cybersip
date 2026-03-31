@@ -126,6 +126,32 @@ export interface ContractPayload {
 
 export type ContractUpdatePayload = Omit<Partial<ContractPayload>, "company_id">;
 
+// ── Command Center (dashboard summary) ──
+
+export interface CommandCenterKpis {
+    /** Sum of pending our_contract total_value (API may send number or string). */
+    pipeline_value: number | string;
+    expiring_90d_count: number;
+    active_our_contracts_count: number;
+    active_competitor_contracts_count: number;
+}
+
+export interface RenewalRadarItem {
+    contract_id: string;
+    company_id: string;
+    company_name: string;
+    end_date: string | null;
+    total_value: number | string | null;
+    contract_type: ContractType;
+    territory_label: string | null;
+    incumbent_label: string;
+}
+
+export interface CommandCenterSummary {
+    kpis: CommandCenterKpis;
+    renewal_radar: RenewalRadarItem[];
+}
+
 // ── Contract Line Item ──
 
 export interface LineItem {
