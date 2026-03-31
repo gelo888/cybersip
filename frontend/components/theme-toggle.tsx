@@ -27,8 +27,12 @@ export function ThemeToggleButton({
         setTheme(resolvedTheme === "dark" ? "light" : "dark");
     }
 
-    const label =
-        resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+    // Avoid hydration mismatch: resolvedTheme can differ SSR vs first client paint.
+    const label = !mounted
+        ? "Toggle color theme"
+        : resolvedTheme === "dark"
+          ? "Switch to light mode"
+          : "Switch to dark mode";
 
     return (
         <Button
