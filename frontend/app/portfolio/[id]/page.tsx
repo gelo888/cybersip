@@ -209,7 +209,7 @@ export default function CompanyDetailPage({
             <Separator />
 
             {/* Sections */}
-            <CompanyContactsSection companyId={id} />
+            <CompanyContactsSection companyId={id} companyName={c.current_name} />
             <CompanyEngagementsSection companyId={id} />
             <CompanyContractsSection companyId={id} />
             <CompanyIntelSection

@@ -1,13 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import {
     Users,
     Loader2,
     AlertCircle,
     Mail,
     Phone,
+    Plus,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useCompanyContacts } from "@/hooks/use-company-detail";
+import { ContactFormDialog } from "@/app/portfolio/components/contact-form-dialog";
 import type { ContactSeniority, RoleInDeal } from "@/lib/types";
 
 function SeniorityBadge({ seniority }: { seniority: ContactSeniority }) {
@@ -61,21 +65,41 @@ function RoleBadge({ role }: { role: RoleInDeal }) {
     );
 }
 
-export function CompanyContactsSection({ companyId }: { companyId: string }) {
+export function CompanyContactsSection({
+    companyId,
+    companyName,
+}: {
+    companyId: string;
+    companyName: string;
+}) {
     const contacts = useCompanyContacts(companyId);
     const items = contacts.data?.items ?? [];
+    const [addOpen, setAddOpen] = useState(false);
 
     return (
         <section className="space-y-3">
-            <div className="flex items-center gap-2">
-                <Users className="size-5 text-primary" />
-                <h3 className="text-base font-semibold">Contacts</h3>
-                {contacts.data && (
-                    <span className="text-xs text-muted-foreground">
-                        ({contacts.data.total})
-                    </span>
-                )}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2">
+                    <Users className="size-5 text-primary" />
+                    <h3 className="text-base font-semibold">Contacts</h3>
+                    {contacts.data && (
+                        <span className="text-xs text-muted-foreground">
+                            ({contacts.data.total})
+                        </span>
+                    )}
+                </div>
+                <Button type="button" size="sm" className="gap-1 shrink-0" onClick={() => setAddOpen(true)}>
+                    <Plus className="size-4" />
+                    Add contact
+                </Button>
             </div>
+
+            <ContactFormDialog
+                open={addOpen}
+                onOpenChange={setAddOpen}
+                scopedCompanyId={companyId}
+                scopedCompanyName={companyName}
+            />
 
             {contacts.isLoading && (
                 <div className="flex items-center justify-center py-8 text-muted-foreground gap-2">

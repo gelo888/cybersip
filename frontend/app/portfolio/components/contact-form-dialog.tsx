@@ -57,9 +57,18 @@ interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
   contact?: Contact | null
+  /** When set (create mode), company is fixed — used from Company 360 */
+  scopedCompanyId?: string
+  scopedCompanyName?: string
 }
 
-export function ContactFormDialog({ open, onOpenChange, contact }: Props) {
+export function ContactFormDialog({
+  open,
+  onOpenChange,
+  contact,
+  scopedCompanyId,
+  scopedCompanyName,
+}: Props) {
   const isEdit = !!contact
   const createMutation = useCreateContact()
   const updateMutation = useUpdateContact()
@@ -70,7 +79,14 @@ export function ContactFormDialog({ open, onOpenChange, contact }: Props) {
   const [form, setForm] = useState<ContactPayload>(EMPTY_FORM)
   const [prevOpen, setPrevOpen] = useState(false)
   if (open && !prevOpen) {
-    setForm(contact ? contactToPayload(contact) : EMPTY_FORM)
+    if (contact) {
+      setForm(contactToPayload(contact))
+    } else {
+      setForm({
+        ...EMPTY_FORM,
+        company_id: scopedCompanyId ?? "",
+      })
+    }
   }
   if (open !== prevOpen) {
     setPrevOpen(open)
@@ -80,7 +96,10 @@ export function ContactFormDialog({ open, onOpenChange, contact }: Props) {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  const isValid = form.first_name.trim() && form.last_name.trim() && form.company_id
+  const companyOk =
+    isEdit || !!scopedCompanyId || !!form.company_id.trim()
+  const isValid =
+    !!(form.first_name.trim() && form.last_name.trim() && companyOk)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -88,6 +107,7 @@ export function ContactFormDialog({ open, onOpenChange, contact }: Props) {
 
     const payload: ContactPayload = {
       ...form,
+      company_id: scopedCompanyId ?? form.company_id,
       first_name: form.first_name.trim(),
       last_name: form.last_name.trim(),
       title: form.title?.trim() || null,
@@ -108,7 +128,11 @@ export function ContactFormDialog({ open, onOpenChange, contact }: Props) {
         <DialogHeader>
           <DialogTitle>{isEdit ? "Edit Contact" : "New Contact"}</DialogTitle>
           <DialogDescription>
-            {isEdit ? "Update contact details." : "Add a new contact to your portfolio."}
+            {isEdit
+              ? "Update contact details."
+              : scopedCompanyName
+                ? `Add a contact at ${scopedCompanyName}.`
+                : "Add a new contact to your portfolio."}
           </DialogDescription>
         </DialogHeader>
 
@@ -117,6 +141,8 @@ export function ContactFormDialog({ open, onOpenChange, contact }: Props) {
             <Label>Company {isEdit ? "" : "*"}</Label>
             {isEdit ? (
               <Input value={contact!.company_name} disabled />
+            ) : scopedCompanyId ? (
+              <Input value={scopedCompanyName ?? "This company"} disabled />
             ) : (
               <CompanyCombobox
                 companies={companies.data?.items ?? []}
