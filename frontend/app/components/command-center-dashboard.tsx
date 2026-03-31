@@ -12,12 +12,14 @@ import {
     Zap,
     Loader2,
 } from "lucide-react";
+import { MetricStatCard } from "@/components/metric-stat-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCommandCenterActionStream } from "@/hooks/use-command-center-action-stream";
 import { useCommandCenterSummary } from "@/hooks/use-command-center-summary";
 import { formatRelativeTime } from "@/lib/format-relative-time";
 import type { ContractType } from "@/lib/types";
+import { RenewalsByMonthChart } from "./renewals-by-month-chart";
 
 const regionHeatmap: {
     region: string;
@@ -139,7 +141,12 @@ export function CommandCenterDashboard() {
     return (
         <div className="p-6 space-y-8">
             {isLoading ? (
-                <KpiSkeletonGrid />
+                <>
+                    <KpiSkeletonGrid />
+                    <div className="mt-6">
+                        <RenewalsByMonthChart items={[]} isLoading />
+                    </div>
+                </>
             ) : isError ? (
                 <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <p className="text-sm text-destructive m-0">
@@ -150,41 +157,50 @@ export function CommandCenterDashboard() {
                     </Button>
                 </div>
             ) : data ? (
-                <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-                    {[
-                        {
-                            label: "Pipeline value",
-                            value: formatCurrency(data.kpis.pipeline_value),
-                            hint: "Pending our contracts",
-                        },
-                        {
-                            label: "Expiring (90d)",
-                            value: String(data.kpis.expiring_90d_count),
-                            hint: "Active, ending soon",
-                        },
-                        {
-                            label: "Our contracts",
-                            value: String(data.kpis.active_our_contracts_count),
-                            hint: "Active",
-                        },
-                        {
-                            label: "Competitor contracts",
-                            value: String(data.kpis.active_competitor_contracts_count),
-                            hint: "Active",
-                        },
-                    ].map((kpi) => (
-                        <div key={kpi.label} className="rounded-lg border p-4 space-y-1">
-                            <span className="text-xs text-muted-foreground font-medium">{kpi.label}</span>
-                            <div className="text-2xl font-bold flex items-center gap-2">
-                                {kpi.value}
-                                {isFetching && !isLoading ? (
-                                    <Loader2 className="size-4 animate-spin text-muted-foreground" />
-                                ) : null}
-                            </div>
-                            <span className="text-xs text-muted-foreground">{kpi.hint}</span>
-                        </div>
-                    ))}
-                </div>
+                <>
+                    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                        {[
+                            {
+                                label: "Pipeline value",
+                                value: formatCurrency(data.kpis.pipeline_value),
+                                hint: "Pending our contracts",
+                            },
+                            {
+                                label: "Expiring (90d)",
+                                value: String(data.kpis.expiring_90d_count),
+                                hint: "Active, ending soon",
+                            },
+                            {
+                                label: "Our contracts",
+                                value: String(data.kpis.active_our_contracts_count),
+                                hint: "Active",
+                            },
+                            {
+                                label: "Competitor contracts",
+                                value: String(data.kpis.active_competitor_contracts_count),
+                                hint: "Active",
+                            },
+                        ].map((kpi) => (
+                            <MetricStatCard
+                                key={kpi.label}
+                                label={kpi.label}
+                                value={kpi.value}
+                                hint={kpi.hint}
+                                trailing={
+                                    isFetching && !isLoading ? (
+                                        <Loader2 className="text-muted-foreground size-4 animate-spin" />
+                                    ) : null
+                                }
+                            />
+                        ))}
+                    </div>
+                    <div className="mt-6">
+                        <RenewalsByMonthChart
+                            items={data.renewal_radar}
+                            isLoading={false}
+                        />
+                    </div>
+                </>
             ) : null}
 
             <section className="space-y-3">
