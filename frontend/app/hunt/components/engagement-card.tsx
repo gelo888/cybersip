@@ -136,7 +136,7 @@ export function EngagementCard({
                     "ring-primary ring-offset-background ring-2 ring-offset-2",
             )}
         >
-            <div className="flex items-start gap-1">
+            <div className="flex items-center gap-1">
                 {dragHandleProps ? (
                     <Button
                         type="button"
@@ -150,53 +150,14 @@ export function EngagementCard({
                         <GripVertical className="size-4" />
                     </Button>
                 ) : null}
-                <div className="min-w-0 flex-1">
-                    <div className="mb-2">
+                <div className="min-w-0 flex-1 items-center">
+                    <div className="">
                         <Link
                             href={`/portfolio/${engagement.company_id}?from=hunt`}
                             className="font-(family-name:--font-lexend) text-foreground inline-block text-sm font-bold leading-tight hover:text-primary hover:underline"
                         >
                             {engagement.company_name}
                         </Link>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-1.5">
-                        <span
-                            className={cn(
-                                "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold",
-                                cfg.color,
-                            )}
-                        >
-                            <Icon className="size-3 shrink-0" />
-                            {cfg.label}
-                        </span>
-                        {urgentFollow && engagement.next_action_date ? (
-                            <span className="bg-destructive/10 text-destructive inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold">
-                                <AlertTriangle className="size-3" />
-                                Follow-up • {followDays}d
-                            </span>
-                        ) : null}
-                        {contractSignals?.showCompetitorActive ? (
-                            <span className="bg-sophos-orange/12 text-sophos-orange inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold">
-                                <Shield className="size-3" />
-                                Competitor
-                            </span>
-                        ) : null}
-                        {hasSignals && contractSignals ? (
-                            <>
-                                {contractSignals.showProposalPending ? (
-                                    <span className="bg-sophos-sky/12 text-sophos-sky inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-semibold">
-                                        <FileSignature className="size-2.5" />
-                                        Proposal
-                                    </span>
-                                ) : null}
-                                {contractSignals.showContractSigned ? (
-                                    <span className="bg-sophos-green/12 text-sophos-green inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-semibold">
-                                        <FileSignature className="size-2.5" />
-                                        Signed
-                                    </span>
-                                ) : null}
-                            </>
-                        ) : null}
                     </div>
                 </div>
                 <div className="flex shrink-0 gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
@@ -218,6 +179,45 @@ export function EngagementCard({
                     </Button>
                 </div>
             </div>
+            <div className="flex flex-wrap items-center gap-1.5 py-1">
+                <span
+                    className={cn(
+                        "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold",
+                        cfg.color,
+                    )}
+                >
+                    <Icon className="size-3 shrink-0" />
+                    {cfg.label}
+                </span>
+                {urgentFollow && engagement.next_action_date ? (
+                    <span className="bg-destructive/10 text-destructive inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold">
+                        <AlertTriangle className="size-3" />
+                        Follow-up • {followDays}d
+                    </span>
+                ) : null}
+                {contractSignals?.showCompetitorActive ? (
+                    <span className="bg-sophos-orange/12 text-sophos-orange inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold">
+                        <Shield className="size-3" />
+                        Competitor
+                    </span>
+                ) : null}
+                {hasSignals && contractSignals ? (
+                    <>
+                        {contractSignals.showProposalPending ? (
+                            <span className="bg-sophos-sky/12 text-sophos-sky inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-semibold">
+                                <FileSignature className="size-2.5" />
+                                Proposal
+                            </span>
+                        ) : null}
+                        {contractSignals.showContractSigned ? (
+                            <span className="bg-sophos-green/12 text-sophos-green inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-semibold">
+                                <FileSignature className="size-2.5" />
+                                Signed
+                            </span>
+                        ) : null}
+                    </>
+                ) : null}
+            </div>
 
             {engagement.outcome ? (
                 <p className="text-muted-foreground line-clamp-2 text-xs leading-snug">
@@ -238,8 +238,7 @@ export function EngagementCard({
                 </div>
             </div>
 
-            <div className="border-border/60 flex items-center justify-between border-t border-dashed pt-3">
-                <EngagementHeat seed={engagement.id} />
+            <div className="border-border/60 flex items-center justify-end border-t border-dashed pt-3">
                 <span className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase">
                     {age}d in stage
                 </span>
