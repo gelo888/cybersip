@@ -58,7 +58,7 @@ export default function RoadmapPage() {
               (engagements + new companies; KPIs + renewal radar remain live).{" "}
               Optional N8N enrichment can extend the stream later.
             </li>
-            <li>Company 360 contacts sub-section is read-only (no contact CRUD on the detail page)</li>
+            <li>Company 360 contacts table has no row-level edit/delete (use Portfolio); add contact is available on the detail page</li>
             <li>Advanced Hunt ↔ Vault workflow automation not yet implemented (e.g. auto-create contract from stage)</li>
             <li>No authentication / authorization</li>
             <li>No AI integration</li>

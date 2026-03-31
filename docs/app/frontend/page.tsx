@@ -416,7 +416,7 @@ export function useCreateContract() {
               <code>/api/command-center/action-stream</code>
             </li>
             <li>Portfolio — companies &amp; contacts with full CRUD</li>
-            <li>Company 360 — live data; CRUD for engagements, contracts, and intel (contacts table read-only)</li>
+            <li>Company 360 — live data; CRUD for engagements, contracts, and intel; contacts — <strong>Add contact</strong> opens the shared contact form scoped to the company (edit/delete from Portfolio contacts table)</li>
             <li>
               Hunt — Kanban + contract status chips per account; filter via{" "}
               <code>?company_id=</code>; optional <code>engagement_id=</code>{" "}
