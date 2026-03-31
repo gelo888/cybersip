@@ -94,10 +94,10 @@ export function CompanyIntelSection({
     }
 
     return (
-        <section className="space-y-3">
+        <section className="space-y-4">
             <div className="flex items-center gap-2">
-                <Shield className="size-5 text-primary" />
-                <h3 className="text-base font-semibold">Competitor Intel</h3>
+                <Shield className="text-primary size-5" />
+                <h3 className="text-base font-semibold tracking-tight">Competitor intel</h3>
                 {intel.data && (
                     <span className="text-xs text-muted-foreground">
                         ({items.length})
@@ -158,23 +158,24 @@ export function CompanyIntelSection({
             )}
 
             {intel.data && items.length > 0 && (
-                <div className="overflow-x-auto rounded-lg border">
+                <div className="overflow-hidden rounded-xl border border-border/60 shadow-sm ring-1 ring-border/40">
+                    <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
-                            <tr className="border-b bg-muted/40">
-                                <th className="px-4 py-3 text-left font-medium">
+                            <tr className="bg-muted/50 border-border/60 border-b">
+                                <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
                                     Competitor
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium">
+                                <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
                                     Product
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium">
+                                <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
                                     Confidence
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium">
-                                    Contract End
+                                <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
+                                    Contract end
                                 </th>
-                                <th className="px-4 py-3 text-right font-medium">
+                                <th className="text-muted-foreground px-6 py-4 text-right text-[10px] font-bold tracking-wider uppercase">
                                     Actions
                                 </th>
                             </tr>
@@ -183,25 +184,25 @@ export function CompanyIntelSection({
                             {items.map((record) => (
                                 <tr
                                     key={record.id}
-                                    className="border-b last:border-b-0 hover:bg-muted/20 transition-colors"
+                                    className="hover:bg-muted/30 border-border/40 border-b transition-colors last:border-b-0"
                                 >
-                                    <td className="px-4 py-3 font-medium">
+                                    <td className="px-6 py-3 font-medium">
                                         {record.competitor_name}
                                     </td>
-                                    <td className="px-4 py-3 font-medium">
+                                    <td className="px-6 py-3 font-medium">
                                         {record.product_name ?? "—"}
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-6 py-3">
                                         <ConfidenceBadge
                                             confidence={record.confidence}
                                         />
                                     </td>
-                                    <td className="px-4 py-3 text-muted-foreground">
+                                    <td className="text-muted-foreground px-6 py-3">
                                         {record.contract_end
                                             ? formatDate(record.contract_end)
                                             : "—"}
                                     </td>
-                                    <td className="px-4 py-3 text-right">
+                                    <td className="px-6 py-3 text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <Button
                                                 variant="ghost"
@@ -227,6 +228,7 @@ export function CompanyIntelSection({
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 </div>
             )}
 

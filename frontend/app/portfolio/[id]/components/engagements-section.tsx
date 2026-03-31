@@ -94,10 +94,10 @@ export function CompanyEngagementsSection({
     const canAdd = stages.length > 0;
 
     return (
-        <section className="space-y-3">
+        <section className="space-y-4">
             <div className="flex items-center gap-2">
-                <MessageSquare className="size-5 text-primary" />
-                <h3 className="text-base font-semibold">Engagements</h3>
+                <MessageSquare className="text-primary size-5" />
+                <h3 className="text-base font-semibold tracking-tight">Engagements</h3>
                 {engagements.data && (
                     <span className="text-xs text-muted-foreground">
                         ({items.length})
@@ -154,26 +154,27 @@ export function CompanyEngagementsSection({
             )}
 
             {engagements.data && items.length > 0 && (
-                <div className="overflow-x-auto rounded-lg border">
+                <div className="overflow-hidden rounded-xl border border-border/60 shadow-sm ring-1 ring-border/40">
+                    <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
-                            <tr className="border-b bg-muted/40">
-                                <th className="px-4 py-3 text-left font-medium">
+                            <tr className="bg-muted/50 border-border/60 border-b">
+                                <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
                                     Stage
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium">
+                                <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
                                     Type
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium">
+                                <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
                                     Outcome
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium">
-                                    Next Action
+                                <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
+                                    Next action
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium">
+                                <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
                                     Date
                                 </th>
-                                <th className="px-4 py-3 text-right font-medium">
+                                <th className="text-muted-foreground px-6 py-4 text-right text-[10px] font-bold tracking-wider uppercase">
                                     Actions
                                 </th>
                             </tr>
@@ -185,12 +186,12 @@ export function CompanyEngagementsSection({
                                 return (
                                     <tr
                                         key={eng.id}
-                                        className="border-b last:border-b-0 hover:bg-muted/20 transition-colors"
+                                        className="hover:bg-muted/30 border-border/40 border-b transition-colors last:border-b-0"
                                     >
-                                        <td className="px-4 py-3 text-muted-foreground">
+                                        <td className="text-muted-foreground px-6 py-3">
                                             {eng.stage_name}
                                         </td>
-                                        <td className="px-4 py-3">
+                                        <td className="px-6 py-3">
                                             <span
                                                 className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-semibold ${cfg.className}`}
                                             >
@@ -198,20 +199,20 @@ export function CompanyEngagementsSection({
                                                 {cfg.label}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-3 text-muted-foreground max-w-xs truncate">
+                                        <td className="text-muted-foreground max-w-xs truncate px-6 py-3">
                                             {eng.outcome ?? "—"}
                                         </td>
-                                        <td className="px-4 py-3 text-muted-foreground">
+                                        <td className="text-muted-foreground px-6 py-3">
                                             {eng.next_action_date
                                                 ? formatDate(
                                                       eng.next_action_date,
                                                   )
                                                 : "—"}
                                         </td>
-                                        <td className="px-4 py-3 text-muted-foreground">
+                                        <td className="text-muted-foreground px-6 py-3">
                                             {formatDate(eng.created_at)}
                                         </td>
-                                        <td className="px-4 py-3 text-right">
+                                        <td className="px-6 py-3 text-right">
                                             <div className="flex items-center justify-end gap-1">
                                                 <Button
                                                     variant="ghost"
@@ -236,6 +237,7 @@ export function CompanyEngagementsSection({
                             })}
                         </tbody>
                     </table>
+                    </div>
                 </div>
             )}
 

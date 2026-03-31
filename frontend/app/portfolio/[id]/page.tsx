@@ -3,93 +3,17 @@
 import { use } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import {
-    ArrowLeft,
-    Building2,
-    Globe,
-    Users,
-    TrendingUp,
-    AlertCircle,
-} from "lucide-react";
+import { ArrowLeft, AlertCircle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { useCompany } from "@/hooks/use-company-detail";
-import type { CompanyStatus, CompanySize } from "@/lib/types";
-import { cn } from "@/lib/utils";
 import { CompanyContactsSection } from "./components/contacts-section";
 import { CompanyEngagementsSection } from "./components/engagements-section";
 import { CompanyContractsSection } from "./components/contracts-section";
 import { CompanyIntelSection } from "./components/intel-section";
 import { CompanyDetailSkeleton } from "./components/company-detail-skeleton";
-
-function StatusBadge({ status }: { status: CompanyStatus }) {
-    const config: Record<CompanyStatus, { label: string; className: string }> = {
-        prospect: {
-            label: "Prospect",
-            className: "bg-sophos-sky/10 text-sophos-sky",
-        },
-        active_client: {
-            label: "Active Client",
-            className: "bg-sophos-green/10 text-sophos-green",
-        },
-        previous_client: {
-            label: "Previous Client",
-            className: "bg-muted text-muted-foreground",
-        },
-        lost: {
-            label: "Lost",
-            className: "bg-sophos-red/10 text-sophos-red",
-        },
-        disqualified: {
-            label: "Disqualified",
-            className: "bg-sophos-red/10 text-sophos-red",
-        },
-    };
-    const { label, className } = config[status];
-    return (
-        <span
-            className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold ${className}`}
-        >
-            {label}
-        </span>
-    );
-}
-
-function SizeBadge({ size }: { size: CompanySize }) {
-    const labels: Record<CompanySize, string> = {
-        SMB: "SMB",
-        Mid_Market: "Mid-Market",
-        Enterprise: "Enterprise",
-        Government: "Government",
-    };
-    return (
-        <span className="inline-flex items-center rounded-md bg-sophos-violet/10 text-sophos-violet px-2.5 py-1 text-xs font-semibold">
-            {labels[size]}
-        </span>
-    );
-}
-
-function InfoCard({
-    icon: Icon,
-    label,
-    value,
-}: {
-    icon: React.ComponentType<{ className?: string }>;
-    label: string;
-    value: string;
-}) {
-    return (
-        <div className="flex items-center gap-3 rounded-lg border bg-card p-4">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10">
-                <Icon className="size-4 text-primary" />
-            </div>
-            <div className="min-w-0">
-                <p className="text-xs text-muted-foreground mb-0">{label}</p>
-                <p className="text-sm font-medium truncate mb-0">{value}</p>
-            </div>
-        </div>
-    );
-}
+import { Company360Hero } from "./components/company-360-hero";
+import { CompanyEngagementVelocityChart } from "./components/company-engagement-velocity-chart";
+import { Company360Sidebar } from "./components/company-360-sidebar";
 
 const BACK_LINKS: Record<string, { href: string; label: string }> = {
     hunt: { href: "/hunt", label: "The Hunt" },
@@ -116,14 +40,14 @@ export default function CompanyDetailPage({
 
     if (company.isError) {
         return (
-            <div className="p-6 space-y-4">
+            <div className="space-y-6 p-6">
                 <Link href={backLink.href}>
                     <Button variant="ghost" size="sm">
-                        <ArrowLeft className="size-4 mr-1" />
+                        <ArrowLeft className="mr-1 size-4" />
                         {backLink.label}
                     </Button>
                 </Link>
-                <div className="flex items-center justify-center py-24 text-sophos-red gap-2">
+                <div className="text-sophos-red flex items-center justify-center gap-2 py-24">
                     <AlertCircle className="size-5" />
                     <span className="text-sm">{company.error.message}</span>
                 </div>
@@ -134,111 +58,54 @@ export default function CompanyDetailPage({
     const c = company.data!;
 
     return (
-        <div className="p-6 space-y-6">
-            {/* Back navigation */}
-            <Link href={backLink.href}>
-                <Button variant="ghost" size="sm" className="gap-1 -ml-2">
-                    <ArrowLeft className="size-4" />
-                    {backLink.label}
-                </Button>
-            </Link>
+        <div className="space-y-10 p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <Link href={backLink.href}>
+                    <Button variant="ghost" size="sm" className="-ml-2 gap-1">
+                        <ArrowLeft className="size-4" />
+                        {backLink.label}
+                    </Button>
+                </Link>
+            </div>
 
-            {/* Company header */}
-            <div className="space-y-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                            <Building2 className="size-5 text-primary" />
-                        </div>
-                        <div>
-                            <h3 className="text-base font-semibold leading-tight">
-                                {c.current_name}
-                            </h3>
-                            <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                <StatusBadge status={c.status} />
-                                {c.company_size && (
-                                    <SizeBadge size={c.company_size} />
-                                )}
-                            </div>
-                            {(c.industries ?? []).length > 0 ? (
-                                <div className="flex flex-wrap gap-1.5 mt-2">
-                                    {(c.industries ?? []).map((ind) => (
-                                        <span
-                                            key={ind.industry_id}
-                                            className={cn(
-                                                "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium",
-                                                ind.is_primary
-                                                    ? "border-primary/40 bg-primary/10 text-foreground"
-                                                    : "border-border text-muted-foreground",
-                                            )}
-                                            title={
-                                                ind.sector
-                                                    ? `${ind.sector} — ${ind.name}`
-                                                    : ind.name
-                                            }
-                                        >
-                                            {ind.name}
-                                            {ind.is_primary ? (
-                                                <span className="ml-1 text-[10px] uppercase opacity-80">
-                                                    primary
-                                                </span>
-                                            ) : null}
-                                        </span>
-                                    ))}
-                                </div>
-                            ) : null}
-                        </div>
-                    </div>
-                    {c.website && (
-                        <a
-                            href={c.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline text-sm inline-flex items-center gap-1"
-                        >
-                            <Globe className="size-3.5" />
-                            {c.website.replace(/^https?:\/\//, "")}
-                        </a>
-                    )}
-                </div>
+            <div>
+                <nav className="text-primary/70 mb-2 flex flex-wrap items-center gap-2 text-xs font-bold tracking-widest uppercase">
+                    <Link href="/portfolio" className="hover:text-primary">
+                        Portfolio
+                    </Link>
+                    <ChevronRight className="size-3 opacity-60" aria-hidden />
+                    <span className="text-primary">Company 360</span>
+                </nav>
+                <p className="text-muted-foreground max-w-2xl text-sm">
+                    Account overview, pipeline velocity, and linked contacts,
+                    engagements, contracts, and competitive intel.
+                </p>
+            </div>
 
-                {/* Quick stats */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <InfoCard
-                        icon={Users}
-                        label="Employees"
-                        value={
-                            c.employee_count?.toLocaleString() ?? "Unknown"
-                        }
-                    />
-                    <InfoCard
-                        icon={TrendingUp}
-                        label="Revenue Range"
-                        value={c.revenue_range ?? "Unknown"}
-                    />
-                    <InfoCard
-                        icon={Globe}
-                        label="Country"
-                        value={c.country ?? "Unknown"}
-                    />
-                    <InfoCard
-                        icon={Building2}
-                        label="Stock Ticker"
-                        value={c.stock_ticker ?? "N/A"}
-                    />
+            <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+                <Company360Hero company={c} className="lg:col-span-8" />
+                <div className="min-w-0 w-full lg:col-span-4">
+                    <CompanyEngagementVelocityChart companyId={id} />
                 </div>
             </div>
 
-            <Separator />
-
-            {/* Sections */}
-            <CompanyContactsSection companyId={id} companyName={c.current_name} />
-            <CompanyEngagementsSection companyId={id} />
-            <CompanyContractsSection companyId={id} />
-            <CompanyIntelSection
-                companyId={id}
-                companyName={c.current_name}
-            />
+            <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+                <div className="space-y-10 lg:col-span-8">
+                    <CompanyContactsSection
+                        companyId={id}
+                        companyName={c.current_name}
+                    />
+                    <CompanyEngagementsSection companyId={id} />
+                    <CompanyContractsSection companyId={id} />
+                    <CompanyIntelSection
+                        companyId={id}
+                        companyName={c.current_name}
+                    />
+                </div>
+                <div className="lg:col-span-4">
+                    <Company360Sidebar companyId={id} />
+                </div>
+            </div>
         </div>
     );
 }
