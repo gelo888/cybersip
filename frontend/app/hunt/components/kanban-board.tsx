@@ -14,7 +14,7 @@ import {
     type DragStartEvent,
 } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
-import { Plus, X } from "lucide-react"
+import { ListFilter, MoreHorizontal, Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useStages } from "@/hooks/use-stages"
@@ -29,7 +29,64 @@ import {
     type ContractCardSignals,
 } from "@/lib/contract-signals"
 import { cn } from "@/lib/utils"
-import type { Engagement } from "@/lib/types"
+import type { Contract, Engagement } from "@/lib/types"
+
+function pendingOurValueForCompany(contracts: Contract[], companyId: string): number {
+    let sum = 0
+    for (const c of contracts) {
+        if (c.company_id !== companyId) continue
+        if (c.type !== "our_contract" || c.status !== "pending") continue
+        if (c.total_value == null) continue
+        const v =
+            typeof c.total_value === "number"
+                ? c.total_value
+                : parseFloat(String(c.total_value))
+        if (Number.isFinite(v)) sum += v
+    }
+    return sum
+}
+
+function pipelineValueForEngagementSet(
+    engagements: Engagement[],
+    contracts: Contract[],
+): number {
+    const seen = new Set<string>()
+    let sum = 0
+    for (const e of engagements) {
+        if (seen.has(e.company_id)) continue
+        seen.add(e.company_id)
+        sum += pendingOurValueForCompany(contracts, e.company_id)
+    }
+    return sum
+}
+
+function avgDaysInPipeline(engagements: Engagement[]): number | null {
+    if (engagements.length === 0) return null
+    const total = engagements.reduce((s, e) => {
+        const diff = Date.now() - new Date(e.created_at).getTime()
+        return s + Math.floor(diff / (1000 * 60 * 60 * 24))
+    }, 0)
+    return Math.round(total / engagements.length)
+}
+
+function formatHuntCurrency(n: number) {
+    if (n >= 1_000_000) return `$${(n / 1e6).toFixed(1)}M`
+    if (n >= 1000) return `$${Math.round(n / 1000)}K`
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+    }).format(n)
+}
+
+const STAGE_BORDER = [
+    "border-l-primary",
+    "border-l-accent",
+    "border-l-chart-2",
+    "border-l-chart-3",
+    "border-l-primary",
+    "border-l-muted-foreground/45",
+] as const
 
 function stageDropId(stageId: string) {
     return `stage-${stageId}`
@@ -53,8 +110,8 @@ function StageDropZone({
         <div
             ref={setNodeRef}
             className={cn(
-                "flex-1 rounded-b-lg border bg-muted/20 p-2 space-y-2 min-h-[200px]",
-                isOver && "ring-2 ring-primary/35 ring-inset",
+                "border-border/60 flex min-h-[240px] flex-1 flex-col gap-3 rounded-b-xl border border-t-0 bg-muted/25 p-3 dark:bg-muted/15",
+                isOver && "ring-primary/35 ring-2 ring-inset",
             )}
         >
             {children}
@@ -67,12 +124,14 @@ function DraggableEngagementCard({
     onEdit,
     onDelete,
     contractSignals,
+    dealValue = 0,
     highlight,
 }: {
     engagement: Engagement
     onEdit: (e: Engagement) => void
     onDelete: (e: Engagement) => void
     contractSignals?: ContractCardSignals
+    dealValue?: number
     highlight: boolean
 }) {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -88,6 +147,7 @@ function DraggableEngagementCard({
                 onEdit={onEdit}
                 onDelete={onDelete}
                 contractSignals={contractSignals}
+                dealValue={dealValue}
                 highlight={highlight}
                 dragHandleProps={{ attributes, listeners }}
             />
@@ -144,6 +204,15 @@ export function KanbanBoard() {
 
     const isLoading = stagesLoading || engagementsLoading || contractsLoading
 
+    const boardPipeline = useMemo(
+        () => pipelineValueForEngagementSet(filteredEngagements, contracts),
+        [filteredEngagements, contracts],
+    )
+    const avgDays = useMemo(
+        () => avgDaysInPipeline(filteredEngagements),
+        [filteredEngagements],
+    )
+
     useEffect(() => {
         if (!engagementHighlight || !companyFilter) return
         const t = window.setTimeout(() => {
@@ -198,17 +267,27 @@ export function KanbanBoard() {
 
     if (isLoading) {
         return (
-            <div className="overflow-x-auto pb-4">
-                <div className="inline-flex gap-4 min-w-max">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="w-72 shrink-0 flex flex-col">
-                            <Skeleton className="rounded-t-lg rounded-b-none border border-b-0 px-3 h-14 w-full" />
-                            <div className="rounded-b-lg border bg-muted/20 p-2 min-h-[200px] space-y-2 flex flex-col">
-                                <Skeleton className="h-24 w-full rounded-lg shrink-0" />
-                                <Skeleton className="h-24 w-full rounded-lg shrink-0" />
+            <div className="flex min-h-0 flex-1 flex-col">
+                <div className="border-border/60 bg-muted/35 mb-4 flex flex-wrap items-center justify-between gap-4 border-b px-6 py-4 dark:bg-muted/20">
+                    <div className="flex flex-wrap gap-8">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                            <Skeleton key={i} className="h-12 w-36" />
+                        ))}
+                    </div>
+                    <Skeleton className="h-9 w-40" />
+                </div>
+                <div className="kanban-scroll-x min-h-0 flex-1 overflow-x-auto px-6 pb-6">
+                    <div className="inline-flex h-full min-w-max gap-6">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="flex w-80 shrink-0 flex-col">
+                                <Skeleton className="h-16 w-full rounded-t-xl rounded-b-none border border-b-0 px-3" />
+                                <div className="border-border/60 flex min-h-[260px] flex-col gap-3 rounded-b-xl border bg-muted/20 p-3">
+                                    <Skeleton className="h-36 w-full shrink-0 rounded-xl" />
+                                    <Skeleton className="h-36 w-full shrink-0 rounded-xl" />
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
         )
@@ -216,7 +295,7 @@ export function KanbanBoard() {
 
     if (stages.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
                 <p className="text-muted-foreground mb-4">
                     No pipeline stages configured yet. Create stages to start tracking engagements.
                 </p>
@@ -240,7 +319,7 @@ export function KanbanBoard() {
     return (
         <>
             {companyFilter && (
-                <div className="mb-4 flex flex-col gap-2 rounded-lg border bg-muted/30 px-4 py-3 text-sm">
+                <div className="mx-6 mb-4 flex flex-col gap-2 rounded-lg border bg-muted/30 px-4 py-3 text-sm">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="text-muted-foreground mb-0">
                             Showing pipeline for{" "}
@@ -263,43 +342,132 @@ export function KanbanBoard() {
             )}
 
             {companyFilter && filteredEngagements.length === 0 && (
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-muted-foreground mx-6 mb-4 text-sm">
                     No engagements for this company in the pipeline.
                 </p>
             )}
+
+            <div className="border-border/60 bg-muted/35 mb-4 flex flex-col gap-4 border-b px-6 py-4 sm:flex-row sm:items-center sm:justify-between dark:bg-muted/20">
+                <div className="flex flex-wrap items-center gap-6 sm:gap-8">
+                    <div>
+                        <p className="text-muted-foreground m-0 text-[10px] font-bold tracking-wider uppercase">
+                            Pipeline value
+                        </p>
+                        <p className="font-(family-name:--font-lexend) text-primary m-0 text-2xl font-bold tabular-nums">
+                            {formatHuntCurrency(boardPipeline)}
+                        </p>
+                        <p className="text-muted-foreground/80 m-0 mt-0.5 max-w-56 text-[10px]">
+                            Pending our_contract totals, one per company on the board
+                        </p>
+                    </div>
+                    <div className="bg-border/50 hidden h-10 w-px sm:block" aria-hidden />
+                    <div>
+                        <p className="text-muted-foreground m-0 text-[10px] font-bold tracking-wider uppercase">
+                            Active deals
+                        </p>
+                        <p className="font-(family-name:--font-lexend) text-accent m-0 text-2xl font-bold tabular-nums">
+                            {filteredEngagements.length}
+                        </p>
+                    </div>
+                    <div className="bg-border/50 hidden h-10 w-px sm:block" aria-hidden />
+                    <div>
+                        <p className="text-muted-foreground m-0 text-[10px] font-bold tracking-wider uppercase">
+                            Avg. age in pipeline
+                        </p>
+                        <p className="font-(family-name:--font-lexend) m-0 text-2xl font-bold tabular-nums text-foreground">
+                            {avgDays != null ? `${avgDays}d` : "—"}
+                        </p>
+                    </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="border-border/70 bg-card/80 gap-2 shadow-sm"
+                        title="Advanced filters coming soon; scope to one company from Company 360."
+                        disabled
+                    >
+                        <ListFilter className="size-3.5 opacity-60" />
+                        Filter
+                    </Button>
+                    <Button
+                        type="button"
+                        size="sm"
+                        className="bg-primary font-semibold text-primary-foreground shadow-md hover:opacity-95"
+                        onClick={() => openCreate()}
+                    >
+                        <Plus className="size-3.5" />
+                        New target
+                    </Button>
+                </div>
+            </div>
 
             <DndContext
                 sensors={sensors}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
             >
-                <div className="overflow-x-auto pb-4">
-                    <div className="inline-flex gap-4 min-w-max">
-                        {stages.map((stage) => {
+                <div className="kanban-scroll-x min-h-[min(520px,calc(100dvh-16rem))] flex-1 overflow-x-auto px-6 pb-6">
+                    <div className="inline-flex h-full min-h-[inherit] min-w-max items-stretch gap-6">
+                        {stages.map((stage, stageIndex) => {
                             const colEngagements = engagementsByStage.get(stage.id) ?? []
+                            const colPipeline = pipelineValueForEngagementSet(
+                                colEngagements,
+                                contracts,
+                            )
+                            const borderAccent =
+                                STAGE_BORDER[stageIndex % STAGE_BORDER.length] ?? "border-l-primary"
 
                             return (
-                                <div key={stage.id} className="w-72 shrink-0 flex flex-col">
-                                    <div className="rounded-t-lg bg-muted/50 border border-b-0 px-3 py-2.5">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm font-semibold">{stage.name}</span>
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="flex items-center justify-center size-5 rounded-full bg-muted text-xs font-medium">
-                                                    {colEngagements.length}
-                                                </span>
+                                <div
+                                    key={stage.id}
+                                    className="flex w-80 shrink-0 flex-col self-stretch"
+                                >
+                                    <div className="border-border/60 flex flex-col rounded-t-xl border border-b-0 bg-muted/40 px-3 py-3 dark:bg-muted/25">
+                                        <div
+                                            className={cn(
+                                                "flex items-start justify-between gap-2 border-l-2 pl-3",
+                                                borderAccent,
+                                            )}
+                                        >
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="font-(family-name:--font-lexend) m-0 text-sm font-semibold leading-tight text-foreground">
+                                                    {stage.name}
+                                                </h3>
+                                                <p className="text-muted-foreground m-0 mt-1 text-[10px] font-medium">
+                                                    {colEngagements.length} deals
+                                                    {colPipeline > 0
+                                                        ? ` · ${formatHuntCurrency(colPipeline)}`
+                                                        : ""}
+                                                </p>
+                                                <p className="text-muted-foreground/80 m-0 text-[10px]">
+                                                    {stage.probability}% probability
+                                                </p>
+                                            </div>
+                                            <div className="flex shrink-0 items-center gap-0.5">
                                                 <Button
+                                                    type="button"
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="size-5"
+                                                    className="text-muted-foreground size-8"
+                                                    aria-label={`Add engagement to ${stage.name}`}
                                                     onClick={() => openCreate(stage.id)}
                                                 >
-                                                    <Plus className="size-3" />
+                                                    <Plus className="size-4" />
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="text-muted-foreground size-8"
+                                                    aria-label="Column menu"
+                                                    disabled
+                                                >
+                                                    <MoreHorizontal className="size-4" />
                                                 </Button>
                                             </div>
                                         </div>
-                                        <span className="text-xs text-muted-foreground">
-                                            {stage.probability}% probability
-                                        </span>
                                     </div>
 
                                     <StageDropZone stageId={stage.id}>
@@ -314,6 +482,10 @@ export function KanbanBoard() {
                                                         contracts,
                                                         eng.company_id,
                                                     )}
+                                                    dealValue={pendingOurValueForCompany(
+                                                        contracts,
+                                                        eng.company_id,
+                                                    )}
                                                     highlight={
                                                         !!engagementHighlight &&
                                                         engagementHighlight === eng.id
@@ -321,7 +493,7 @@ export function KanbanBoard() {
                                                 />
                                             ))
                                         ) : (
-                                            <div className="flex items-center justify-center h-full min-h-[120px] text-xs text-muted-foreground">
+                                            <div className="text-muted-foreground flex min-h-[140px] flex-1 items-center justify-center px-2 text-center text-xs">
                                                 Drop here or add an engagement
                                             </div>
                                         )}
@@ -334,12 +506,16 @@ export function KanbanBoard() {
 
                 <DragOverlay dropAnimation={null}>
                     {activeEngagement ? (
-                        <div className="pointer-events-none w-72">
+                        <div className="pointer-events-none w-80 rotate-1 opacity-95 shadow-xl">
                             <EngagementCard
                                 engagement={activeEngagement}
                                 onEdit={() => {}}
                                 onDelete={() => {}}
                                 contractSignals={getContractSignalsForCompany(
+                                    contracts,
+                                    activeEngagement.company_id,
+                                )}
+                                dealValue={pendingOurValueForCompany(
                                     contracts,
                                     activeEngagement.company_id,
                                 )}

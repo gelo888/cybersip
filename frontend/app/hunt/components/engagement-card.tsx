@@ -16,8 +16,11 @@ import {
     FileSignature,
     Building2,
     GripVertical,
+    AlertTriangle,
+    Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { Engagement } from "@/lib/types";
 import type { ContractCardSignals } from "@/lib/contract-signals";
 
@@ -25,21 +28,21 @@ const TYPE_CONFIG: Record<
     string,
     { icon: typeof Phone; label: string; color: string }
 > = {
-    call: { icon: Phone, label: "Call", color: "bg-blue-500/15 text-blue-400" },
+    call: { icon: Phone, label: "Call", color: "bg-primary/12 text-primary" },
     email: {
         icon: Mail,
         label: "Email",
-        color: "bg-emerald-500/15 text-emerald-400",
+        color: "bg-accent/15 text-accent-foreground",
     },
     meeting: {
         icon: Users,
         label: "Meeting",
-        color: "bg-purple-500/15 text-purple-400",
+        color: "bg-chart-2/15 text-chart-2",
     },
     demo: {
         icon: Monitor,
         label: "Demo",
-        color: "bg-amber-500/15 text-amber-400",
+        color: "bg-chart-4/15 text-chart-4",
     },
 };
 
@@ -53,13 +56,47 @@ function daysUntil(dateStr: string) {
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
+function formatDealValue(n: number) {
+    if (n >= 1_000_000) return `$${(n / 1e6).toFixed(1)}M`;
+    if (n >= 1000) return `$${Math.round(n / 1000)}K`;
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+    }).format(n);
+}
+
+function heatBarHeights(seed: string): number[] {
+    const bases = [10, 16, 8, 14, 20];
+    return bases.map((b, i) => {
+        const c = seed.charCodeAt(i % Math.max(seed.length, 1)) ?? 0;
+        return Math.min(24, b + (c % 5));
+    });
+}
+
+function EngagementHeat({ seed }: { seed: string }) {
+    const heights = heatBarHeights(seed);
+    return (
+        <div className="flex items-end gap-1" aria-hidden>
+            {heights.map((h, i) => (
+                <div
+                    key={i}
+                    className="bg-accent w-1 rounded-full opacity-80"
+                    style={{ height: `${h}px` }}
+                />
+            ))}
+        </div>
+    );
+}
+
 interface Props {
     engagement: Engagement;
     onEdit: (engagement: Engagement) => void;
     onDelete: (engagement: Engagement) => void;
     contractSignals?: ContractCardSignals;
+    /** Sum of pending our_contract values for this company (pipeline exposure). */
+    dealValue?: number | null;
     highlight?: boolean;
-    /** When set, this control starts a Kanban drag (stage change). */
     dragHandleProps?: {
         attributes: DraggableAttributes;
         listeners: DraggableSyntheticListeners;
@@ -71,6 +108,7 @@ export function EngagementCard({
     onEdit,
     onDelete,
     contractSignals,
+    dealValue,
     highlight,
     dragHandleProps,
 }: Props) {
@@ -82,112 +120,157 @@ export function EngagementCard({
         (contractSignals.showProposalPending ||
             contractSignals.showContractSigned ||
             contractSignals.showCompetitorActive);
+    const refId = `#${engagement.id.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
+    const followDays = engagement.next_action_date
+        ? daysUntil(engagement.next_action_date)
+        : null;
+    const urgentFollow =
+        followDays != null && followDays <= 14 && followDays >= 0;
 
     return (
         <div
             id={`hunt-engagement-${engagement.id}`}
-            className={`rounded-lg border bg-card p-3 space-y-2.5 hover:shadow-sm transition-shadow group ${
-                highlight
-                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                    : ""
-            }`}
+            className={cn(
+                "group bg-card space-y-3 rounded-xl border border-border/60 p-4 shadow-sm transition-all",
+                "hover:border-primary/40 hover:shadow-md",
+                highlight &&
+                    "ring-primary ring-offset-background ring-2 ring-offset-2",
+            )}
         >
-            <div className="flex items-center gap-1">
-                {dragHandleProps && (
+            <div className="flex items-start gap-1">
+                {dragHandleProps ? (
                     <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="size-7 shrink-0 text-muted-foreground cursor-grab active:cursor-grabbing touch-none mt-0.5"
+                        className="text-muted-foreground mt-0.5 size-7 shrink-0 cursor-grab touch-none active:cursor-grabbing"
                         aria-label="Drag to change pipeline stage"
                         {...dragHandleProps.attributes}
                         {...dragHandleProps.listeners}
                     >
                         <GripVertical className="size-4" />
                     </Button>
-                )}
-                <div className="min-w-0 flex-1 flex items-center justify-between gap-2">
-                    <Link
-                        href={`/portfolio/${engagement.company_id}?from=hunt`}
-                        className="font-medium text-sm truncate hover:underline"
-                    >
-                        {engagement.company_name}
-                    </Link>
-                    <div className="flex gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-6"
-                            onClick={() => onEdit(engagement)}
+                ) : null}
+                <div className="min-w-0 flex-1">
+                    <div className="mb-2 flex items-start justify-between gap-2">
+                        <Link
+                            href={`/portfolio/${engagement.company_id}?from=hunt`}
+                            className="font-(family-name:--font-lexend) text-foreground text-sm font-bold leading-tight hover:text-primary hover:underline"
                         >
-                            <Pencil className="size-3" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-6 text-destructive"
-                            onClick={() => onDelete(engagement)}
-                        >
-                            <Trash2 className="size-3" />
-                        </Button>
+                            {engagement.company_name}
+                        </Link>
+                        <span className="bg-muted text-muted-foreground group-hover:text-primary shrink-0 rounded px-2 py-0.5 text-[10px] font-semibold tracking-tight transition-colors">
+                            {refId}
+                        </span>
                     </div>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                        <span
+                            className={cn(
+                                "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold",
+                                cfg.color,
+                            )}
+                        >
+                            <Icon className="size-3 shrink-0" />
+                            {cfg.label}
+                        </span>
+                        {urgentFollow && engagement.next_action_date ? (
+                            <span className="bg-destructive/10 text-destructive inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold">
+                                <AlertTriangle className="size-3" />
+                                Follow-up • {followDays}d
+                            </span>
+                        ) : null}
+                        {contractSignals?.showCompetitorActive ? (
+                            <span className="bg-sophos-orange/12 text-sophos-orange inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold">
+                                <Shield className="size-3" />
+                                Competitor
+                            </span>
+                        ) : null}
+                        {hasSignals && contractSignals ? (
+                            <>
+                                {contractSignals.showProposalPending ? (
+                                    <span className="bg-sophos-sky/12 text-sophos-sky inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-semibold">
+                                        <FileSignature className="size-2.5" />
+                                        Proposal
+                                    </span>
+                                ) : null}
+                                {contractSignals.showContractSigned ? (
+                                    <span className="bg-sophos-green/12 text-sophos-green inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-semibold">
+                                        <FileSignature className="size-2.5" />
+                                        Signed
+                                    </span>
+                                ) : null}
+                            </>
+                        ) : null}
+                    </div>
+                </div>
+                <div className="flex shrink-0 gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-7"
+                        onClick={() => onEdit(engagement)}
+                    >
+                        <Pencil className="size-3.5" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive size-7"
+                        onClick={() => onDelete(engagement)}
+                    >
+                        <Trash2 className="size-3.5" />
+                    </Button>
                 </div>
             </div>
 
-            <div className="flex items-center gap-1.5 flex-wrap">
-                <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${cfg.color}`}
-                >
-                    <Icon className="size-3" />
-                    {cfg.label}
-                </span>
-                {hasSignals && contractSignals && (
-                    <>
-                        {contractSignals.showProposalPending && (
-                            <span className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-semibold bg-sophos-sky/15 text-sophos-sky">
-                                <FileSignature className="size-2.5" />
-                                Proposal
-                            </span>
-                        )}
-                        {contractSignals.showContractSigned && (
-                            <span className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-semibold bg-sophos-green/15 text-sophos-green">
-                                <FileSignature className="size-2.5" />
-                                Signed
-                            </span>
-                        )}
-                        {contractSignals.showCompetitorActive && (
-                            <span className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-semibold bg-muted text-muted-foreground">
-                                <Building2 className="size-2.5" />
-                                Competitor
-                            </span>
-                        )}
-                    </>
-                )}
-            </div>
-
-            {engagement.outcome && (
-                <p className="text-xs text-muted-foreground line-clamp-2">
+            {engagement.outcome ? (
+                <p className="text-muted-foreground line-clamp-2 text-xs leading-snug">
                     {engagement.outcome}
                 </p>
-            )}
+            ) : null}
 
-            <div className="flex items-center justify-between pt-1 border-t">
+            <div className="flex items-end justify-between gap-3 pt-1">
+                <div>
+                    <p className="text-muted-foreground m-0 text-[10px] font-medium tracking-wide uppercase">
+                        Value
+                    </p>
+                    <p className="font-(family-name:--font-lexend) text-primary m-0 text-sm font-bold">
+                        {dealValue != null && dealValue > 0
+                            ? formatDealValue(dealValue)
+                            : "—"}
+                    </p>
+                </div>
+            </div>
+
+            <div className="border-border/60 flex items-center justify-between border-t border-dashed pt-3">
+                <EngagementHeat seed={engagement.id} />
+                <span className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase">
+                    {age}d in stage
+                </span>
+            </div>
+
+            <div className="text-muted-foreground flex items-center justify-between gap-2 border-t border-border/40 pt-2 text-[10px]">
                 {engagement.next_action_date ? (
                     <span
-                        className={`flex items-center gap-1 text-xs ${daysUntil(engagement.next_action_date) <= 3 ? "text-sophos-red font-semibold" : "text-muted-foreground"}`}
+                        className={cn(
+                            "flex items-center gap-1",
+                            followDays != null && followDays <= 3
+                                ? "text-destructive font-semibold"
+                                : "",
+                        )}
                     >
-                        <Clock className="size-3" />
-                        {daysUntil(engagement.next_action_date) <= 0
+                        <Clock className="size-3 shrink-0" />
+                        {followDays != null && followDays <= 0
                             ? "Overdue"
-                            : `${daysUntil(engagement.next_action_date)}d until follow-up`}
+                            : followDays != null
+                              ? `${followDays}d to follow-up`
+                              : "Follow-up"}
                     </span>
                 ) : (
-                    <span className="text-xs text-muted-foreground">
-                        No follow-up
-                    </span>
+                    <span>No follow-up</span>
                 )}
-                <span className="text-xs text-muted-foreground">
-                    {age}d in stage
+                <span className="text-muted-foreground/80 truncate">
+                    {engagement.stage_name}
                 </span>
             </div>
         </div>

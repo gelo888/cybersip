@@ -215,4 +215,23 @@
   .territory-tooltip .maplibregl-popup-content {
     @apply bg-popover! text-popover-foreground! shadow-md! px-3! py-2! rounded-md! text-sm!;
   }
+
+  /* Hunt Kanban — horizontal scroll (Sentinel mock) */
+  .kanban-scroll-x {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--muted-foreground), transparent 55%) transparent;
+  }
+
+  .kanban-scroll-x::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .kanban-scroll-x::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .kanban-scroll-x::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--muted-foreground), transparent 35%);
+    border-radius: 9999px;
+  }
 }
