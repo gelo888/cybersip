@@ -239,6 +239,7 @@ export default function FrontendPage() {
 │       ├── button.tsx, command.tsx, dialog.tsx, input.tsx, label.tsx
 │       ├── popover.tsx, select.tsx, separator.tsx, sheet.tsx
 │       ├── sidebar.tsx, skeleton.tsx, switch.tsx
+│       ├── visually-hidden.tsx  # Radix VisuallyHidden (e.g. dialog titles)
 │       └── tooltip.tsx
 │
 ├── hooks/                     # TanStack Query data hooks
