@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
     Building2,
@@ -9,13 +9,39 @@ import {
     Plus,
     Pencil,
     Trash2,
+    Search,
+    X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { useCompanies, useDeleteCompany } from "@/hooks/use-companies";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { CompanyFormDialog } from "./company-form-dialog";
 import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 import { TablePagination, DEFAULT_PAGE_SIZE } from "./table-pagination";
 import type { Company, CompanyStatus, CompanySize } from "@/lib/types";
+
+const STATUS_OPTIONS: { value: CompanyStatus; label: string }[] = [
+    { value: "prospect", label: "Prospect" },
+    { value: "active_client", label: "Active client" },
+    { value: "previous_client", label: "Previous client" },
+    { value: "lost", label: "Lost" },
+    { value: "disqualified", label: "Disqualified" },
+];
+
+const SIZE_OPTIONS: { value: CompanySize; label: string }[] = [
+    { value: "SMB", label: "SMB" },
+    { value: "Mid_Market", label: "Mid-Market" },
+    { value: "Enterprise", label: "Enterprise" },
+    { value: "Government", label: "Government" },
+];
 
 function StatusBadge({ status }: { status: CompanyStatus }) {
     const config: Record<CompanyStatus, { label: string; className: string }> =
@@ -64,9 +90,40 @@ function SizeBadge({ size }: { size: CompanySize }) {
 export function CompaniesTable() {
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+    const [searchInput, setSearchInput] = useState("");
+    const debouncedQ = useDebouncedValue(searchInput, 300);
+    const [statusFilter, setStatusFilter] = useState<string>("all");
+    const [sizeFilter, setSizeFilter] = useState<string>("all");
 
-    const companies = useCompanies({ page, pageSize });
+    const statusParam =
+        statusFilter === "all" ? undefined : (statusFilter as CompanyStatus);
+    const sizeParam =
+        sizeFilter === "all" ? undefined : (sizeFilter as CompanySize);
+
+    const companies = useCompanies({
+        page,
+        pageSize,
+        status: statusParam,
+        companySize: sizeParam,
+        q: debouncedQ,
+    });
     const deleteMutation = useDeleteCompany();
+
+    const hasActiveFilters =
+        debouncedQ.trim().length > 0 ||
+        statusFilter !== "all" ||
+        sizeFilter !== "all";
+
+    useEffect(() => {
+        setPage(0);
+    }, [debouncedQ, statusFilter, sizeFilter]);
+
+    function clearFilters() {
+        setSearchInput("");
+        setStatusFilter("all");
+        setSizeFilter("all");
+        setPage(0);
+    }
 
     const items = companies.data?.items ?? [];
     const total = companies.data?.total ?? 0;
@@ -108,6 +165,80 @@ export function CompaniesTable() {
                         Add Company
                     </Button>
                 </div>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+                <div className="relative flex-1 min-w-[min(100%,12rem)] max-w-md">
+                    <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                    <Input
+                        className="h-9 pl-9 pr-8"
+                        placeholder="Search by company name…"
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        aria-label="Search companies"
+                    />
+                    {searchInput ? (
+                        <button
+                            type="button"
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-sm p-1 text-muted-foreground hover:text-foreground"
+                            onClick={() => setSearchInput("")}
+                            aria-label="Clear search"
+                        >
+                            <X className="size-3.5" />
+                        </button>
+                    ) : null}
+                </div>
+                <Select
+                    value={statusFilter}
+                    onValueChange={setStatusFilter}
+                >
+                    <SelectTrigger
+                        size="sm"
+                        className="w-full min-w-[10rem] sm:w-[11rem]"
+                        aria-label="Filter by status"
+                    >
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All statuses</SelectItem>
+                        {STATUS_OPTIONS.map((o) => (
+                            <SelectItem key={o.value} value={o.value}>
+                                {o.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select
+                    value={sizeFilter}
+                    onValueChange={setSizeFilter}
+                >
+                    <SelectTrigger
+                        size="sm"
+                        className="w-full min-w-[10rem] sm:w-[11rem]"
+                        aria-label="Filter by company size"
+                    >
+                        <SelectValue placeholder="Size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All sizes</SelectItem>
+                        {SIZE_OPTIONS.map((o) => (
+                            <SelectItem key={o.value} value={o.value}>
+                                {o.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                {hasActiveFilters ? (
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9 text-muted-foreground"
+                        onClick={clearFilters}
+                    >
+                        Clear filters
+                    </Button>
+                ) : null}
             </div>
 
             {companies.isLoading && (

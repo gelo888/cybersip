@@ -1,13 +1,33 @@
 "use client"
 
-import { useState } from "react"
-import { User2, Loader2, AlertCircle, Plus, Pencil, Trash2 } from "lucide-react"
+import { useEffect, useState } from "react"
+import {
+  User2,
+  Loader2,
+  AlertCircle,
+  Plus,
+  Pencil,
+  Trash2,
+  Search,
+  X,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { CompanyCombobox } from "@/components/company-combobox"
+import { useCompanies } from "@/hooks/use-companies"
 import { useContacts, useDeleteContact } from "@/hooks/use-contacts"
+import { useDebouncedValue } from "@/hooks/use-debounced-value"
 import { ContactFormDialog } from "./contact-form-dialog"
 import { DeleteConfirmDialog } from "./delete-confirm-dialog"
 import { TablePagination, DEFAULT_PAGE_SIZE } from "./table-pagination"
-import type { Contact, RoleInDeal } from "@/lib/types"
+import type { Contact, ContactSeniority, RoleInDeal } from "@/lib/types"
 
 function RoleBadge({ role }: { role: RoleInDeal }) {
   const config: Record<RoleInDeal, { label: string; className: string }> = {
@@ -20,15 +40,75 @@ function RoleBadge({ role }: { role: RoleInDeal }) {
   return <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${className}`}>{label}</span>
 }
 
+const ROLE_OPTIONS: { value: RoleInDeal; label: string }[] = [
+  { value: "champion", label: "Champion" },
+  { value: "decision_maker", label: "Decision maker" },
+  { value: "influencer", label: "Influencer" },
+  { value: "blocker", label: "Blocker" },
+]
+
+const SENIORITY_OPTIONS: { value: ContactSeniority; label: string }[] = [
+  { value: "C_Suite", label: "C-Suite" },
+  { value: "VP", label: "VP" },
+  { value: "Director", label: "Director" },
+  { value: "Manager", label: "Manager" },
+]
+
 export function ContactsTable() {
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const [searchInput, setSearchInput] = useState("")
+  const debouncedQ = useDebouncedValue(searchInput, 300)
+  const [companyFilter, setCompanyFilter] = useState("")
+  const [activeFilter, setActiveFilter] = useState<string>("all")
+  const [roleFilter, setRoleFilter] = useState<string>("all")
+  const [seniorityFilter, setSeniorityFilter] = useState<string>("all")
 
-  const contacts = useContacts({ page, pageSize })
+  const companiesQuery = useCompanies({ page: 0, pageSize: 500 })
+  const companyRows = companiesQuery.data?.items ?? []
+
+  const isActiveParam =
+    activeFilter === "all" ? undefined : activeFilter === "true"
+  const roleParam =
+    roleFilter === "all" ? undefined : (roleFilter as RoleInDeal)
+  const seniorityParam =
+    seniorityFilter === "all"
+      ? undefined
+      : (seniorityFilter as ContactSeniority)
+
+  const contacts = useContacts({
+    page,
+    pageSize,
+    companyId: companyFilter || undefined,
+    q: debouncedQ,
+    isActive: isActiveParam,
+    roleInDeal: roleParam,
+    seniority: seniorityParam,
+  })
   const deleteMutation = useDeleteContact()
 
   const items = contacts.data?.items ?? []
   const total = contacts.data?.total ?? 0
+
+  const hasActiveFilters =
+    debouncedQ.trim().length > 0 ||
+    !!companyFilter ||
+    activeFilter !== "all" ||
+    roleFilter !== "all" ||
+    seniorityFilter !== "all"
+
+  useEffect(() => {
+    setPage(0)
+  }, [debouncedQ, companyFilter, activeFilter, roleFilter, seniorityFilter])
+
+  function clearFilters() {
+    setSearchInput("")
+    setCompanyFilter("")
+    setActiveFilter("all")
+    setRoleFilter("all")
+    setSeniorityFilter("all")
+    setPage(0)
+  }
 
   const [formOpen, setFormOpen] = useState(false)
   const [editTarget, setEditTarget] = useState<Contact | null>(null)
@@ -64,6 +144,111 @@ export function ContactsTable() {
             <Plus className="size-4 mr-1" />
             Add Contact
           </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <Input
+            className="h-9 pl-9 pr-8"
+            placeholder="Search name, email, or title…"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            aria-label="Search contacts"
+          />
+          {searchInput ? (
+            <button
+              type="button"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-sm p-1 text-muted-foreground hover:text-foreground"
+              onClick={() => setSearchInput("")}
+              aria-label="Clear search"
+            >
+              <X className="size-3.5" />
+            </button>
+          ) : null}
+        </div>
+
+        <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end">
+          <div className="w-full min-w-0 lg:min-w-[14rem] lg:max-w-xs lg:flex-1">
+            <p className="text-xs text-muted-foreground mb-1.5">Company</p>
+            <CompanyCombobox
+              companies={companyRows}
+              value={companyFilter}
+              onValueChange={setCompanyFilter}
+              disabled={companiesQuery.isLoading}
+              placeholder="All companies"
+              className="w-full"
+            />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1.5">Active</p>
+            <Select value={activeFilter} onValueChange={setActiveFilter}>
+              <SelectTrigger
+                size="sm"
+                className="w-full min-w-[9rem] lg:w-[10rem]"
+                aria-label="Filter by active status"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="true">Active only</SelectItem>
+                <SelectItem value="false">Inactive only</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1.5">Deal role</p>
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+              <SelectTrigger
+                size="sm"
+                className="w-full min-w-[9rem] lg:w-[11rem]"
+                aria-label="Filter by deal role"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All roles</SelectItem>
+                {ROLE_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1.5">Seniority</p>
+            <Select value={seniorityFilter} onValueChange={setSeniorityFilter}>
+              <SelectTrigger
+                size="sm"
+                className="w-full min-w-[9rem] lg:w-[11rem]"
+                aria-label="Filter by seniority"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All levels</SelectItem>
+                {SENIORITY_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {hasActiveFilters ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-9 text-muted-foreground lg:ml-0"
+              onClick={clearFilters}
+            >
+              Clear filters
+            </Button>
+          ) : null}
         </div>
       </div>
 

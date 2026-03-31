@@ -1,23 +1,53 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { get, post, put, del } from "@/lib/api";
-import type { Company, CompanyPayload, CompanyStatus, PaginatedResponse } from "@/lib/types";
+import type {
+    Company,
+    CompanyPayload,
+    CompanySize,
+    CompanyStatus,
+    PaginatedResponse,
+} from "@/lib/types";
 
 interface CompanyListParams {
     page: number;
     pageSize: number;
     /** When set, lists only companies with this CRM status (e.g. prospect). */
     status?: CompanyStatus;
+    companySize?: CompanySize;
+    /** Server-side search on company name (contains, case-insensitive). */
+    q?: string;
 }
 
-export function useCompanies({ page, pageSize, status }: CompanyListParams) {
+export function useCompanies({
+    page,
+    pageSize,
+    status,
+    companySize,
+    q,
+}: CompanyListParams) {
     const skip = page * pageSize;
-    const statusParam = status ? `&status=${encodeURIComponent(status)}` : "";
+    const params = new URLSearchParams();
+    params.set("skip", String(skip));
+    params.set("take", String(pageSize));
+    if (status) params.set("status", status);
+    if (companySize) params.set("company_size", companySize);
+    if (q && q.trim()) params.set("q", q.trim());
+    const qs = params.toString();
+
     return useQuery({
-        queryKey: ["companies", "list", { skip, take: pageSize, status: status ?? null }],
+        queryKey: [
+            "companies",
+            "list",
+            {
+                skip,
+                take: pageSize,
+                status: status ?? null,
+                companySize: companySize ?? null,
+                q: q?.trim() || null,
+            },
+        ],
         queryFn: () =>
-            get<PaginatedResponse<Company>>(
-                `/api/companies/?skip=${skip}&take=${pageSize}${statusParam}`,
-            ),
+            get<PaginatedResponse<Company>>(`/api/companies/?${qs}`),
         placeholderData: keepPreviousData,
     });
 }
