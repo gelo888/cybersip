@@ -163,7 +163,13 @@ export default function FrontendPage() {
             <td><code>/intelligence</code></td>
             <td>Intelligence Hub</td>
             <td>Live API</td>
-            <td>Competitor tracker, intel feed with CRUD, static market signals preview</td>
+            <td>
+              Sentinel-style Intelligence Hub (<code>intelligence-hub.tsx</code>): hero,
+              KPI strip, asymmetric grid (competitor + intel tables), right rail with{" "}
+              <code>IntelConfidenceChart</code> (live intel by confidence) and full
+              static <code>MOCK_MARKET_SIGNALS</code> preview in{" "}
+              <code>ChartPanel</code>. CRUD via dialogs.
+            </td>
           </tr>
           <tr>
             <td><code>/sales-recon</code></td>
