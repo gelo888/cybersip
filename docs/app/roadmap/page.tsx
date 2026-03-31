@@ -39,7 +39,15 @@ export default function RoadmapPage() {
             <li>TanStack Query + centralized API client (get, post, patch, del)</li>
             <li>Portfolio connected to real API (companies + contacts CRUD)</li>
             <li>Company 360 page with live data (contacts, engagements, contracts, intel)</li>
-            <li>Hunt page — live Kanban pipeline with engagement CRUD, linked to Company 360</li>
+            <li>
+              Hunt page — live Kanban with drag-and-drop stage moves (
+              <code>PATCH /api/engagements/&#123;id&#125;</code>), engagement CRUD,
+              linked to Company 360
+            </li>
+            <li>
+              App-wide command palette — <kbd>Cmd</kbd> or <kbd>Ctrl</kbd>{" "}
+              + <kbd>K</kbd> for navigation (shared config with sidebar)
+            </li>
             <li>Vault page — contracts table with CRUD, summary cards, company links</li>
             <li>Intelligence Hub — live competitor tracker and intel feed with CRUD, static market signals preview</li>
             <li>Territories — map/list toggle, CRUD via /api/territories and /api/segment-labels, geo data via /api/geo/*, GeoJSON polygons, team member assignment</li>
@@ -64,9 +72,9 @@ export default function RoadmapPage() {
             <li>No AI integration</li>
             <li>No N8N automation workflows</li>
             <li>
-              Missing key interactive components (CMD+K, Hunt Kanban
-              drag-and-drop, inline table editing) — planned in{" "}
-              <strong>Phase 1.75</strong>
+              Inline table editing on primary views is not yet implemented — other
+              Phase 1.75 interactive shell items (CMD+K, Hunt Kanban drag-and-drop)
+              are shipped.
             </li>
           </ul>
         </div>
@@ -195,10 +203,11 @@ export default function RoadmapPage() {
             <code>created_at</code>. Contracts / intel timestamps can widen the
             feed after schema additions. N8N enrichment optional later.
           </li>
-          <li>
+          <li className="line-through opacity-60">
             <strong>Interactive shell</strong> — Hunt Kanban drag-and-drop stage
-            transitions; app-wide CMD+K command palette (navigation and quick
-            actions).
+            transitions (<code>@dnd-kit/core</code>); app-wide CMD+K command
+            palette (<code>cmdk</code>) for navigation; mounted from{" "}
+            <code>Providers</code>
           </li>
           <li>
             <strong>Global UX</strong> — dark mode toggle; skeleton loading on

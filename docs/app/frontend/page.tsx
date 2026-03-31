@@ -67,8 +67,33 @@ export default function FrontendPage() {
             <td>Latest</td>
             <td>Icon library</td>
           </tr>
+          <tr>
+            <td><code>@dnd-kit/core</code> + <code>@dnd-kit/utilities</code></td>
+            <td>Latest</td>
+            <td>Hunt Kanban drag-and-drop between pipeline stages</td>
+          </tr>
+          <tr>
+            <td><code>cmdk</code></td>
+            <td>Latest</td>
+            <td>App-wide command palette (composed with Dialog in <code>components/ui/command.tsx</code>)</td>
+          </tr>
         </tbody>
       </table>
+
+      <h2>Interactive shell</h2>
+
+      <p>
+        <strong>Hunt</strong> — Cards move between columns via a grip handle;{" "}
+        <code>DndContext</code> / <code>useDraggable</code> / <code>useDroppable</code>{" "}
+        in <code>app/hunt/components/kanban-board.tsx</code> call{" "}
+        <code>useUpdateEngagement</code> (<code>PATCH /api/engagements/&#123;id&#125;</code>
+        with <code>stage_id</code>). <strong>Command palette</strong> —{" "}
+        <code>CommandPalette</code> is mounted from <code>components/providers.tsx</code>;
+        press <kbd>Cmd</kbd> or <kbd>Ctrl</kbd> + <kbd>K</kbd> to open. Primary and
+        secondary nav URLs and labels are defined once in{" "}
+        <code>lib/app-nav.ts</code> and imported by both <code>app-sidebar.tsx</code>{" "}
+        and the palette.
+      </p>
 
       <h2>Application Routes</h2>
 
@@ -116,8 +141,9 @@ export default function FrontendPage() {
             <td>The Hunt</td>
             <td>Live API</td>
             <td>
-              Kanban pipeline with engagement CRUD; account-level contract
-              signals on cards; <code>?company_id=</code> filter and optional{" "}
+              Kanban pipeline with engagement CRUD and drag-and-drop stage moves
+              (grip handle); account-level contract signals on cards;{" "}
+              <code>?company_id=</code> filter and optional{" "}
               <code>engagement_id=</code> deep link from Vault. New engagements
               need at least one company in Portfolio; with{" "}
               <code>?company_id=</code>, that company is pre-filled for create.
@@ -200,10 +226,12 @@ export default function FrontendPage() {
 │       └── page.tsx           # Application settings
 │
 ├── components/
-│   ├── app-sidebar.tsx        # Main navigation sidebar
+│   ├── app-sidebar.tsx        # Main navigation (uses lib/app-nav.ts)
+│   ├── command-palette.tsx    # Cmd/Ctrl+K palette (uses lib/app-nav.ts)
+│   ├── providers.tsx          # QueryClientProvider + CommandPalette
 │   ├── company-combobox.tsx   # Searchable company picker (Hunt/Vault/Portfolio/Intel forms)
 │   └── ui/                    # shadcn/ui components
-│       ├── button.tsx, dialog.tsx, input.tsx, label.tsx
+│       ├── button.tsx, command.tsx, dialog.tsx, input.tsx, label.tsx
 │       ├── popover.tsx, select.tsx, separator.tsx, sheet.tsx
 │       ├── sidebar.tsx, skeleton.tsx, switch.tsx
 │       └── tooltip.tsx
@@ -224,6 +252,7 @@ export default function FrontendPage() {
 │
 ├── lib/
 │   ├── api.ts                 # Centralized fetch (get, post, patch, del)
+│   ├── app-nav.ts             # Sidebar + command palette route list
 │   ├── contract-signals.ts    # Per-company contract cues for Hunt cards
 │   ├── format-relative-time.ts # Command Center action stream timestamps
 │   ├── types.ts               # Shared TypeScript interfaces
@@ -235,7 +264,9 @@ export default function FrontendPage() {
 
       <p>
         The sidebar component (<code>app-sidebar.tsx</code>) is collapsible and
-        groups navigation by strategic intent:
+        groups navigation by strategic intent. Items are sourced from{" "}
+        <code>lib/app-nav.ts</code> so the command palette stays aligned with the
+        sidebar.
       </p>
 
       <ul>
