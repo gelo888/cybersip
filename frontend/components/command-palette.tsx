@@ -14,9 +14,21 @@ import {
 } from "@/components/ui/command";
 import { appNavMain, appNavSecondary } from "@/lib/app-nav";
 
+/** Dispatched by chrome (e.g. PageHeader search) to open the palette without duplicating state. */
+export const COMMAND_PALETTE_OPEN_EVENT = "cybersip:open-command-palette";
+
 export function CommandPalette() {
     const [open, setOpen] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        function onOpenRequest() {
+            setOpen(true);
+        }
+        window.addEventListener(COMMAND_PALETTE_OPEN_EVENT, onOpenRequest);
+        return () =>
+            window.removeEventListener(COMMAND_PALETTE_OPEN_EVENT, onOpenRequest);
+    }, []);
 
     useEffect(() => {
         function onKeyDown(e: KeyboardEvent) {
