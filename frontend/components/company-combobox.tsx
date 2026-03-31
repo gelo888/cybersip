@@ -38,7 +38,7 @@ export function CompanyCombobox({
   const [query, setQuery] = useState("")
 
   useEffect(() => {
-    if (!open) setQuery("")
+    if (!open) queueMicrotask(() => setQuery(""))
   }, [open])
 
   const selected = useMemo(

@@ -16,6 +16,7 @@ import {
 import { CSS } from "@dnd-kit/utilities"
 import { Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useStages } from "@/hooks/use-stages"
 import { useEngagements, useDeleteEngagement, useUpdateEngagement } from "@/hooks/use-engagements"
 import { useCompanies } from "@/hooks/use-companies"
@@ -200,11 +201,11 @@ export function KanbanBoard() {
             <div className="overflow-x-auto pb-4">
                 <div className="inline-flex gap-4 min-w-max">
                     {Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="w-72 shrink-0">
-                            <div className="rounded-t-lg bg-muted/50 border border-b-0 px-3 py-2.5 h-14 animate-pulse" />
-                            <div className="rounded-b-lg border bg-muted/20 p-2 min-h-[200px] space-y-2">
-                                <div className="h-24 rounded-lg bg-muted/40 animate-pulse" />
-                                <div className="h-24 rounded-lg bg-muted/40 animate-pulse" />
+                        <div key={i} className="w-72 shrink-0 flex flex-col">
+                            <Skeleton className="rounded-t-lg rounded-b-none border border-b-0 px-3 h-14 w-full" />
+                            <div className="rounded-b-lg border bg-muted/20 p-2 min-h-[200px] space-y-2 flex flex-col">
+                                <Skeleton className="h-24 w-full rounded-lg shrink-0" />
+                                <Skeleton className="h-24 w-full rounded-lg shrink-0" />
                             </div>
                         </div>
                     ))}

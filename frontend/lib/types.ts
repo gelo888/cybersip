@@ -32,6 +32,9 @@ export interface Company {
 
 export type CompanyPayload = Omit<Company, "id" | "created_at" | "updated_at">;
 
+/** PATCH body for `/api/companies/{id}` — all fields optional server-side. */
+export type CompanyUpdatePayload = Partial<CompanyPayload>;
+
 // ── Contact ──
 
 export type ContactSeniority = "C_Suite" | "VP" | "Director" | "Manager";
@@ -57,6 +60,21 @@ export interface Contact {
 }
 
 export type ContactPayload = Omit<Contact, "id" | "company_name">;
+
+/** PATCH body for `/api/contacts/{id}` — excludes `company_id` (not updatable via this API). */
+export type ContactUpdatePayload = Partial<
+    Pick<
+        ContactPayload,
+        | "first_name"
+        | "last_name"
+        | "title"
+        | "seniority"
+        | "role_in_deal"
+        | "email"
+        | "phone"
+        | "is_active"
+    >
+>;
 
 // ── Pipeline Stage ──
 

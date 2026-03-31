@@ -22,23 +22,19 @@ import {
 } from "@/components/ui/select"
 import { CompanyCombobox } from "@/components/company-combobox"
 import { useCompanies } from "@/hooks/use-companies"
-import { useContacts, useDeleteContact } from "@/hooks/use-contacts"
+import { useContacts, useDeleteContact, useUpdateContact } from "@/hooks/use-contacts"
 import { useDebouncedValue } from "@/hooks/use-debounced-value"
 import { ContactFormDialog } from "./contact-form-dialog"
 import { DeleteConfirmDialog } from "./delete-confirm-dialog"
 import { TablePagination, DEFAULT_PAGE_SIZE } from "./table-pagination"
-import type { Contact, ContactSeniority, RoleInDeal } from "@/lib/types"
-
-function RoleBadge({ role }: { role: RoleInDeal }) {
-  const config: Record<RoleInDeal, { label: string; className: string }> = {
-    champion: { label: "Champion", className: "bg-sophos-green/10 text-sophos-green" },
-    decision_maker: { label: "Decision Maker", className: "bg-sophos-cyber-blue/10 text-sophos-sky" },
-    influencer: { label: "Influencer", className: "bg-sophos-orange/10 text-sophos-orange" },
-    blocker: { label: "Blocker", className: "bg-sophos-red/10 text-sophos-red" },
-  }
-  const { label, className } = config[role]
-  return <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${className}`}>{label}</span>
-}
+import { DataTableSkeleton } from "@/components/data-table-skeleton"
+import type {
+  Contact,
+  ContactSeniority,
+  ContactUpdatePayload,
+  RoleInDeal,
+} from "@/lib/types"
+import { EditableTextCell } from "@/components/inline-edit-cells"
 
 const ROLE_OPTIONS: { value: RoleInDeal; label: string }[] = [
   { value: "champion", label: "Champion" },
@@ -86,6 +82,15 @@ export function ContactsTable() {
     seniority: seniorityParam,
   })
   const deleteMutation = useDeleteContact()
+  const updateMutation = useUpdateContact()
+
+  function patchContact(id: string, data: ContactUpdatePayload) {
+    updateMutation.mutate({ id, data })
+  }
+
+  function rowPending(id: string) {
+    return updateMutation.isPending && updateMutation.variables?.id === id
+  }
 
   const items = contacts.data?.items ?? []
   const total = contacts.data?.total ?? 0
@@ -98,7 +103,7 @@ export function ContactsTable() {
     seniorityFilter !== "all"
 
   useEffect(() => {
-    setPage(0)
+    queueMicrotask(() => setPage(0))
   }, [debouncedQ, companyFilter, activeFilter, roleFilter, seniorityFilter])
 
   function clearFilters() {
@@ -139,6 +144,12 @@ export function ContactsTable() {
         {contacts.data && (
           <span className="text-xs text-muted-foreground">({total})</span>
         )}
+        {contacts.isFetching && !contacts.isLoading ? (
+          <Loader2
+            className="size-3.5 animate-spin text-muted-foreground"
+            aria-hidden
+          />
+        ) : null}
         <div className="ml-auto">
           <Button size="sm" onClick={openCreate}>
             <Plus className="size-4 mr-1" />
@@ -252,18 +263,19 @@ export function ContactsTable() {
         </div>
       </div>
 
-      {contacts.isLoading && (
-        <div className="flex items-center justify-center py-12 text-muted-foreground gap-2">
-          <Loader2 className="size-4 animate-spin" />
-          <span className="text-sm">Loading...</span>
-        </div>
-      )}
+      {contacts.isLoading && <DataTableSkeleton rows={8} columns={9} />}
       {contacts.isError && (
         <div className="flex items-center justify-center py-12 text-sophos-red gap-2">
           <AlertCircle className="size-4" />
           <span className="text-sm">{contacts.error.message}</span>
         </div>
       )}
+
+      {updateMutation.isError ? (
+        <p className="text-sm text-sophos-red" role="alert">
+          {updateMutation.error.message}
+        </p>
+      ) : null}
 
       {contacts.data && (
         <div className="overflow-x-auto rounded-lg border">
@@ -276,6 +288,7 @@ export function ContactsTable() {
                 <th className="px-4 py-3 text-left font-medium">Seniority</th>
                 <th className="px-4 py-3 text-left font-medium">Role</th>
                 <th className="px-4 py-3 text-left font-medium">Email</th>
+                <th className="px-4 py-3 text-left font-medium">Phone</th>
                 <th className="px-4 py-3 text-center font-medium">Active</th>
                 <th className="px-4 py-3 text-right font-medium">Actions</th>
               </tr>
@@ -285,12 +298,90 @@ export function ContactsTable() {
                 <tr key={contact.id} className="border-b last:border-b-0 hover:bg-muted/20 transition-colors">
                   <td className="px-4 py-3 font-medium">{contact.first_name} {contact.last_name}</td>
                   <td className="px-4 py-3 text-muted-foreground">{contact.company_name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{contact.title ?? "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{contact.seniority?.replace("_", " ") ?? "—"}</td>
                   <td className="px-4 py-3">
-                    {contact.role_in_deal ? <RoleBadge role={contact.role_in_deal} /> : <span className="text-muted-foreground">—</span>}
+                    <EditableTextCell
+                      value={contact.title}
+                      disabled={rowPending(contact.id)}
+                      onSave={(next) => {
+                        if (next === (contact.title ?? null)) return
+                        patchContact(contact.id, { title: next })
+                      }}
+                    />
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{contact.email ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    <Select
+                      value={contact.seniority ?? "__none__"}
+                      disabled={rowPending(contact.id)}
+                      onValueChange={(v) => {
+                        const next = v === "__none__" ? null : (v as ContactSeniority)
+                        if (next === contact.seniority) return
+                        patchContact(contact.id, { seniority: next })
+                      }}
+                    >
+                      <SelectTrigger
+                        size="sm"
+                        className="h-8 w-[8.5rem] border-transparent bg-transparent shadow-none hover:bg-muted/50"
+                      >
+                        <SelectValue placeholder="—" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">—</SelectItem>
+                        {SENIORITY_OPTIONS.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>
+                            {o.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </td>
+                  <td className="px-4 py-3">
+                    <Select
+                      value={contact.role_in_deal ?? "__none__"}
+                      disabled={rowPending(contact.id)}
+                      onValueChange={(v) => {
+                        const next = v === "__none__" ? null : (v as RoleInDeal)
+                        if (next === contact.role_in_deal) return
+                        patchContact(contact.id, { role_in_deal: next })
+                      }}
+                    >
+                      <SelectTrigger
+                        size="sm"
+                        className="h-8 w-[10rem] border-transparent bg-transparent shadow-none hover:bg-muted/50"
+                      >
+                        <SelectValue placeholder="—" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">—</SelectItem>
+                        {ROLE_OPTIONS.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>
+                            {o.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </td>
+                  <td className="px-4 py-3">
+                    <EditableTextCell
+                      value={contact.email}
+                      inputType="email"
+                      disabled={rowPending(contact.id)}
+                      onSave={(next) => {
+                        if (next === (contact.email ?? null)) return
+                        patchContact(contact.id, { email: next })
+                      }}
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    <EditableTextCell
+                      value={contact.phone}
+                      inputType="tel"
+                      disabled={rowPending(contact.id)}
+                      onSave={(next) => {
+                        if (next === (contact.phone ?? null)) return
+                        patchContact(contact.id, { phone: next })
+                      }}
+                    />
+                  </td>
                   <td className="px-4 py-3 text-center">
                     <span className={contact.is_active ? "text-sophos-green" : "text-muted-foreground"}>
                       {contact.is_active ? "Yes" : "No"}

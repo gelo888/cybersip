@@ -10,6 +10,10 @@ import { TerritoryMapView } from "./components/territory-map-view";
 import { TerritoryFormDialog } from "./components/territory-form-dialog";
 import { DeleteConfirmDialog } from "./components/delete-confirm-dialog";
 import { TeamAssignmentDialog } from "./components/team-assignment-dialog";
+import {
+    TerritoriesListSkeleton,
+    TerritoriesMapSkeleton,
+} from "./components/territories-view-skeleton";
 
 type ViewMode = "map" | "list";
 
@@ -82,9 +86,11 @@ export default function TerritoriesPage() {
             </div>
 
             {isLoading ? (
-                <div className="flex items-center justify-center h-64">
-                    <p className="text-muted-foreground">Loading territories...</p>
-                </div>
+                view === "map" ? (
+                    <TerritoriesMapSkeleton />
+                ) : (
+                    <TerritoriesListSkeleton />
+                )
             ) : view === "map" ? (
                 <TerritoryMapView territories={territories} />
             ) : (

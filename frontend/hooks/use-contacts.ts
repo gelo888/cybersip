@@ -5,11 +5,12 @@ import {
     keepPreviousData,
 } from "@tanstack/react-query";
 import type { QueryClient } from "@tanstack/react-query";
-import { get, post, put, del } from "@/lib/api";
+import { get, post, patch, del } from "@/lib/api";
 import type {
     Contact,
     ContactPayload,
     ContactSeniority,
+    ContactUpdatePayload,
     PaginatedResponse,
     RoleInDeal,
 } from "@/lib/types";
@@ -81,8 +82,8 @@ export function useCreateContact() {
 export function useUpdateContact() {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: ContactPayload }) =>
-            put<Contact>(`/api/contacts/${id}/`, data),
+        mutationFn: ({ id, data }: { id: string; data: ContactUpdatePayload }) =>
+            patch<Contact>(`/api/contacts/${id}/`, data),
         onSuccess: () => invalidateContactQueries(qc),
     });
 }

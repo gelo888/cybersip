@@ -12,13 +12,13 @@ import {
     Plus,
     Pencil,
     Trash2,
-    Loader2,
     LayoutGrid,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useContracts, useDeleteContract } from "@/hooks/use-contracts"
 import { useCompanies } from "@/hooks/use-companies"
 import { ContractFormDialog } from "./contract-form-dialog"
+import { ContractsTableSkeleton } from "./contracts-table-skeleton"
 import { DeleteConfirmDialog } from "@/app/portfolio/components/delete-confirm-dialog"
 import type { Contract, ContractStatus } from "@/lib/types"
 
@@ -101,12 +101,7 @@ export function ContractsTable() {
     const expiringCount = activeContracts.filter((c) => c.end_date && daysUntil(c.end_date) <= 90 && daysUntil(c.end_date) > 0).length
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-24 text-muted-foreground gap-2">
-                <Loader2 className="size-5 animate-spin" />
-                <span className="text-sm">Loading contracts…</span>
-            </div>
-        )
+        return <ContractsTableSkeleton />
     }
 
     return (

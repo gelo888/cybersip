@@ -9,7 +9,6 @@ import {
     Globe,
     Users,
     TrendingUp,
-    Loader2,
     AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +19,7 @@ import { CompanyContactsSection } from "./components/contacts-section";
 import { CompanyEngagementsSection } from "./components/engagements-section";
 import { CompanyContractsSection } from "./components/contracts-section";
 import { CompanyIntelSection } from "./components/intel-section";
+import { CompanyDetailSkeleton } from "./components/company-detail-skeleton";
 
 function StatusBadge({ status }: { status: CompanyStatus }) {
     const config: Record<CompanyStatus, { label: string; className: string }> = {
@@ -110,12 +110,7 @@ export default function CompanyDetailPage({
     const company = useCompany(id);
 
     if (company.isLoading) {
-        return (
-            <div className="flex items-center justify-center py-24 text-muted-foreground gap-2">
-                <Loader2 className="size-5 animate-spin" />
-                <span className="text-sm">Loading company...</span>
-            </div>
-        );
+        return <CompanyDetailSkeleton />;
     }
 
     if (company.isError) {

@@ -21,12 +21,19 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useCompanies, useDeleteCompany } from "@/hooks/use-companies";
+import { useCompanies, useDeleteCompany, useUpdateCompany } from "@/hooks/use-companies";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { CompanyFormDialog } from "./company-form-dialog";
 import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 import { TablePagination, DEFAULT_PAGE_SIZE } from "./table-pagination";
-import type { Company, CompanyStatus, CompanySize } from "@/lib/types";
+import { DataTableSkeleton } from "@/components/data-table-skeleton";
+import type {
+    Company,
+    CompanyStatus,
+    CompanySize,
+    CompanyUpdatePayload,
+} from "@/lib/types";
+import { EditableNumberCell, EditableTextCell } from "@/components/inline-edit-cells";
 
 const STATUS_OPTIONS: { value: CompanyStatus; label: string }[] = [
     { value: "prospect", label: "Prospect" },
@@ -42,50 +49,6 @@ const SIZE_OPTIONS: { value: CompanySize; label: string }[] = [
     { value: "Enterprise", label: "Enterprise" },
     { value: "Government", label: "Government" },
 ];
-
-function StatusBadge({ status }: { status: CompanyStatus }) {
-    const config: Record<CompanyStatus, { label: string; className: string }> =
-        {
-            prospect: {
-                label: "Prospect",
-                className: "bg-sophos-sky/10 text-sophos-sky",
-            },
-            active_client: {
-                label: "Active",
-                className: "bg-sophos-green/10 text-sophos-green",
-            },
-            previous_client: {
-                label: "Previous",
-                className: "bg-muted text-muted-foreground",
-            },
-            lost: {
-                label: "Lost",
-                className: "bg-sophos-red/10 text-sophos-red",
-            },
-            disqualified: {
-                label: "Disqualified",
-                className: "bg-sophos-red/10 text-sophos-red",
-            },
-        };
-    const { label, className } = config[status];
-    return (
-        <span
-            className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${className}`}
-        >
-            {label}
-        </span>
-    );
-}
-
-function SizeBadge({ size }: { size: CompanySize }) {
-    const labels: Record<CompanySize, string> = {
-        SMB: "SMB",
-        Mid_Market: "Mid-Market",
-        Enterprise: "Enterprise",
-        Government: "Government",
-    };
-    return <span className="text-muted-foreground">{labels[size]}</span>;
-}
 
 export function CompaniesTable() {
     const [page, setPage] = useState(0);
@@ -108,6 +71,17 @@ export function CompaniesTable() {
         q: debouncedQ,
     });
     const deleteMutation = useDeleteCompany();
+    const updateMutation = useUpdateCompany();
+
+    function patchCompany(id: string, data: CompanyUpdatePayload) {
+        updateMutation.mutate({ id, data });
+    }
+
+    function rowPending(id: string) {
+        return (
+            updateMutation.isPending && updateMutation.variables?.id === id
+        );
+    }
 
     const hasActiveFilters =
         debouncedQ.trim().length > 0 ||
@@ -115,7 +89,7 @@ export function CompaniesTable() {
         sizeFilter !== "all";
 
     useEffect(() => {
-        setPage(0);
+        queueMicrotask(() => setPage(0));
     }, [debouncedQ, statusFilter, sizeFilter]);
 
     function clearFilters() {
@@ -159,6 +133,12 @@ export function CompaniesTable() {
                         ({total})
                     </span>
                 )}
+                {companies.isFetching && !companies.isLoading ? (
+                    <Loader2
+                        className="size-3.5 animate-spin text-muted-foreground"
+                        aria-hidden
+                    />
+                ) : null}
                 <div className="ml-auto">
                     <Button size="sm" onClick={openCreate}>
                         <Plus className="size-4 mr-1" />
@@ -241,18 +221,19 @@ export function CompaniesTable() {
                 ) : null}
             </div>
 
-            {companies.isLoading && (
-                <div className="flex items-center justify-center py-12 text-muted-foreground gap-2">
-                    <Loader2 className="size-4 animate-spin" />
-                    <span className="text-sm">Loading...</span>
-                </div>
-            )}
+            {companies.isLoading && <DataTableSkeleton rows={8} columns={7} />}
             {companies.isError && (
                 <div className="flex items-center justify-center py-12 text-sophos-red gap-2">
                     <AlertCircle className="size-4" />
                     <span className="text-sm">{companies.error.message}</span>
                 </div>
             )}
+
+            {updateMutation.isError ? (
+                <p className="text-sm text-sophos-red" role="alert">
+                    {updateMutation.error.message}
+                </p>
+            ) : null}
 
             {companies.data && (
                 <div className="overflow-x-auto rounded-lg border">
@@ -297,44 +278,112 @@ export function CompaniesTable() {
                                         </Link>
                                     </td>
                                     <td className="px-4 py-3">
-                                        <StatusBadge status={company.status} />
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        {company.company_size ? (
-                                            <SizeBadge
-                                                size={company.company_size}
-                                            />
-                                        ) : (
-                                            <span className="text-muted-foreground">
-                                                —
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3 text-center text-muted-foreground">
-                                        {company.employee_count?.toLocaleString() ??
-                                            "—"}
-                                    </td>
-                                    <td className="px-4 py-3 text-muted-foreground">
-                                        {company.country ?? "—"}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        {company.website ? (
-                                            <a
-                                                href={company.website}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-primary hover:underline text-xs"
+                                        <Select
+                                            value={company.status}
+                                            disabled={rowPending(company.id)}
+                                            onValueChange={(v) => {
+                                                if (v === company.status) return;
+                                                patchCompany(company.id, {
+                                                    status: v as CompanyStatus,
+                                                });
+                                            }}
+                                        >
+                                            <SelectTrigger
+                                                size="sm"
+                                                className="h-8 w-[9.5rem] border-transparent bg-transparent shadow-none hover:bg-muted/50"
                                             >
-                                                {company.website.replace(
-                                                    /^https?:\/\//,
-                                                    "",
-                                                )}
-                                            </a>
-                                        ) : (
-                                            <span className="text-muted-foreground">
-                                                —
-                                            </span>
-                                        )}
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {STATUS_OPTIONS.map((o) => (
+                                                    <SelectItem
+                                                        key={o.value}
+                                                        value={o.value}
+                                                    >
+                                                        {o.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <Select
+                                            value={
+                                                company.company_size ?? "__none__"
+                                            }
+                                            disabled={rowPending(company.id)}
+                                            onValueChange={(v) => {
+                                                const next =
+                                                    v === "__none__"
+                                                        ? null
+                                                        : (v as CompanySize);
+                                                if (next === company.company_size)
+                                                    return;
+                                                patchCompany(company.id, {
+                                                    company_size: next,
+                                                });
+                                            }}
+                                        >
+                                            <SelectTrigger
+                                                size="sm"
+                                                className="h-8 w-[8.5rem] border-transparent bg-transparent shadow-none hover:bg-muted/50"
+                                            >
+                                                <SelectValue placeholder="—" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="__none__">
+                                                    —
+                                                </SelectItem>
+                                                {SIZE_OPTIONS.map((o) => (
+                                                    <SelectItem
+                                                        key={o.value}
+                                                        value={o.value}
+                                                    >
+                                                        {o.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </td>
+                                    <td className="px-4 py-3 text-center">
+                                        <EditableNumberCell
+                                            value={company.employee_count}
+                                            disabled={rowPending(company.id)}
+                                            onSave={(next) => {
+                                                if (next === company.employee_count)
+                                                    return;
+                                                patchCompany(company.id, {
+                                                    employee_count: next,
+                                                });
+                                            }}
+                                        />
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <EditableTextCell
+                                            value={company.country}
+                                            disabled={rowPending(company.id)}
+                                            onSave={(next) => {
+                                                if (next === (company.country ?? null))
+                                                    return;
+                                                patchCompany(company.id, {
+                                                    country: next,
+                                                });
+                                            }}
+                                        />
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <EditableTextCell
+                                            value={company.website}
+                                            disabled={rowPending(company.id)}
+                                            showOpenLink
+                                            onSave={(next) => {
+                                                if (next === (company.website ?? null))
+                                                    return;
+                                                patchCompany(company.id, {
+                                                    website: next,
+                                                });
+                                            }}
+                                        />
                                     </td>
                                     <td className="px-4 py-3 text-right">
                                         <div className="flex items-center justify-end gap-1">

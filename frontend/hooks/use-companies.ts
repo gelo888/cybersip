@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
-import { get, post, put, del } from "@/lib/api";
+import { get, post, patch, del } from "@/lib/api";
 import type {
     Company,
     CompanyPayload,
     CompanySize,
     CompanyStatus,
+    CompanyUpdatePayload,
     PaginatedResponse,
 } from "@/lib/types";
 
@@ -63,9 +64,12 @@ export function useCreateCompany() {
 export function useUpdateCompany() {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: CompanyPayload }) =>
-            put<Company>(`/api/companies/${id}/`, data),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ["companies"] }),
+        mutationFn: ({ id, data }: { id: string; data: CompanyUpdatePayload }) =>
+            patch<Company>(`/api/companies/${id}/`, data),
+        onSuccess: (_company, { id }) => {
+            qc.invalidateQueries({ queryKey: ["companies"] });
+            qc.invalidateQueries({ queryKey: ["companies", "detail", id] });
+        },
     });
 }
 

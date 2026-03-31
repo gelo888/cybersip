@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { ThemeToggleButton } from "@/components/theme-toggle";
 
 const pageConfig: Record<string, { title: string; description: string }> = {
     "/": {
@@ -67,7 +68,7 @@ export function PageHeader() {
                 className="mr-2 data-[orientation=vertical]:h-4"
             />
             {page && (
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                     <span className="text-md font-semibold whitespace-nowrap">
                         {page.title}
                     </span>
@@ -76,6 +77,9 @@ export function PageHeader() {
                     </span>
                 </div>
             )}
+            <div className="ml-auto shrink-0">
+                <ThemeToggleButton />
+            </div>
         </header>
     );
 }

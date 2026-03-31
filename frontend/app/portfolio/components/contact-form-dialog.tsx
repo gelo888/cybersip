@@ -11,7 +11,13 @@ import { Switch } from "@/components/ui/switch"
 import { Loader2 } from "lucide-react"
 import { useCreateContact, useUpdateContact } from "@/hooks/use-contacts"
 import { useCompanies } from "@/hooks/use-companies"
-import type { Contact, ContactPayload, ContactSeniority, RoleInDeal } from "@/lib/types"
+import type {
+  Contact,
+  ContactPayload,
+  ContactSeniority,
+  ContactUpdatePayload,
+  RoleInDeal,
+} from "@/lib/types"
 
 const SENIORITIES: { value: ContactSeniority; label: string }[] = [
   { value: "C_Suite", label: "C-Suite" },
@@ -116,7 +122,12 @@ export function ContactFormDialog({
     }
 
     if (isEdit) {
-      updateMutation.mutate({ id: contact!.id, data: payload }, { onSuccess: () => onOpenChange(false) })
+      const { company_id: _companyId, ...updateData } = payload
+      void _companyId
+      updateMutation.mutate(
+        { id: contact!.id, data: updateData as ContactUpdatePayload },
+        { onSuccess: () => onOpenChange(false) },
+      )
     } else {
       createMutation.mutate(payload, { onSuccess: () => onOpenChange(false) })
     }

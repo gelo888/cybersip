@@ -1,4 +1,5 @@
 import { User2, Bell, Palette, Key } from "lucide-react"
+import { ThemeSettingsSelect } from "@/components/theme-settings"
 
 const profile = {
   name: "Alex Rivera",
@@ -26,7 +27,6 @@ const integrations: { name: string; status: "connected" | "disconnected"; descri
 ]
 
 const appearance = {
-  theme: "System",
   density: "Comfortable",
   language: "English (US)",
 }
@@ -119,9 +119,9 @@ export default function SettingsPage() {
         </div>
 
         <div className="rounded-lg border divide-y">
-          <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center justify-between gap-4 px-4 py-3">
             <span className="text-sm text-muted-foreground">Theme</span>
-            <span className="text-sm font-medium">{appearance.theme}</span>
+            <ThemeSettingsSelect />
           </div>
           <div className="flex items-center justify-between px-4 py-3">
             <span className="text-sm text-muted-foreground">Data Density</span>
