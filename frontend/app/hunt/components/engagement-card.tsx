@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { Phone, Mail, Users, Monitor, Clock, Pencil, Trash2, FileSignature, Building2 } from "lucide-react"
+import type { DraggableAttributes, DraggableSyntheticListeners } from "@dnd-kit/core"
+import { Phone, Mail, Users, Monitor, Clock, Pencil, Trash2, FileSignature, Building2, GripVertical } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { Engagement } from "@/lib/types"
 import type { ContractCardSignals } from "@/lib/contract-signals"
@@ -29,9 +30,14 @@ interface Props {
     onDelete: (engagement: Engagement) => void
     contractSignals?: ContractCardSignals
     highlight?: boolean
+    /** When set, this control starts a Kanban drag (stage change). */
+    dragHandleProps?: {
+        attributes: DraggableAttributes
+        listeners: DraggableSyntheticListeners
+    }
 }
 
-export function EngagementCard({ engagement, onEdit, onDelete, contractSignals, highlight }: Props) {
+export function EngagementCard({ engagement, onEdit, onDelete, contractSignals, highlight, dragHandleProps }: Props) {
     const cfg = TYPE_CONFIG[engagement.type] ?? TYPE_CONFIG.call
     const Icon = cfg.icon
     const age = daysSince(engagement.created_at)
@@ -48,31 +54,45 @@ export function EngagementCard({ engagement, onEdit, onDelete, contractSignals, 
                 highlight ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
             }`}
         >
-            <div className="flex items-start justify-between gap-2">
-                <Link
-                    href={`/portfolio/${engagement.company_id}?from=hunt`}
-                    className="font-medium text-sm truncate hover:underline"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    {engagement.company_name}
-                </Link>
-                <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-start gap-1">
+                {dragHandleProps && (
                     <Button
+                        type="button"
                         variant="ghost"
                         size="icon"
-                        className="size-6"
-                        onClick={() => onEdit(engagement)}
+                        className="size-7 shrink-0 text-muted-foreground cursor-grab active:cursor-grabbing touch-none mt-0.5"
+                        aria-label="Drag to change pipeline stage"
+                        {...dragHandleProps.attributes}
+                        {...dragHandleProps.listeners}
                     >
-                        <Pencil className="size-3" />
+                        <GripVertical className="size-4" />
                     </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-6 text-destructive"
-                        onClick={() => onDelete(engagement)}
+                )}
+                <div className="min-w-0 flex-1 flex items-start justify-between gap-2">
+                    <Link
+                        href={`/portfolio/${engagement.company_id}?from=hunt`}
+                        className="font-medium text-sm truncate hover:underline"
                     >
-                        <Trash2 className="size-3" />
-                    </Button>
+                        {engagement.company_name}
+                    </Link>
+                    <div className="flex gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-6"
+                            onClick={() => onEdit(engagement)}
+                        >
+                            <Pencil className="size-3" />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-6 text-destructive"
+                            onClick={() => onDelete(engagement)}
+                        >
+                            <Trash2 className="size-3" />
+                        </Button>
+                    </div>
                 </div>
             </div>
 

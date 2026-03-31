@@ -2,14 +2,6 @@
 
 import Link from "next/link";
 import {
-    LayoutDashboard,
-    Radar,
-    Telescope,
-    Crosshair,
-    Building2,
-    Map,
-    Lock,
-    Settings,
     ChevronUp,
     User2,
 } from "lucide-react";
@@ -28,59 +20,7 @@ import {
     SidebarRail,
     SidebarSeparator,
 } from "@/components/ui/sidebar";
-
-const navMain = [
-    {
-        title: "Command Center",
-        description: "Dashboard",
-        url: "/",
-        icon: LayoutDashboard,
-    },
-    {
-        title: "Intelligence Hub",
-        description: "Competitor tracking & market news",
-        url: "/intelligence",
-        icon: Radar,
-    },
-    {
-        title: "Sales Recon",
-        description: "GTM & account recon workspace",
-        url: "/sales-recon",
-        icon: Telescope,
-    },
-    {
-        title: "The Hunt",
-        description: "Pipeline & Kanban",
-        url: "/hunt",
-        icon: Crosshair,
-    },
-    {
-        title: "Portfolio",
-        description: "Companies & Contacts",
-        url: "/portfolio",
-        icon: Building2,
-    },
-    {
-        title: "Territories",
-        description: "Geographic & Team views",
-        url: "/territories",
-        icon: Map,
-    },
-    {
-        title: "Vault",
-        description: "Contracts & Proposals",
-        url: "/vault",
-        icon: Lock,
-    },
-];
-
-const navSecondary = [
-    {
-        title: "Settings",
-        url: "/settings",
-        icon: Settings,
-    },
-];
+import { appNavMain, appNavSecondary } from "@/lib/app-nav";
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     return (
@@ -113,7 +53,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                     <SidebarGroupLabel>Strategic Operations</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {navMain.map((item) => (
+                            {appNavMain.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton
                                         asChild
@@ -135,7 +75,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {navSecondary.map((item) => (
+                            {appNavSecondary.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton
                                         asChild

@@ -1,18 +1,98 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, type ReactNode } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
+import {
+    DndContext,
+    DragOverlay,
+    PointerSensor,
+    useDraggable,
+    useDroppable,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
+    type DragStartEvent,
+} from "@dnd-kit/core"
+import { CSS } from "@dnd-kit/utilities"
 import { Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useStages } from "@/hooks/use-stages"
-import { useEngagements, useDeleteEngagement } from "@/hooks/use-engagements"
+import { useEngagements, useDeleteEngagement, useUpdateEngagement } from "@/hooks/use-engagements"
 import { useCompanies } from "@/hooks/use-companies"
 import { useContracts } from "@/hooks/use-contracts"
 import { EngagementCard } from "./engagement-card"
 import { EngagementFormDialog } from "./engagement-form-dialog"
 import { DeleteConfirmDialog } from "@/app/portfolio/components/delete-confirm-dialog"
-import { getContractSignalsForCompany } from "@/lib/contract-signals"
+import {
+    getContractSignalsForCompany,
+    type ContractCardSignals,
+} from "@/lib/contract-signals"
+import { cn } from "@/lib/utils"
 import type { Engagement } from "@/lib/types"
+
+function stageDropId(stageId: string) {
+    return `stage-${stageId}`
+}
+
+function engagementDragId(engagementId: string) {
+    return `engagement-${engagementId}`
+}
+
+function StageDropZone({
+    stageId,
+    children,
+}: {
+    stageId: string
+    children: ReactNode
+}) {
+    const { setNodeRef, isOver } = useDroppable({
+        id: stageDropId(stageId),
+    })
+    return (
+        <div
+            ref={setNodeRef}
+            className={cn(
+                "flex-1 rounded-b-lg border bg-muted/20 p-2 space-y-2 min-h-[200px]",
+                isOver && "ring-2 ring-primary/35 ring-inset",
+            )}
+        >
+            {children}
+        </div>
+    )
+}
+
+function DraggableEngagementCard({
+    engagement,
+    onEdit,
+    onDelete,
+    contractSignals,
+    highlight,
+}: {
+    engagement: Engagement
+    onEdit: (e: Engagement) => void
+    onDelete: (e: Engagement) => void
+    contractSignals?: ContractCardSignals
+    highlight: boolean
+}) {
+    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+        id: engagementDragId(engagement.id),
+        data: { engagement },
+    })
+    const style = transform ? { transform: CSS.Transform.toString(transform) } : undefined
+
+    return (
+        <div ref={setNodeRef} style={style} className={cn(isDragging && "opacity-40")}>
+            <EngagementCard
+                engagement={engagement}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                contractSignals={contractSignals}
+                highlight={highlight}
+                dragHandleProps={{ attributes, listeners }}
+            />
+        </div>
+    )
+}
 
 export function KanbanBoard() {
     const searchParams = useSearchParams()
@@ -26,6 +106,15 @@ export function KanbanBoard() {
     const companiesQuery = useCompanies({ page: 0, pageSize: 200 })
     const companies = companiesQuery.data?.items ?? []
     const deleteMutation = useDeleteEngagement()
+    const updateMutation = useUpdateEngagement()
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: { distance: 8 },
+        }),
+    )
+
+    const [activeEngagement, setActiveEngagement] = useState<Engagement | null>(null)
 
     const [formOpen, setFormOpen] = useState(false)
     const [editTarget, setEditTarget] = useState<Engagement | null>(null)
@@ -84,6 +173,26 @@ export function KanbanBoard() {
         deleteMutation.mutate(deleteTarget.id, {
             onSuccess: () => setDeleteTarget(null),
         })
+    }
+
+    function handleDragStart(event: DragStartEvent) {
+        const eng = event.active.data.current?.engagement as Engagement | undefined
+        setActiveEngagement(eng ?? null)
+    }
+
+    function handleDragEnd(event: DragEndEvent) {
+        setActiveEngagement(null)
+        const { active, over } = event
+        if (!over) return
+        const overStr = String(over.id)
+        if (!overStr.startsWith("stage-")) return
+        const nextStageId = overStr.slice("stage-".length)
+        const activeStr = String(active.id)
+        if (!activeStr.startsWith("engagement-")) return
+        const engagementId = activeStr.slice("engagement-".length)
+        const eng = filteredEngagements.find((e) => e.id === engagementId)
+        if (!eng || eng.stage_id === nextStageId) return
+        updateMutation.mutate({ id: engagementId, data: { stage_id: nextStageId } })
     }
 
     if (isLoading) {
@@ -158,64 +267,87 @@ export function KanbanBoard() {
                 </p>
             )}
 
-            <div className="overflow-x-auto pb-4">
-                <div className="inline-flex gap-4 min-w-max">
-                    {stages.map((stage) => {
-                        const colEngagements = engagementsByStage.get(stage.id) ?? []
+            <DndContext
+                sensors={sensors}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+            >
+                <div className="overflow-x-auto pb-4">
+                    <div className="inline-flex gap-4 min-w-max">
+                        {stages.map((stage) => {
+                            const colEngagements = engagementsByStage.get(stage.id) ?? []
 
-                        return (
-                            <div key={stage.id} className="w-72 shrink-0 flex flex-col">
-                                <div className="rounded-t-lg bg-muted/50 border border-b-0 px-3 py-2.5">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-semibold">{stage.name}</span>
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="flex items-center justify-center size-5 rounded-full bg-muted text-xs font-medium">
-                                                {colEngagements.length}
-                                            </span>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="size-5"
-                                                onClick={() => openCreate(stage.id)}
-                                            >
-                                                <Plus className="size-3" />
-                                            </Button>
+                            return (
+                                <div key={stage.id} className="w-72 shrink-0 flex flex-col">
+                                    <div className="rounded-t-lg bg-muted/50 border border-b-0 px-3 py-2.5">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm font-semibold">{stage.name}</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="flex items-center justify-center size-5 rounded-full bg-muted text-xs font-medium">
+                                                    {colEngagements.length}
+                                                </span>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-5"
+                                                    onClick={() => openCreate(stage.id)}
+                                                >
+                                                    <Plus className="size-3" />
+                                                </Button>
+                                            </div>
                                         </div>
+                                        <span className="text-xs text-muted-foreground">
+                                            {stage.probability}% probability
+                                        </span>
                                     </div>
-                                    <span className="text-xs text-muted-foreground">
-                                        {stage.probability}% probability
-                                    </span>
-                                </div>
 
-                                <div className="flex-1 rounded-b-lg border bg-muted/20 p-2 space-y-2 min-h-[200px]">
-                                    {colEngagements.length > 0 ? (
-                                        colEngagements.map((eng) => (
-                                            <EngagementCard
-                                                key={eng.id}
-                                                engagement={eng}
-                                                onEdit={openEdit}
-                                                onDelete={setDeleteTarget}
-                                                contractSignals={getContractSignalsForCompany(
-                                                    contracts,
-                                                    eng.company_id,
-                                                )}
-                                                highlight={
-                                                    !!engagementHighlight &&
-                                                    engagementHighlight === eng.id
-                                                }
-                                            />
-                                        ))
-                                    ) : (
-                                        <div className="flex items-center justify-center h-full text-xs text-muted-foreground">
-                                            No engagements
-                                        </div>
-                                    )}
+                                    <StageDropZone stageId={stage.id}>
+                                        {colEngagements.length > 0 ? (
+                                            colEngagements.map((eng) => (
+                                                <DraggableEngagementCard
+                                                    key={eng.id}
+                                                    engagement={eng}
+                                                    onEdit={openEdit}
+                                                    onDelete={setDeleteTarget}
+                                                    contractSignals={getContractSignalsForCompany(
+                                                        contracts,
+                                                        eng.company_id,
+                                                    )}
+                                                    highlight={
+                                                        !!engagementHighlight &&
+                                                        engagementHighlight === eng.id
+                                                    }
+                                                />
+                                            ))
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full min-h-[120px] text-xs text-muted-foreground">
+                                                Drop here or add an engagement
+                                            </div>
+                                        )}
+                                    </StageDropZone>
                                 </div>
-                            </div>
-                        )
-                    })}
+                            )
+                        })}
+                    </div>
                 </div>
-            </div>
+
+                <DragOverlay dropAnimation={null}>
+                    {activeEngagement ? (
+                        <div className="pointer-events-none w-72">
+                            <EngagementCard
+                                engagement={activeEngagement}
+                                onEdit={() => {}}
+                                onDelete={() => {}}
+                                contractSignals={getContractSignalsForCompany(
+                                    contracts,
+                                    activeEngagement.company_id,
+                                )}
+                                highlight={false}
+                            />
+                        </div>
+                    ) : null}
+                </DragOverlay>
+            </DndContext>
 
             <EngagementFormDialog
                 open={formOpen}
