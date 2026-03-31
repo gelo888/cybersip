@@ -43,6 +43,164 @@ export default function DesignPage() {
         .
       </div>
 
+      <h2>Shipped shell, theme, and charts (Sentinel rollout)</h2>
+      <p>
+        The Next.js app uses a <strong>Sentinel-inspired</strong> visual language
+        (see <code>design/aegis_command/DESIGN.md</code> and per-page{" "}
+        <code>design/*/code.html</code> mocks). Below is what is{" "}
+        <strong>actually wired in the repo</strong> today — prefer these paths when
+        extending UI.
+      </p>
+
+      <h3>Dual theme (<code>:root</code> and <code>.dark</code>)</h3>
+      <ul>
+        <li>
+          <strong>Tokens</strong> —{" "}
+          <code>frontend/app/globals.css</code>: <code>:root</code> is a light
+          Sophos &quot;ops desk&quot;; <code>.dark</code> is the Sentinel-style
+          dark palette. Shared names (<code>--background</code>,{" "}
+          <code>--primary</code>, <code>--chart-1</code> … <code>--chart-5</code>,
+          sidebar vars) keep components theme-agnostic.
+        </li>
+        <li>
+          <strong>Switching</strong> — <code>next-themes</code> with{" "}
+          <code>attribute=&quot;class&quot;</code>,{" "}
+          <code>storageKey=&quot;cybersip-theme&quot;</code> (
+          <code>frontend/components/theme-provider.tsx</code>). Header toggle +
+          Settings → Appearance (Light / Dark / System).
+        </li>
+        <li>
+          <strong>In-app headings</strong> — Global <code>h1</code>–<code>h3</code>{" "}
+          are tamed in <code>globals.css</code>; dashboards use local typography
+          (e.g. <code>font-(family-name:--font-lexend)</code>) for hero titles.
+        </li>
+      </ul>
+
+      <h3>Shell: sidebar, header, command palette</h3>
+      <ul>
+        <li>
+          <code>frontend/components/app-sidebar.tsx</code> — Nav from{" "}
+          <code>frontend/lib/app-nav.ts</code>; active route styling (pill / accent).
+        </li>
+        <li>
+          <code>frontend/components/page-header.tsx</code> — Glass-style bar; search
+          dispatches <code>COMMAND_PALETTE_OPEN_EVENT</code>.
+        </li>
+        <li>
+          <code>frontend/components/command-palette.tsx</code> — Cmd/Ctrl+K; exports{" "}
+          <code>COMMAND_PALETTE_OPEN_EVENT</code> for programmatic open. Mounted
+          from <code>frontend/components/providers.tsx</code>.
+        </li>
+      </ul>
+
+      <h3>Visualization primitives (Recharts)</h3>
+      <ul>
+        <li>
+          <strong>Library</strong> — <code>recharts</code> (single chart stack).
+        </li>
+        <li>
+          <code>frontend/components/chart-panel.tsx</code> — Card shell, optional
+          primary accent strip, title/description, loading + empty slots.
+        </li>
+        <li>
+          <code>frontend/components/metric-stat-card.tsx</code> — Dense KPI tiles;
+          optional left accent, decorative icon, progress bar.
+        </li>
+        <li>
+          <code>frontend/hooks/use-chart-colors.ts</code> — Maps series to{" "}
+          <code>--chart-*</code> CSS variables.
+        </li>
+        <li>
+          <code>frontend/lib/recharts-tooltip-styles.ts</code> — Tooltip styles
+          aligned with shadcn tokens.
+        </li>
+      </ul>
+
+      <h3>Sentinel-style routes (main components)</h3>
+      <p>
+        Each area follows the same idea: semantic tokens, accent bars on key
+        panels, uppercase table headers where tables appear, and{" "}
+        <strong>honest empty states</strong> (no fake &quot;live&quot; series when
+        the API returns nothing).
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Route</th>
+            <th>Primary UI files</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <code>/</code> Command Center
+            </td>
+            <td>
+              <code>frontend/app/components/command-center-dashboard.tsx</code>{" "}
+              (KPI bento, renewal radar, CRM grid, Recharts, action stream)
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>/hunt</code>
+            </td>
+            <td>
+              <code>frontend/app/hunt/components/kanban-board.tsx</code>,{" "}
+              <code>engagement-card.tsx</code>, dialogs
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>/intelligence</code>
+            </td>
+            <td>
+              <code>frontend/app/intelligence/components/intelligence-hub.tsx</code>,{" "}
+              <code>intel-confidence-chart.tsx</code>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>/portfolio</code>
+            </td>
+            <td>
+              <code>frontend/app/portfolio/components/portfolio-overview.tsx</code>,{" "}
+              <code>companies-table.tsx</code>, <code>contacts-table.tsx</code>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>/portfolio/[id]</code>
+            </td>
+            <td>
+              <code>company-360-hero.tsx</code>,{" "}
+              <code>company-engagement-velocity-chart.tsx</code>,{" "}
+              <code>company-360-sidebar.tsx</code>, section tables under{" "}
+              <code>components/</code>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>/vault</code>
+            </td>
+            <td>
+              <code>frontend/app/vault/page.tsx</code>,{" "}
+              <code>vault/components/contracts-table.tsx</code>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Optional demo data (seed)</h3>
+      <p>
+        <code>backend/prisma/seed.py</code> already creates a large, realistic
+        slice of the model (regions, territories, ~150 companies, contacts,
+        stages, engagements, contracts, competitors, intel). That is{" "}
+        <strong>sufficient</strong> to populate Command Center summaries, Hunt,
+        Intelligence charts, Portfolio mix, Company 360 velocity, and Vault KPIs
+        without changes. Only extend the seed if you need edge cases (e.g. empty
+        regions, single-contract tenants) for QA.
+      </p>
+
       <h2>Brand Identity</h2>
 
       <table>
@@ -122,54 +280,51 @@ export default function DesignPage() {
         </tbody>
       </table>
 
-      <h2>Key Screen Layouts</h2>
+      <h2>Key screen layouts (product intent vs. shipped)</h2>
 
-      <h3>Command Center (Proactive Dashboard)</h3>
+      <h3>Command Center (<code>/</code>)</h3>
       <p>
-        Instead of just showing &quot;Sales Volume,&quot; this dashboard
-        prioritizes <strong>&quot;Upcoming Attacks&quot;</strong>:
+        <strong>Shipped</strong> in{" "}
+        <code>command-center-dashboard.tsx</code>: KPI bento from live summary API,
+        horizontal renewal radar, CRM signal grid, renewal-value bar chart and
+        win-rate line (client-derived where needed), timeline action stream from{" "}
+        <code>/api/command-center/action-stream</code>. No fabricated regional
+        heatmap — any future map must bind to real territory data.
       </p>
       <ul>
         <li>
-          <strong>Renewal Radar</strong> — Horizontal scroll of cards showing
-          competitor contracts expiring in the next 90 days
+          <strong>Renewal radar</strong> — Competitor contracts approaching expiry
+          (live)
         </li>
         <li>
-          <strong>Win/Loss Heatmap</strong> — Visual map showing which regions
-          are &quot;Winning&quot; vs. &quot;Under Siege&quot;
-        </li>
-        <li>
-          <strong>Action Stream</strong> — Timeline of recent CRM activity
-          (engagements, new accounts); future phases can add external news and
-          N8N-sourced alerts
+          <strong>Action stream</strong> — Recent engagements and new companies
+          (live); N8N/news optional later
         </li>
       </ul>
 
-      <h3>Company 360-Degree View</h3>
-      <p>Where the sales agent spends most of their time:</p>
-      <ul>
-        <li>
-          <strong>Header</strong> — Company logo, stock ticker, AI-calculated
-          &quot;Relationship Health Score&quot;
-        </li>
-        <li>
-          <strong>Battle Card Sidebar</strong> — Sticky card showing the current
-          incumbent, contract end date, and talking points
-        </li>
-        <li>
-          <strong>Relationship Map</strong> — Interactive org chart showing
-          Champion, Decision Maker, and Blocker nodes
-        </li>
-        <li>
-          <strong>Tech Stack Timeline</strong> — Vertical timeline of historical
-          security infrastructure changes
-        </li>
-      </ul>
-
-      <h3>The Hunt (Competitive Kanban)</h3>
+      <h3>Company 360 (<code>/portfolio/[id]</code>)</h3>
       <p>
-        CyberSIP tracks <strong>&quot;Displacement Stages&quot;</strong> instead
-        of traditional deal stages:
+        <strong>Shipped</strong>: Sentinel hero with metric strip, six-month{" "}
+        <strong>engagement velocity</strong> bar chart (from{" "}
+        <code>created_at</code>), sticky <strong>account snapshot</strong> sidebar
+        (counts + jump links), contacts / engagements / contracts / intel sections
+        with CRUD dialogs. Industry badges (primary vs secondary) in the hero.
+      </p>
+      <p className="text-muted-foreground text-sm">
+        <strong>Roadmap / mock-only</strong> (not in app UI yet): relationship
+        hierarchy map, AI relationship health score, generated battle-card pitch
+        deck, tech-stack timeline.
+      </p>
+
+      <h3>The Hunt (<code>/hunt</code>)</h3>
+      <p>
+        <strong>Shipped</strong>: Kanban bound to pipeline stages; Sentinel-style
+        column chrome, stats strip, dense engagement cards, DnD, contract hints,
+        deep links <code>?company_id=</code> / <code>engagement_id=</code>.
+      </p>
+      <p>
+        Stages are <strong>data-driven</strong> (seed names echo a displacement
+        narrative); product copy still frames competitive displacement:
       </p>
       <ol>
         <li>Intelligence Gathering</li>
@@ -264,8 +419,9 @@ export default function DesignPage() {
 
       <h3>4. Inline &quot;Ghost&quot; Editing</h3>
       <p>
-        Hover over a field to reveal a pencil icon. Click to transform text into
-        an input. Auto-saves on blur with a green flash confirmation.
+        Pattern for future dense grids: hover to reveal edit, blur to save. The
+        Portfolio companies/contacts register intentionally uses{" "}
+        <strong>read-only rows + dialogs</strong> instead (see Phase 1.75+ above).
       </p>
 
       <h3>5. Multi-Step Engagement Wizard</h3>
@@ -304,8 +460,10 @@ export default function DesignPage() {
           </tr>
           <tr>
             <td>Read / Update</td>
-            <td><code>DataTable</code> + Editable Cells</td>
-            <td>High-density data management</td>
+            <td>
+              Tables + row actions / dialogs (Portfolio register read-only in-grid)
+            </td>
+            <td>High-density lists without accidental edits</td>
           </tr>
           <tr>
             <td>Add Intel / Notes</td>
@@ -325,29 +483,29 @@ export default function DesignPage() {
         </tbody>
       </table>
 
-      <h2>Theme, loading, and inline data (Phase 1.75)</h2>
+      <h2>Theme, loading, and table editing (Phase 1.75+)</h2>
 
       <ul>
         <li>
-          <strong>Color theme</strong> — <code>next-themes</code> with{" "}
-          <code>attribute=&quot;class&quot;</code> and{" "}
-          <code>storageKey=&quot;cybersip-theme&quot;</code>; semantic tokens in{" "}
-          <code>app/globals.css</code> for <code>:root</code> (light) and{" "}
-          <code>.dark</code>. Quick toggle in the page header; Light / Dark / System
-          in Settings → Appearance.
+          <strong>Color theme</strong> — Covered above: <code>next-themes</code>,
+          <code>globals.css</code> <code>:root</code> / <code>.dark</code>, header +
+          Settings Appearance.
         </li>
         <li>
-          <strong>Skeletons</strong> — Use <code>components/ui/skeleton.tsx</code>{" "}
-          for layout-shaped placeholders. Shared{" "}
-          <code>components/data-table-skeleton.tsx</code> for tables; route-specific
-          shells include Vault contracts (summary + grid), Company 360, Territories
-          (map vs list), and Hunt Kanban columns.
+          <strong>Skeletons</strong> — <code>components/ui/skeleton.tsx</code>;
+          shared <code>data-table-skeleton.tsx</code>; route-specific loaders
+          (Vault, Company 360, Hunt columns, Territories map/list, etc.).
         </li>
         <li>
-          <strong>Inline table editing</strong> — Portfolio companies and contacts:
-          enum fields use compact borderless <code>Select</code> triggers; text and
-          numbers use click-to-edit inputs (blur or Enter to save, Escape to cancel).
-          Updates call <code>PATCH</code> with partial bodies only for changed fields.
+          <strong>Portfolio tables</strong> — Companies and contacts lists are{" "}
+          <strong>read-only in the grid</strong>; search/filters + pagination
+          unchanged. Add / edit / delete uses dialogs; <code>PATCH</code> runs from
+          those forms, not inline cells.
+        </li>
+        <li>
+          <strong>Other surfaces</strong> — Hunt, Vault, Intelligence, Company 360
+          sub-tables use row actions + modals where CRUD applies; prefer the same
+          pattern for new dense tables.
         </li>
       </ul>
 

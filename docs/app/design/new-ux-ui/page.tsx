@@ -35,8 +35,8 @@ Pages (in order; do not start next until previous gate reviewed):
 - [ ] §4.6 Vault \`/vault\` — \`vault\`, KPI row + dense table
 
 Closeout:
-- [ ] docs-design — full update \`docs/app/design/page.tsx\` (themes, charts, primitives)
-- [ ] optional-seed — \`backend/prisma/seed.py\` only if charts need denser demo data
+- [x] docs-design — full update \`docs/app/design/page.tsx\` (themes, charts, primitives, route map, seed note)
+- [x] optional-seed — reviewed; existing \`backend/prisma/seed.py\` is sufficient for Sentinel KPIs/charts (no change)
 
 ## Key paths
 - Spec: \`design/aegis_command/DESIGN.md\`
