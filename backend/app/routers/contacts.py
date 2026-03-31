@@ -8,7 +8,9 @@ from app.schemas.contact import (
     ContactCreate,
     ContactListResponse,
     ContactResponse,
+    ContactSeniority,
     ContactUpdate,
+    RoleInDeal,
 )
 
 router = APIRouter(prefix="/api/contacts", tags=["Contacts"])
@@ -41,13 +43,39 @@ async def create_contact(body: ContactCreate):
 @router.get("/", response_model=ContactListResponse)
 async def list_contacts(
     company_id: Optional[str] = Query(None, description="Filter by company"),
+    q: Optional[str] = Query(
+        None,
+        max_length=255,
+        description="Search name, email, or title (case-insensitive contains)",
+    ),
+    is_active: Optional[bool] = Query(None, description="Filter by active flag"),
+    seniority: Optional[ContactSeniority] = Query(
+        None, description="Filter by seniority"
+    ),
+    role_in_deal: Optional[RoleInDeal] = Query(
+        None, description="Filter by deal role"
+    ),
     skip: int = Query(0, ge=0),
-    take: int = Query(20, ge=1, le=100),
+    take: int = Query(20, ge=1, le=500),
 ):
-    """List contacts, optionally filtered by company."""
+    """List contacts with optional filters and pagination."""
     where = {}
     if company_id:
         where["companyId"] = company_id
+    if is_active is not None:
+        where["isActive"] = is_active
+    if seniority:
+        where["seniority"] = seniority.value
+    if role_in_deal:
+        where["roleInDeal"] = role_in_deal.value
+    if q and q.strip():
+        term = q.strip()
+        where["OR"] = [
+            {"firstName": {"contains": term, "mode": "insensitive"}},
+            {"lastName": {"contains": term, "mode": "insensitive"}},
+            {"email": {"contains": term, "mode": "insensitive"}},
+            {"title": {"contains": term, "mode": "insensitive"}},
+        ]
 
     contacts, total = await asyncio.gather(
         db.contact.find_many(where=where, skip=skip, take=take, order={"firstName": "asc"}, include={"company": True}),

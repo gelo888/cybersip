@@ -8,6 +8,7 @@ from app.schemas.company import (
     CompanyCreate,
     CompanyListResponse,
     CompanyResponse,
+    CompanySize,
     CompanyStatus,
     CompanyUpdate,
 )
@@ -36,13 +37,25 @@ async def create_company(body: CompanyCreate):
 @router.get("/", response_model=CompanyListResponse)
 async def list_companies(
     status: Optional[CompanyStatus] = Query(None, description="Filter by company status"),
+    company_size: Optional[CompanySize] = Query(
+        None, description="Filter by company size segment"
+    ),
+    q: Optional[str] = Query(
+        None,
+        max_length=255,
+        description="Search company name (case-insensitive contains)",
+    ),
     skip: int = Query(0, ge=0, description="Number of records to skip"),
     take: int = Query(20, ge=1, le=500, description="Number of records to return"),
 ):
-    """List companies with optional status filter and pagination."""
+    """List companies with optional filters and pagination."""
     where = {}
     if status:
         where["status"] = status.value
+    if company_size:
+        where["companySize"] = company_size.value
+    if q and q.strip():
+        where["currentName"] = {"contains": q.strip(), "mode": "insensitive"}
 
     companies, total = await asyncio.gather(
         db.company.find_many(where=where, skip=skip, take=take, order={"createdAt": "desc"}),
