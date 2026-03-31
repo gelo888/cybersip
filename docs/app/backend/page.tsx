@@ -94,6 +94,11 @@ export default function BackendPage() {
             <td><code>/api/companies</code></td>
           </tr>
           <tr>
+            <td>Industries</td>
+            <td><code>industries.py</code></td>
+            <td><code>/api/industries</code></td>
+          </tr>
+          <tr>
             <td>Contacts</td>
             <td><code>contacts.py</code></td>
             <td><code>/api/contacts</code></td>
@@ -224,14 +229,51 @@ class CompanyResponse(BaseModel):
         ]}
       />
 
-      <h2>Companies</h2>
-      <p>The central entity. All other entities connect to companies.</p>
+      <h2>Industries</h2>
+      <p>
+        Read-only catalog for Portfolio picklists. Companies reference industries
+        through join rows; responses embed a flattened <code>industries</code> list.
+      </p>
       <EndpointTable
         endpoints={[
-          { method: "POST", path: "/api/companies", description: "Create a new company" },
-          { method: "GET", path: "/api/companies", description: "List companies (optional status, company_size, q name search; skip, take ≤ 500)" },
-          { method: "GET", path: "/api/companies/{id}", description: "Get a single company" },
-          { method: "PATCH", path: "/api/companies/{id}", description: "Update a company" },
+          {
+            method: "GET",
+            path: "/api/industries",
+            description: "List all industries (ordered by sector, name)",
+          },
+        ]}
+      />
+
+      <h2>Companies</h2>
+      <p>
+        The central entity. All other entities connect to companies. List/detail
+        responses include <code>industries</code> (industry_id, name, sector,
+        is_primary). POST/PATCH accept optional <code>industry_links</code>{" "}
+        (<code>{'[{ industry_id, is_primary }]'}</code>); when present (including{" "}
+        <code>[]</code>), links are replaced. Omit <code>industry_links</code> on
+        PATCH to leave links unchanged. Optional list query{" "}
+        <code>industry_id</code> filters companies linked to that industry.
+      </p>
+      <EndpointTable
+        endpoints={[
+          {
+            method: "POST",
+            path: "/api/companies",
+            description:
+              "Create a company (optional industry_links after insert)",
+          },
+          {
+            method: "GET",
+            path: "/api/companies",
+            description:
+              "List companies (optional status, company_size, industry_id, q; skip, take ≤ 500)",
+          },
+          { method: "GET", path: "/api/companies/{id}", description: "Get a single company with industries" },
+          {
+            method: "PATCH",
+            path: "/api/companies/{id}",
+            description: "Patch scalar fields; optional industry_links replaces join rows",
+          },
           { method: "DELETE", path: "/api/companies/{id}", description: "Delete a company" },
         ]}
       />

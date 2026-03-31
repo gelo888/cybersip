@@ -169,18 +169,20 @@ export default function FrontendPage() {
             <td>Live API</td>
             <td>
               Companies and contacts with full CRUD; debounced server-side search
-              and filters (companies: status, size; contacts: company, active,
-              deal role, seniority) via <code>useCompanies</code> /{" "}
-              <code>useContacts</code>; inline edits on table rows (companies: status,
-              size, employees, country, website; contacts: title, seniority, role,
-              email, phone) with subtle refetch indicator when list query refetches
+              and filters (companies: status, size, <strong>industry</strong>; contacts:
+              company, active, deal role, seniority) via <code>useCompanies</code> /{" "}
+              <code>useContacts</code> and <code>useIndustries</code> for the industry
+              catalog; company form sets primary/secondary via <code>industry_links</code>;
+              companies table shows primary industry column; inline edits on table rows
+              (companies: status, size, employees, country, website; contacts: title,
+              seniority, role, email, phone) with subtle refetch when the list refetches
             </td>
           </tr>
           <tr>
             <td><code>/portfolio/[id]</code></td>
             <td>Company 360</td>
             <td>Live API</td>
-            <td>Skeleton shell while company loads; contacts (read-only table); engagements, contracts, and competitor intel with full CRUD (reuses Hunt / Vault / Intelligence form dialogs with scoped company)</td>
+            <td>Skeleton shell while company loads; header shows <strong>industry</strong> badges (primary vs secondary); contacts (read-only table); engagements, contracts, and competitor intel with full CRUD (reuses Hunt / Vault / Intelligence form dialogs with scoped company)</td>
           </tr>
           <tr>
             <td><code>/territories</code></td>

@@ -104,6 +104,73 @@ products_services
           </tr>
         </tbody>
       </table>
+      <p className="text-sm text-muted-foreground">
+        Industry assignments are not columns on <code>companies</code>; see{" "}
+        <code>industries</code> and <code>company_industries</code> below. The API
+        returns a flattened <code>industries</code> array on company read/list.
+      </p>
+
+      <h3>industries</h3>
+      <p>Catalog of industry labels (seeded). Optional <code>sector</code> groups for reporting.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>UUID PK</td>
+            <td>Unique identifier</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>VARCHAR</td>
+            <td>Industry name (e.g. Banking &amp; Financial Services)</td>
+          </tr>
+          <tr>
+            <td><code>sector</code></td>
+            <td>VARCHAR</td>
+            <td>Optional rollup (e.g. Financial Services)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>company_industries</h3>
+      <p>
+        Many-to-many join. At most one row per company should have{" "}
+        <code>is_primary</code>; the API enforces a single primary when links are
+        replaced via create/PATCH.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>company_id</code></td>
+            <td>UUID FK</td>
+            <td>Reference to companies</td>
+          </tr>
+          <tr>
+            <td><code>industry_id</code></td>
+            <td>UUID FK</td>
+            <td>Reference to industries</td>
+          </tr>
+          <tr>
+            <td><code>is_primary</code></td>
+            <td>BOOLEAN</td>
+            <td>Primary industry for the account</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h3>company_names</h3>
       <p>

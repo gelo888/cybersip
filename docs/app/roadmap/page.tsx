@@ -61,6 +61,11 @@ export default function RoadmapPage() {
               status, size, employees, country, website; contacts: title, seniority,
               role, email, phone)
             </li>
+            <li>
+              Company <strong>industry</strong> (manual) — <code>GET /api/industries</code>,
+              company payloads include <code>industries</code>; create/edit via{" "}
+              <code>industry_links</code>; Portfolio filter + column; Company 360 badges
+            </li>
           </ul>
         </div>
         <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4">
@@ -187,7 +192,10 @@ export default function RoadmapPage() {
         </ol>
       </div>
 
-      <h2>Phase 1.75 — UX, Command Stream &amp; templates (no OpenAI / N8N)</h2>
+      <h2>
+        Phase 1.75 — UX polish, company industry, Command Stream &amp; templates
+        (no OpenAI / N8N)
+      </h2>
 
       <div className="mb-6 rounded-l-none rounded-lg border-l-4 border-l-teal-500 bg-teal-500/5 p-4">
         <p className="mb-1 text-xs font-bold uppercase tracking-wider text-teal-600">
@@ -196,7 +204,10 @@ export default function RoadmapPage() {
         <p className="mb-3 text-sm text-muted-foreground">
           Ship product value using <strong>FastAPI + Prisma + Next.js</strong> only.
           Small UI libraries (e.g. drag-and-drop, command palette) are fine; no
-          OpenAI, Claude, or N8N required.
+          OpenAI, Claude, or N8N required. Phase 1.75 also includes{" "}
+          <strong>company ↔ industry</strong> links using the seeded{" "}
+          <code>industries</code> catalog and REST APIs — <strong>manual picklists</strong>{" "}
+          in the UI, no LLM.
         </p>
         <ol start={12} className="mb-0 text-sm">
           <li className="line-through opacity-60">
@@ -216,6 +227,13 @@ export default function RoadmapPage() {
             <strong>Global UX</strong> — dark mode toggle; skeleton loading on
             primary views and tables; inline editing on Portfolio companies &amp;
             contacts tables (<code>PATCH</code> partial updates aligned with API).
+          </li>
+          <li className="line-through opacity-60">
+            <strong>Company industry (manual)</strong> — <code>GET /api/industries</code>{" "}
+            catalog; create/edit company sets primary (and optional secondary) via{" "}
+            <code>industry_links</code>; Portfolio list filter and column; Company 360
+            badges. Uses Prisma <code>Industry</code> / <code>CompanyIndustry</code>; no
+            AI.
           </li>
           <li>
             <strong>Static displacement emails</strong> — Intelligence Hub:
