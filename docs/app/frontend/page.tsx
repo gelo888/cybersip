@@ -228,11 +228,13 @@ export default function FrontendPage() {
             <td>Vault</td>
             <td>Live API</td>
             <td>
-              Skeleton summary + table while contracts load; contracts table with
-              CRUD, optional linked engagement on create/edit, Pipeline column to
-              Hunt (<code>?company_id=</code> and <code>engagement_id=</code> when
-              set), summary cards. New contracts require a company from Portfolio
-              (loading/empty/error states in the form).
+              Sentinel Vault (<code>vault</code>): breadcrumb hero, four honest{" "}
+              <code>MetricStatCard</code> KPIs (90d expiring among active, active
+              value sum, pending count, loaded batch size),{" "}
+              <strong>Search &amp; filters</strong> toolbar (company text, status,
+              type) with client-side filtering on <code>take: 500</code> list, dense
+              contract table + CRUD, Hunt pipeline links. Form uses Portfolio
+              companies (loading/empty/error).
             </td>
           </tr>
           <tr>
