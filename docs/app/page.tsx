@@ -54,7 +54,7 @@ const quickLinks = [
     title: "UX / UI Design",
     href: "/design",
     icon: Palette,
-    description: "Design system and interaction patterns",
+    description: "Design system, shell, themes, and route patterns",
   },
   {
     title: "Roadmap",

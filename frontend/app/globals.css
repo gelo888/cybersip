@@ -79,73 +79,75 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+/* Light: Sophos “ops desk” — same token names as dark for next-themes parity */
 :root {
   --radius: 0.625rem;
-  --background: #FFFFFF;
-  --foreground: #001A47;
-  --card: #FFFFFF;
-  --card-foreground: #001A47;
-  --popover: #FFFFFF;
-  --popover-foreground: #001A47;
-  --primary: #2006F7;
-  --primary-foreground: #EBF6FF;
-  --secondary: #EBF6FF;
-  --secondary-foreground: #001A47;
-  --muted: #EBF6FF;
-  --muted-foreground: #6A889B;
-  --accent: #00F2B3;
-  --accent-foreground: #001A47;
-  --destructive: #EA0022;
-  --border: #BBCFDE;
-  --input: #BBCFDE;
-  --ring: #2006F7;
-  --chart-1: #2006F7;
-  --chart-2: #5A00FF;
-  --chart-3: #B529F7;
-  --chart-4: #009CFB;
-  --chart-5: #6A889B;
-  --sidebar: #EBF6FF;
-  --sidebar-foreground: #001A47;
-  --sidebar-primary: #2006F7;
-  --sidebar-primary-foreground: #EBF6FF;
-  --sidebar-accent: #BBCFDE;
-  --sidebar-accent-foreground: #001A47;
-  --sidebar-border: #BBCFDE;
-  --sidebar-ring: #2006F7;
+  --background: #f4f8fc;
+  --foreground: #001a47;
+  --card: #ffffff;
+  --card-foreground: #001a47;
+  --popover: #ffffff;
+  --popover-foreground: #001a47;
+  --primary: #2006f7;
+  --primary-foreground: #ebf6ff;
+  --secondary: #e3eef6;
+  --secondary-foreground: #001a47;
+  --muted: #e8f1f8;
+  --muted-foreground: #4a6780;
+  --accent: #00f2b3;
+  --accent-foreground: #001a47;
+  --destructive: #ea0022;
+  --border: #c5d8e8;
+  --input: #b8cfde;
+  --ring: #2006f7;
+  --chart-1: #2006f7;
+  --chart-2: #5a00ff;
+  --chart-3: #00c4a7;
+  --chart-4: #009cfb;
+  --chart-5: #6a889b;
+  --sidebar: #ebf6ff;
+  --sidebar-foreground: #001a47;
+  --sidebar-primary: #2006f7;
+  --sidebar-primary-foreground: #ebf6ff;
+  --sidebar-accent: #d4e6f2;
+  --sidebar-accent-foreground: #001a47;
+  --sidebar-border: #c5d8e8;
+  --sidebar-ring: #2006f7;
 }
 
+/* Dark: Sentinel directive (design/command_center_dark) → shadcn semantic tokens */
 .dark {
-  --background: #001A47;
-  --foreground: #EBF6FF;
-  --card: #223E4C;
-  --card-foreground: #EBF6FF;
-  --popover: #223E4C;
-  --popover-foreground: #EBF6FF;
-  --primary: #00EDFF;
-  --primary-foreground: #001A47;
-  --secondary: #223E4C;
-  --secondary-foreground: #EBF6FF;
-  --muted: #223E4C;
-  --muted-foreground: #BBCFDE;
-  --accent: #00F2B3;
-  --accent-foreground: #001A47;
-  --destructive: #EA0022;
-  --border: #6A889B;
-  --input: #6A889B;
-  --ring: #00EDFF;
-  --chart-1: #00EDFF;
-  --chart-2: #00F2B3;
-  --chart-3: #B529F7;
-  --chart-4: #009CFB;
-  --chart-5: #5A00FF;
-  --sidebar: #223E4C;
-  --sidebar-foreground: #EBF6FF;
-  --sidebar-primary: #00EDFF;
-  --sidebar-primary-foreground: #001A47;
-  --sidebar-accent: #6A889B;
-  --sidebar-accent-foreground: #EBF6FF;
-  --sidebar-border: #6A889B;
-  --sidebar-ring: #00EDFF;
+  --background: #0b1326;
+  --foreground: #dae2fd;
+  --card: #222a3d;
+  --card-foreground: #dae2fd;
+  --popover: #2d3449;
+  --popover-foreground: #dae2fd;
+  --primary: #b0c6ff;
+  --primary-foreground: #002d6f;
+  --secondary: #171f33;
+  --secondary-foreground: #a9bad3;
+  --muted: #131b2e;
+  --muted-foreground: #c2c6d8;
+  --accent: #4edea3;
+  --accent-foreground: #002113;
+  --destructive: #ea0022;
+  --border: rgb(66 70 85 / 0.45);
+  --input: rgb(66 70 85 / 0.55);
+  --ring: #b0c6ff;
+  --chart-1: #b0c6ff;
+  --chart-2: #568dff;
+  --chart-3: #4edea3;
+  --chart-4: #b7c8e1;
+  --chart-5: #8c90a1;
+  --sidebar: #060e20;
+  --sidebar-foreground: #dae2fd;
+  --sidebar-primary: #b0c6ff;
+  --sidebar-primary-foreground: #002d6f;
+  --sidebar-accent: #131b2e;
+  --sidebar-accent-foreground: #dae2fd;
+  --sidebar-border: rgb(66 70 85 / 0.35);
+  --sidebar-ring: #b0c6ff;
 }
 
 @layer base {
@@ -156,44 +158,44 @@
     @apply bg-background text-foreground font-sans;
   }
 
-  /* ── Sophos Digital Typography ── */
+  /* ── In-app headings (tamed vs marketing scale; use utilities for hero/display) ── */
 
   h1 {
-    font-family: var(--font-lexend-exa);
-    font-size: 4rem;       /* 64px */
-    line-height: 4rem;     /* 64px */
-    letter-spacing: -0.469rem; /* -7.5px */
-    font-weight: 400;
+    font-family: var(--font-lexend), var(--font-sans);
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    letter-spacing: -0.02em;
+    font-weight: 600;
   }
 
   h2 {
-    font-family: var(--font-lexend);
-    font-size: 2.875rem;   /* 46px */
-    line-height: 2.875rem; /* 46px */
-    letter-spacing: -0.047rem; /* -0.75px */
-    font-weight: 400;
+    font-family: var(--font-lexend), var(--font-sans);
+    font-size: 1.375rem;
+    line-height: 1.75rem;
+    letter-spacing: -0.015em;
+    font-weight: 600;
   }
 
   h3 {
-    font-family: var(--font-inter);
-    font-size: 1.625rem;   /* 26px */
-    line-height: 1.875rem; /* 30px */
-    letter-spacing: -0.031rem; /* -0.5px */
-    font-weight: 400;
+    font-family: var(--font-inter), var(--font-sans);
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+    letter-spacing: -0.01em;
+    font-weight: 600;
   }
 
-  h3 strong, h3 b {
-    font-weight: 600;
-    letter-spacing: -0.016rem; /* -0.25px */
+  h3 strong,
+  h3 b {
+    font-weight: 700;
   }
 
   p {
-    font-family: var(--font-inter);
-    font-size: 1.125rem;   /* 18px */
-    line-height: 1.5rem;   /* 24px */
-    letter-spacing: -0.016rem; /* -0.25px */
+    font-family: var(--font-inter), var(--font-sans);
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+    letter-spacing: -0.016rem;
     font-weight: 400;
-    margin-bottom: 0.625rem; /* 10px paragraph spacing */
+    margin-bottom: 0.625rem;
   }
 
   .inset {
@@ -212,5 +214,24 @@
 
   .territory-tooltip .maplibregl-popup-content {
     @apply bg-popover! text-popover-foreground! shadow-md! px-3! py-2! rounded-md! text-sm!;
+  }
+
+  /* Hunt Kanban — horizontal scroll (Sentinel mock) */
+  .kanban-scroll-x {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--muted-foreground), transparent 55%) transparent;
+  }
+
+  .kanban-scroll-x::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .kanban-scroll-x::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .kanban-scroll-x::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--muted-foreground), transparent 35%);
+    border-radius: 9999px;
   }
 }

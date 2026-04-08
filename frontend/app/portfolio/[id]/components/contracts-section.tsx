@@ -109,10 +109,10 @@ export function CompanyContractsSection({
     }
 
     return (
-        <section className="space-y-3">
+        <section className="space-y-4">
             <div className="flex items-center gap-2">
-                <FileText className="size-5 text-primary" />
-                <h3 className="text-base font-semibold">Contracts</h3>
+                <FileText className="text-primary size-5" />
+                <h3 className="text-base font-semibold tracking-tight">Contracts</h3>
                 {contracts.data && (
                     <span className="text-xs text-muted-foreground">
                         ({items.length})
@@ -155,29 +155,30 @@ export function CompanyContractsSection({
             )}
 
             {contracts.data && items.length > 0 && (
-                <div className="overflow-x-auto rounded-lg border">
+                <div className="overflow-hidden rounded-xl border border-border/60 shadow-sm ring-1 ring-border/40">
+                    <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
-                            <tr className="border-b bg-muted/40">
-                                <th className="px-4 py-3 text-left font-medium">
+                            <tr className="bg-muted/50 border-border/60 border-b">
+                                <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
                                     Type
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium">
+                                <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
                                     Status
                                 </th>
-                                <th className="px-4 py-3 text-right font-medium">
+                                <th className="text-muted-foreground px-6 py-4 text-right text-[10px] font-bold tracking-wider uppercase">
                                     Value
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium">
+                                <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
                                     Start
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium">
+                                <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
                                     End
                                 </th>
-                                <th className="px-4 py-3 text-center font-medium">
-                                    Renewal Notice
+                                <th className="text-muted-foreground px-6 py-4 text-center text-[10px] font-bold tracking-wider uppercase">
+                                    Renewal notice
                                 </th>
-                                <th className="px-4 py-3 text-right font-medium">
+                                <th className="text-muted-foreground px-6 py-4 text-right text-[10px] font-bold tracking-wider uppercase">
                                     Actions
                                 </th>
                             </tr>
@@ -186,41 +187,41 @@ export function CompanyContractsSection({
                             {items.map((contract) => (
                                 <tr
                                     key={contract.id}
-                                    className="border-b last:border-b-0 hover:bg-muted/20 transition-colors"
+                                    className="hover:bg-muted/30 border-border/40 border-b transition-colors last:border-b-0"
                                 >
-                                    <td className="px-4 py-3">
+                                    <td className="px-6 py-3">
                                         <ContractTypeBadge
                                             type={contract.type}
                                         />
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-6 py-3">
                                         <ContractStatusBadge
                                             status={contract.status}
                                         />
                                     </td>
-                                    <td className="px-4 py-3 text-right font-medium">
+                                    <td className="px-6 py-3 text-right font-medium">
                                         {contract.total_value != null
                                             ? formatCurrency(
                                                   contract.total_value,
                                               )
                                             : "—"}
                                     </td>
-                                    <td className="px-4 py-3 text-muted-foreground">
+                                    <td className="text-muted-foreground px-6 py-3">
                                         {contract.start_date
                                             ? formatDate(contract.start_date)
                                             : "—"}
                                     </td>
-                                    <td className="px-4 py-3 text-muted-foreground">
+                                    <td className="text-muted-foreground px-6 py-3">
                                         {contract.end_date
                                             ? formatDate(contract.end_date)
                                             : "—"}
                                     </td>
-                                    <td className="px-4 py-3 text-center text-muted-foreground">
+                                    <td className="text-muted-foreground px-6 py-3 text-center">
                                         {contract.renewal_notice_days != null
                                             ? `${contract.renewal_notice_days}d`
                                             : "—"}
                                     </td>
-                                    <td className="px-4 py-3 text-right">
+                                    <td className="px-6 py-3 text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <Button
                                                 variant="ghost"
@@ -246,6 +247,7 @@ export function CompanyContractsSection({
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 </div>
             )}
 

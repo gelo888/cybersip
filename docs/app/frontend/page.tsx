@@ -63,6 +63,14 @@ export default function FrontendPage() {
             <td>Server-state management (caching, mutations, invalidation)</td>
           </tr>
           <tr>
+            <td>Recharts</td>
+            <td>2.x</td>
+            <td>
+              Dashboard charts; series colors from <code>--chart-*</code> via{" "}
+              <code>useChartColors()</code>
+            </td>
+          </tr>
+          <tr>
             <td>Lucide React</td>
             <td>Latest</td>
             <td>Icon library</td>
@@ -88,6 +96,17 @@ export default function FrontendPage() {
         </tbody>
       </table>
 
+      <h2>Charts &amp; KPI primitives</h2>
+      <p>
+        Shared building blocks live under <code>components/chart-panel.tsx</code>{" "}
+        (card shell, optional top accent, empty/loading slots) and{" "}
+        <code>components/metric-stat-card.tsx</code> (dense KPI tiles). Chart tooltips
+        use CSS variables (<code>lib/recharts-tooltip-styles.ts</code>) so they match
+        popover/border tokens in light and dark. Prefer real or client-aggregated
+        series; when the API returns nothing, show the panel empty state instead of
+        fabricating data.
+      </p>
+
       <h2>Interactive shell</h2>
 
       <p>
@@ -103,10 +122,9 @@ export default function FrontendPage() {
         and the palette. <strong>Global UX</strong> — Header sun/moon control sets
         explicit light or dark (overrides system until changed in Settings); Settings
         → Appearance offers Light, Dark, and System. Primary data views use skeleton
-        layouts while queries load; Portfolio companies/contacts support inline field
-        updates via <code>useUpdateCompany</code> / <code>useUpdateContact</code>{" "}
-        (<code>PATCH</code>, partial payloads; see <code>CompanyUpdatePayload</code> /{" "}
-        <code>ContactUpdatePayload</code> in <code>lib/types.ts</code>).
+        layouts while queries load; Portfolio company/contact rows are read-only in the
+        table — use Add / Edit dialogs, which call <code>useUpdateCompany</code> /{" "}
+        <code>useUpdateContact</code> (<code>PATCH</code>; see <code>lib/types.ts</code>).
       </p>
 
       <h2>Application Routes</h2>
@@ -129,20 +147,28 @@ export default function FrontendPage() {
           <tr>
             <td><code>/</code></td>
             <td>Command Center</td>
-            <td>Live API + sample widgets</td>
+            <td>Live API</td>
             <td>
-              KPI strip and Renewal Radar from <code>/api/command-center/summary</code> (
-              <code>useCommandCenterSummary</code>); Action Stream from{" "}
-              <code>/api/command-center/action-stream</code> (
-              <code>useCommandCenterActionStream</code>); Win/Loss Heatmap remains
-              illustrative sample data
+              Sentinel-style layout in <code>command-center-dashboard.tsx</code>: KPI bento
+              (pipeline, 90d renewal exposure, stream-derived win rate, at-risk count),
+              horizontal renewal radar, CRM signal grid + renewal value chart (
+              <code>/api/command-center/summary</code>), win-rate line chart from stream
+              outcomes, timeline action stream (
+              <code>/api/command-center/action-stream</code>). No fabricated regional
+              heatmap.
             </td>
           </tr>
           <tr>
             <td><code>/intelligence</code></td>
             <td>Intelligence Hub</td>
             <td>Live API</td>
-            <td>Competitor tracker, intel feed with CRUD, static market signals preview</td>
+            <td>
+              Sentinel-style Intelligence Hub (<code>intelligence-hub.tsx</code>): hero,
+              KPI strip, asymmetric grid (competitor + intel tables), right rail with{" "}
+              <code>IntelConfidenceChart</code> (live intel by confidence) and full
+              static <code>MOCK_MARKET_SIGNALS</code> preview in{" "}
+              <code>ChartPanel</code>. CRUD via dialogs.
+            </td>
           </tr>
           <tr>
             <td><code>/sales-recon</code></td>
@@ -155,12 +181,12 @@ export default function FrontendPage() {
             <td>The Hunt</td>
             <td>Live API</td>
             <td>
-              Kanban pipeline with engagement CRUD and drag-and-drop stage moves
-              (grip handle); account-level contract signals on cards;{" "}
-              <code>?company_id=</code> filter and optional{" "}
-              <code>engagement_id=</code> deep link from Vault. New engagements
-              need at least one company in Portfolio; with{" "}
-              <code>?company_id=</code>, that company is pre-filled for create.
+              Sentinel-style Hunt board (<code>the_hunt_dark</code>): stats strip
+              (pipeline $ from pending our_contracts, deal count, avg age),{" "}
+              <code>w-80</code> columns with rotating left accents, column $ subtotals,
+              horizontal <code>kanban-scroll-x</code>; dense cards with value row and
+              activity bars. DnD by grip; contract signals;{" "}
+              <code>?company_id=</code> / <code>engagement_id=</code> deep links.
             </td>
           </tr>
           <tr>
@@ -168,21 +194,28 @@ export default function FrontendPage() {
             <td>Portfolio</td>
             <td>Live API</td>
             <td>
-              Companies and contacts with full CRUD; debounced server-side search
-              and filters (companies: status, size, <strong>industry</strong>; contacts:
-              company, active, deal role, seniority) via <code>useCompanies</code> /{" "}
-              <code>useContacts</code> and <code>useIndustries</code> for the industry
-              catalog; company form sets primary/secondary via <code>industry_links</code>;
-              companies table shows primary industry column; inline edits on table rows
-              (companies: status, size, employees, country, website; contacts: title,
-              seniority, role, email, phone) with subtle refetch when the list refetches
+              Sentinel-style overview (<code>portfolio-overview.tsx</code>): breadcrumb
+              hero, KPI strip, account-mix bar chart (per-status <code>GET /api/companies</code>{" "}
+              totals), recent intel panel + link to <code>/intelligence</code>.{" "}
+              <code>CompaniesTable</code> / <code>ContactsTable</code>: labeled{" "}
+              <strong>Search &amp; filters</strong> toolbar (debounced <code>q</code>, status/size/industry;
+              contact company/active/role/seniority), dense read-only rows (labels + links for website/email),
+              pagination, add/edit/delete via dialogs only.
             </td>
           </tr>
           <tr>
             <td><code>/portfolio/[id]</code></td>
             <td>Company 360</td>
             <td>Live API</td>
-            <td>Skeleton shell while company loads; header shows <strong>industry</strong> badges (primary vs secondary); contacts (read-only table); engagements, contracts, and competitor intel with full CRUD (reuses Hunt / Vault / Intelligence form dialogs with scoped company)</td>
+            <td>
+              Sentinel Company 360 (<code>company_360</code>): breadcrumb,{" "}
+              <code>Company360Hero</code> + <code>MetricStatCard</code> strip,{" "}
+              <code>CompanyEngagementVelocityChart</code> (6-month bars from{" "}
+              <code>created_at</code>), main column sections + sticky{" "}
+              <code>Company360Sidebar</code> (counts + jump links including{" "}
+              <code>/hunt?company_id=</code>). Industry badges; contacts / engagements /
+              contracts / intel tables with CRUD dialogs (scoped company).
+            </td>
           </tr>
           <tr>
             <td><code>/territories</code></td>
@@ -195,11 +228,13 @@ export default function FrontendPage() {
             <td>Vault</td>
             <td>Live API</td>
             <td>
-              Skeleton summary + table while contracts load; contracts table with
-              CRUD, optional linked engagement on create/edit, Pipeline column to
-              Hunt (<code>?company_id=</code> and <code>engagement_id=</code> when
-              set), summary cards. New contracts require a company from Portfolio
-              (loading/empty/error states in the form).
+              Sentinel Vault (<code>vault</code>): breadcrumb hero, four honest{" "}
+              <code>MetricStatCard</code> KPIs (90d expiring among active, active
+              value sum, pending count, loaded batch size),{" "}
+              <strong>Search &amp; filters</strong> toolbar (company text, status,
+              type) with client-side filtering on <code>take: 500</code> list, dense
+              contract table + CRUD, Hunt pipeline links. Form uses Portfolio
+              companies (loading/empty/error).
             </td>
           </tr>
           <tr>
@@ -218,7 +253,7 @@ export default function FrontendPage() {
 │   ├── layout.tsx             # Root layout with sidebar
 │   ├── page.tsx               # Command Center entry (renders dashboard client)
 │   ├── components/
-│   │   └── command-center-dashboard.tsx  # KPIs + renewal radar + action stream (live); heatmap (sample)
+│   │   └── command-center-dashboard.tsx  # Command Center (live summary + stream, charts)
 │   ├── intelligence/
 │   │   └── page.tsx           # Intelligence Hub
 │   ├── sales-recon/
@@ -236,7 +271,7 @@ export default function FrontendPage() {
 │   │   ├── components/        # Table, form dialogs, pagination
 │   │   └── [id]/
 │   │       ├── page.tsx       # Company 360 (Live API)
-│   │       └── components/    # Section components
+│   │       └── components/    # Hero, velocity chart, sidebar, section tables
 │   ├── territories/
 │   │   ├── page.tsx           # Geographic / Team views (Live API)
 │   │   └── components/        # Map, list, territory form
@@ -462,8 +497,7 @@ export function useCreateContract() {
             <li>
               <strong>Phase 1.75</strong> (roadmap): DB-backed Command Center
               Action Stream (done: engagements + new companies); CMD+K, Hunt Kanban
-              DnD, dark mode / skeletons / inline table editing, static
-              displacement email templates — no OpenAI or N8N
+              DnD, dark mode / skeletons / inline table editing — no OpenAI or N8N
             </li>
             <li>TanStack Query + centralized API client</li>
             <li>
@@ -496,8 +530,8 @@ export function useCreateContract() {
           </h3>
           <ul className="mb-0 text-sm">
             <li>
-              Command Center — Win/Loss Heatmap still uses sample data (KPIs,
-              Renewal Radar, and Action Stream are live)
+              Command Center — territory / geo win-loss map not wired (CRM signal counts
+              and charts use live stream + summary only)
             </li>
             <li>Deeper Hunt ↔ Vault workflow (e.g. auto-create contract from stage)</li>
             <li>No authentication / authorization</li>

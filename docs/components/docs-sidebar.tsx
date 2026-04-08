@@ -99,7 +99,9 @@ export function DocsSidebar() {
           {navigation.map((item) => {
             const isActive =
               pathname === item.href ||
-              (item.href !== "/" && pathname.startsWith(item.href));
+              (item.href !== "/" &&
+                item.href !== "/design" &&
+                pathname.startsWith(item.href));
             return (
               <li key={item.href}>
                 <Link

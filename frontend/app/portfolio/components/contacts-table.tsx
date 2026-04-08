@@ -22,19 +22,13 @@ import {
 } from "@/components/ui/select"
 import { CompanyCombobox } from "@/components/company-combobox"
 import { useCompanies } from "@/hooks/use-companies"
-import { useContacts, useDeleteContact, useUpdateContact } from "@/hooks/use-contacts"
+import { useContacts, useDeleteContact } from "@/hooks/use-contacts"
 import { useDebouncedValue } from "@/hooks/use-debounced-value"
 import { ContactFormDialog } from "./contact-form-dialog"
 import { DeleteConfirmDialog } from "./delete-confirm-dialog"
 import { TablePagination, DEFAULT_PAGE_SIZE } from "./table-pagination"
 import { DataTableSkeleton } from "@/components/data-table-skeleton"
-import type {
-  Contact,
-  ContactSeniority,
-  ContactUpdatePayload,
-  RoleInDeal,
-} from "@/lib/types"
-import { EditableTextCell } from "@/components/inline-edit-cells"
+import type { Contact, ContactSeniority, RoleInDeal } from "@/lib/types"
 
 const ROLE_OPTIONS: { value: RoleInDeal; label: string }[] = [
   { value: "champion", label: "Champion" },
@@ -49,6 +43,16 @@ const SENIORITY_OPTIONS: { value: ContactSeniority; label: string }[] = [
   { value: "Director", label: "Director" },
   { value: "Manager", label: "Manager" },
 ]
+
+function seniorityLabel(v: ContactSeniority | null | undefined): string {
+  if (!v) return "—"
+  return SENIORITY_OPTIONS.find((o) => o.value === v)?.label ?? v
+}
+
+function roleLabel(v: RoleInDeal | null | undefined): string {
+  if (!v) return "—"
+  return ROLE_OPTIONS.find((o) => o.value === v)?.label ?? v
+}
 
 export function ContactsTable() {
   const [page, setPage] = useState(0)
@@ -82,15 +86,6 @@ export function ContactsTable() {
     seniority: seniorityParam,
   })
   const deleteMutation = useDeleteContact()
-  const updateMutation = useUpdateContact()
-
-  function patchContact(id: string, data: ContactUpdatePayload) {
-    updateMutation.mutate({ id, data })
-  }
-
-  function rowPending(id: string) {
-    return updateMutation.isPending && updateMutation.variables?.id === id
-  }
 
   const items = contacts.data?.items ?? []
   const total = contacts.data?.total ?? 0
@@ -137,50 +132,55 @@ export function ContactsTable() {
   }
 
   return (
-    <section className="space-y-3">
-      <div className="flex items-center gap-2">
-        <User2 className="size-5 text-primary" />
-        <h3 className="text-base font-semibold">Key Contacts</h3>
-        {contacts.data && (
-          <span className="text-xs text-muted-foreground">({total})</span>
-        )}
+    <section className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <User2 className="text-primary size-5" />
+        <h3 className="text-base font-semibold tracking-tight">Key contacts</h3>
+        {contacts.data ? (
+          <span className="text-muted-foreground text-xs">({total})</span>
+        ) : null}
         {contacts.isFetching && !contacts.isLoading ? (
           <Loader2
-            className="size-3.5 animate-spin text-muted-foreground"
+            className="text-muted-foreground size-3.5 animate-spin"
             aria-hidden
           />
         ) : null}
         <div className="ml-auto">
           <Button size="sm" onClick={openCreate}>
-            <Plus className="size-4 mr-1" />
+            <Plus className="mr-1 size-4" />
             Add Contact
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-          <Input
-            className="h-9 pl-9 pr-8"
-            placeholder="Search name, email, or title…"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            aria-label="Search contacts"
-          />
-          {searchInput ? (
-            <button
-              type="button"
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-sm p-1 text-muted-foreground hover:text-foreground"
-              onClick={() => setSearchInput("")}
-              aria-label="Clear search"
-            >
-              <X className="size-3.5" />
-            </button>
-          ) : null}
-        </div>
+      <div className="bg-card overflow-hidden rounded-xl border border-border/60 shadow-sm ring-1 ring-border/40">
+        <div className="border-border/50 bg-muted/30 border-b px-4 py-4">
+          <p className="text-muted-foreground mb-3 text-[10px] font-bold tracking-widest uppercase">
+            Search &amp; filters
+          </p>
+          <div className="flex flex-col gap-3">
+            <div className="relative w-full max-w-md">
+              <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+              <Input
+                className="h-9 pr-8 pl-9"
+                placeholder="Search name, email, or title…"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                aria-label="Search contacts"
+              />
+              {searchInput ? (
+                <button
+                  type="button"
+                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-1.5 -translate-y-1/2 rounded-sm p-1"
+                  onClick={() => setSearchInput("")}
+                  aria-label="Clear search"
+                >
+                  <X className="size-3.5" />
+                </button>
+              ) : null}
+            </div>
 
-        <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end">
+            <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end">
           <div className="w-full min-w-0 lg:min-w-[14rem] lg:max-w-xs lg:flex-1">
             <p className="text-xs text-muted-foreground mb-1.5">Company</p>
             <CompanyCombobox
@@ -249,145 +249,107 @@ export function ContactsTable() {
               </SelectContent>
             </Select>
           </div>
-          {hasActiveFilters ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-9 text-muted-foreground lg:ml-0"
-              onClick={clearFilters}
-            >
-              Clear filters
-            </Button>
-          ) : null}
+              {hasActiveFilters ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground h-9 lg:ml-0"
+                  onClick={clearFilters}
+                >
+                  Clear filters
+                </Button>
+              ) : null}
+            </div>
+          </div>
         </div>
-      </div>
 
-      {contacts.isLoading && <DataTableSkeleton rows={8} columns={9} />}
-      {contacts.isError && (
-        <div className="flex items-center justify-center py-12 text-sophos-red gap-2">
-          <AlertCircle className="size-4" />
-          <span className="text-sm">{contacts.error.message}</span>
-        </div>
-      )}
+        {contacts.isLoading ? (
+          <div className="p-4">
+            <DataTableSkeleton rows={8} columns={9} />
+          </div>
+        ) : null}
+        {contacts.isError ? (
+          <div className="text-sophos-red flex items-center justify-center gap-2 py-12">
+            <AlertCircle className="size-4" />
+            <span className="text-sm">{contacts.error.message}</span>
+          </div>
+        ) : null}
 
-      {updateMutation.isError ? (
-        <p className="text-sm text-sophos-red" role="alert">
-          {updateMutation.error.message}
-        </p>
-      ) : null}
-
-      {contacts.data && (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/40">
-                <th className="px-4 py-3 text-left font-medium">Name</th>
-                <th className="px-4 py-3 text-left font-medium">Company</th>
-                <th className="px-4 py-3 text-left font-medium">Title</th>
-                <th className="px-4 py-3 text-left font-medium">Seniority</th>
-                <th className="px-4 py-3 text-left font-medium">Role</th>
-                <th className="px-4 py-3 text-left font-medium">Email</th>
-                <th className="px-4 py-3 text-left font-medium">Phone</th>
-                <th className="px-4 py-3 text-center font-medium">Active</th>
-                <th className="px-4 py-3 text-right font-medium">Actions</th>
-              </tr>
-            </thead>
+        {contacts.data ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-muted/50 border-border/60 border-b">
+                  <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
+                    Name
+                  </th>
+                  <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
+                    Company
+                  </th>
+                  <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
+                    Title
+                  </th>
+                  <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
+                    Seniority
+                  </th>
+                  <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
+                    Role
+                  </th>
+                  <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
+                    Email
+                  </th>
+                  <th className="text-muted-foreground px-6 py-4 text-left text-[10px] font-bold tracking-wider uppercase">
+                    Phone
+                  </th>
+                  <th className="text-muted-foreground px-6 py-4 text-center text-[10px] font-bold tracking-wider uppercase">
+                    Active
+                  </th>
+                  <th className="text-muted-foreground px-6 py-4 text-right text-[10px] font-bold tracking-wider uppercase">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
             <tbody>
               {items.map((contact) => (
-                <tr key={contact.id} className="border-b last:border-b-0 hover:bg-muted/20 transition-colors">
-                  <td className="px-4 py-3 font-medium">{contact.first_name} {contact.last_name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{contact.company_name}</td>
-                  <td className="px-4 py-3">
-                    <EditableTextCell
-                      value={contact.title}
-                      disabled={rowPending(contact.id)}
-                      onSave={(next) => {
-                        if (next === (contact.title ?? null)) return
-                        patchContact(contact.id, { title: next })
-                      }}
-                    />
+                <tr
+                  key={contact.id}
+                  className="hover:bg-muted/30 border-border/40 border-b transition-colors last:border-b-0"
+                >
+                  <td className="px-6 py-3 font-medium">
+                    {contact.first_name} {contact.last_name}
                   </td>
-                  <td className="px-4 py-3">
-                    <Select
-                      value={contact.seniority ?? "__none__"}
-                      disabled={rowPending(contact.id)}
-                      onValueChange={(v) => {
-                        const next = v === "__none__" ? null : (v as ContactSeniority)
-                        if (next === contact.seniority) return
-                        patchContact(contact.id, { seniority: next })
-                      }}
-                    >
-                      <SelectTrigger
-                        size="sm"
-                        className="h-8 w-[8.5rem] border-transparent bg-transparent shadow-none hover:bg-muted/50"
+                  <td className="text-muted-foreground px-6 py-3">{contact.company_name}</td>
+                  <td className="text-muted-foreground px-6 py-3">
+                    {contact.title?.trim() ? contact.title : "—"}
+                  </td>
+                  <td className="text-muted-foreground px-6 py-3">
+                    {seniorityLabel(contact.seniority)}
+                  </td>
+                  <td className="text-muted-foreground px-6 py-3">
+                    {roleLabel(contact.role_in_deal)}
+                  </td>
+                  <td className="px-6 py-3">
+                    {contact.email?.trim() ? (
+                      <a
+                        href={`mailto:${contact.email.trim()}`}
+                        className="text-primary hover:underline"
                       >
-                        <SelectValue placeholder="—" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">—</SelectItem>
-                        {SENIORITY_OPTIONS.map((o) => (
-                          <SelectItem key={o.value} value={o.value}>
-                            {o.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        {contact.email.trim()}
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
                   </td>
-                  <td className="px-4 py-3">
-                    <Select
-                      value={contact.role_in_deal ?? "__none__"}
-                      disabled={rowPending(contact.id)}
-                      onValueChange={(v) => {
-                        const next = v === "__none__" ? null : (v as RoleInDeal)
-                        if (next === contact.role_in_deal) return
-                        patchContact(contact.id, { role_in_deal: next })
-                      }}
-                    >
-                      <SelectTrigger
-                        size="sm"
-                        className="h-8 w-[10rem] border-transparent bg-transparent shadow-none hover:bg-muted/50"
-                      >
-                        <SelectValue placeholder="—" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">—</SelectItem>
-                        {ROLE_OPTIONS.map((o) => (
-                          <SelectItem key={o.value} value={o.value}>
-                            {o.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <td className="text-muted-foreground px-6 py-3 tabular-nums">
+                    {contact.phone?.trim() ? contact.phone.trim() : "—"}
                   </td>
-                  <td className="px-4 py-3">
-                    <EditableTextCell
-                      value={contact.email}
-                      inputType="email"
-                      disabled={rowPending(contact.id)}
-                      onSave={(next) => {
-                        if (next === (contact.email ?? null)) return
-                        patchContact(contact.id, { email: next })
-                      }}
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <EditableTextCell
-                      value={contact.phone}
-                      inputType="tel"
-                      disabled={rowPending(contact.id)}
-                      onSave={(next) => {
-                        if (next === (contact.phone ?? null)) return
-                        patchContact(contact.id, { phone: next })
-                      }}
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-6 py-3 text-center">
                     <span className={contact.is_active ? "text-sophos-green" : "text-muted-foreground"}>
                       {contact.is_active ? "Yes" : "No"}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-6 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button variant="ghost" size="icon-xs" onClick={() => openEdit(contact)}>
                         <Pencil className="size-3.5" />
@@ -401,15 +363,19 @@ export function ContactsTable() {
               ))}
             </tbody>
           </table>
-          <TablePagination
-            page={page}
-            pageSize={pageSize}
-            total={total}
-            onPageChange={setPage}
-            onPageSizeChange={(size) => { setPageSize(size); setPage(0) }}
-          />
-        </div>
-      )}
+            <TablePagination
+              page={page}
+              pageSize={pageSize}
+              total={total}
+              onPageChange={setPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setPage(0);
+              }}
+            />
+          </div>
+        ) : null}
+      </div>
 
       <ContactFormDialog open={formOpen} onOpenChange={setFormOpen} contact={editTarget} />
 

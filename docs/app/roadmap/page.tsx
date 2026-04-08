@@ -57,9 +57,8 @@ export default function RoadmapPage() {
               Phase 1.75 Global UX — <code>next-themes</code> (light / dark / system) with
               header toggle and Settings Appearance; skeleton loading on Portfolio tables,
               Vault, Company 360, Territories, and Hunt Kanban; Portfolio companies &amp;
-              contacts tables support inline edits via <code>PATCH</code> (companies:
-              status, size, employees, country, website; contacts: title, seniority,
-              role, email, phone)
+              contacts tables are read-only lists (filters + pagination); edits via dialogs
+              and <code>PATCH</code>
             </li>
             <li>
               Company <strong>industry</strong> (manual) — <code>GET /api/industries</code>,
@@ -193,7 +192,7 @@ export default function RoadmapPage() {
       </div>
 
       <h2>
-        Phase 1.75 — UX polish, company industry, Command Stream &amp; templates
+        Phase 1.75 — UX polish, company industry, Command Stream
         (no OpenAI / N8N)
       </h2>
 
@@ -225,8 +224,8 @@ export default function RoadmapPage() {
           </li>
           <li className="line-through opacity-60">
             <strong>Global UX</strong> — dark mode toggle; skeleton loading on
-            primary views and tables; inline editing on Portfolio companies &amp;
-            contacts tables (<code>PATCH</code> partial updates aligned with API).
+            primary views and tables; Portfolio companies &amp; contacts read-only
+            tables with dialog-based edits (<code>PATCH</code>).
           </li>
           <li className="line-through opacity-60">
             <strong>Company industry (manual)</strong> — <code>GET /api/industries</code>{" "}
@@ -234,12 +233,6 @@ export default function RoadmapPage() {
             <code>industry_links</code>; Portfolio list filter and column; Company 360
             badges. Uses Prisma <code>Industry</code> / <code>CompanyIndustry</code>; no
             AI.
-          </li>
-          <li>
-            <strong>Static displacement emails</strong> — Intelligence Hub:
-            template-based displacement copy from structured fields (competitor
-            weakness, account context); copy/export. Not LLM-generated in this
-            phase.
           </li>
         </ol>
       </div>
@@ -286,11 +279,13 @@ export default function RoadmapPage() {
           Week 5
         </p>
         <ol start={22} className="mb-0 text-sm">
-          <li>Battle Card generation with AI</li>
           <li>
-            LLM-personalized displacement email copy (beyond static templates in
-            Phase 1.75)
+            <strong>Displacement emails (Intelligence Hub)</strong> — Template-based
+            outreach copy from structured fields (competitor weaknesses, account
+            context, optional intel) with copy/export; static first, optional
+            LLM personalization later via <code>/api/ai/displacement-email</code>.
           </li>
+          <li>Battle Card generation with AI</li>
           <li>
             Advanced Hunt ↔ Vault integration — &quot;Create Proposal&quot;
             action from engagement cards, auto-stage transitions on contract
@@ -341,8 +336,8 @@ export default function RoadmapPage() {
           <tr>
             <td>Displacement Email Templates</td>
             <td>
-              Static templates in Phase 1.75; LLM-personalized outreach (competitor
-              weakness + prospect context) in Phase 4
+              Template-based copy from competitor and account data (copy/export);
+              optional LLM personalization (Phase 4+)
             </td>
             <td>Intelligence Hub</td>
           </tr>
@@ -882,7 +877,11 @@ export default function RoadmapPage() {
       </div>
 
       <DocsPager
-        prev={{ title: "UX / UI Design", href: "/design", description: "Design system & patterns" }}
+        prev={{
+          title: "UX / UI Design",
+          href: "/design",
+          description: "Design system & application shell",
+        }}
       />
     </div>
   );
